@@ -13,4 +13,5 @@ export {
     UpArrowIcon,
     DownArrowIcon,
     HamBurgerIcon,
+    Loader,
 } from './icons/Icons.jsx'

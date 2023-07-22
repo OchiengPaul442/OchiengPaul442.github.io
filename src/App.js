@@ -1,5 +1,6 @@
 import './App.css'
 import React, { Suspense } from 'react'
+import { Loader } from './components'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 
 const Home = React.lazy(() => import('./views/Home'))
@@ -10,7 +11,13 @@ const App = () => {
     return (
         <>
             <Router>
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense
+                    fallback={
+                        <div className="flex justify-center items-center h-screen">
+                            <Loader width="200" height="200" />
+                        </div>
+                    }
+                >
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/forum" element={<Forum />} />
