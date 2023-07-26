@@ -20,7 +20,10 @@ const TopBar = ({ onClick }) => {
                                 height="35"
                             />
                         </button>
-                        <Link to="/" className="flex ml-2 md:mr-24">
+                        <Link
+                            to="/community_box"
+                            className="flex ml-2 md:mr-24"
+                        >
                             <CommunityIcon fill="none" width="40" height="40" />
                             {window.innerWidth > 768 && (
                                 <span className="self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white">
@@ -31,9 +34,9 @@ const TopBar = ({ onClick }) => {
                     </div>
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            <div className="mx-3">
+                            <Link to="/mailBox" className="mx-3">
                                 <MailIcon fill="none" width="32" height="32" />
-                            </div>
+                            </Link>
                             <div>
                                 <button
                                     onClick={() => setShow(!show)}
@@ -75,7 +78,7 @@ const TopBar = ({ onClick }) => {
                                 <ul className="py-1" role="none">
                                     <li>
                                         <Link
-                                            to="/dashboard"
+                                            to="/community_box"
                                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                         >
                                             Home

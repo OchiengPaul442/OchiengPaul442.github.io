@@ -17,8 +17,12 @@ const Page = ({ children, title }) => {
         <>
             <TopBar onClick={() => setShowSideBar(!showSideBar)} />
             <SideBar show={showSideBar} />
-            <div className="p-4 sm:ml-64">
-                <div className="p-4 mt-14">
+            <div
+                className={`${
+                    window.innerWidth < 764 ? 'p-2' : 'p-4'
+                } sm:ml-64`}
+            >
+                <div className="mt-14">
                     <div className="flex items-center justify-between mb-4">
                         {title && (
                             <h1 className="text-4xl font-bold text-gray-800 dark:text-white">

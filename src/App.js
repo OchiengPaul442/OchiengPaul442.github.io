@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 const Auth = React.lazy(() => import('./views/auth/Auth'))
 const Home = React.lazy(() => import('./views/Home'))
 const Forum = React.lazy(() => import('./views/Forum'))
+const Mailbox = React.lazy(() => import('./views/Mailbox'))
 const Eror404 = React.lazy(() => import('./views/404'))
 
 const App = () => {
@@ -20,9 +21,10 @@ const App = () => {
                     }
                 >
                     <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/community_box" element={<Auth />} />
+                        <Route path="/community_box" element={<Home />} />
+                        <Route path="/auth" element={<Auth />} />
                         <Route path="/forum" element={<Forum />} />
+                        <Route path="/mailbox" element={<Mailbox />} />
                         <Route path="*" element={<Eror404 />} />
                     </Routes>
                 </Suspense>

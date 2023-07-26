@@ -1,25 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
+import MessageSection from './MessageSection'
 import { UpArrowIcon, DownArrowIcon } from '../icons/Icons'
 
 const MessagePopup = () => {
     const [isExpanded, setIsExpanded] = useState(false)
-    const [isMobile, setIsMobile] = useState(false)
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 868) {
-                setIsMobile(true)
-            } else {
-                setIsMobile(false)
-            }
-        }
-
-        window.addEventListener('resize', handleResize)
-
-        return () => {
-            window.removeEventListener('resize', handleResize)
-        }
-    }, [])
+    const [selectedMessage, setSelectedMessage] = useState(null)
 
     const messages = [
         {
@@ -43,7 +28,7 @@ const MessagePopup = () => {
     ]
 
     return (
-        !isMobile && (
+        <div className="hidden md:flex">
             <div className="fixed bottom-2 right-2">
                 <div
                     className={`mt-4 bg-white rounded-lg shadow-md p-4 w-80 transition-all duration-300 ease-in-out ${
@@ -79,6 +64,7 @@ const MessagePopup = () => {
                             {messages.map((message) => (
                                 <button
                                     key={message.id}
+                                    onClick={() => setSelectedMessage(message)}
                                     className="flex items-center mb-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg"
                                 >
                                     <img
@@ -100,7 +86,20 @@ const MessagePopup = () => {
                     )}
                 </div>
             </div>
-        )
+            {selectedMessage && (
+                <div
+                    className="fixed bottom-2 w-72"
+                    style={{
+                        right: isExpanded ? 'calc(2rem + 20rem)' : '21rem',
+                    }}
+                >
+                    <MessageSection
+                        message={selectedMessage}
+                        close={() => setSelectedMessage(null)}
+                    />
+                </div>
+            )}
+        </div>
     )
 }
 

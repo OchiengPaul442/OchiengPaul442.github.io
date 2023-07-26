@@ -1,11 +1,7 @@
 import React from 'react'
 import Page from '../layout/Page'
-import {
-    ShareIcon,
-    LikeIcon,
-    CommentIcon,
-    AddIcon,
-} from '../components/icons/Icons'
+import { Post, MessagePopup } from '../components'
+import { ShareIcon, LikeIcon, CommentIcon } from '../components/icons/Icons'
 
 const Forum = () => {
     const Posts = [
@@ -77,26 +73,7 @@ const Forum = () => {
         <Page>
             <div className="max-w-3xl mx-auto">
                 {/* post */}
-                <div className="flex flex-col mb-4 p-4 bg-white rounded-lg shadow-md">
-                    <div className="items-center flex">
-                        <img
-                            className="w-12 h-12 rounded-full mr-4"
-                            src="https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
-                            alt=""
-                        />
-                        <input
-                            type="text"
-                            placeholder="Start a post"
-                            className="w-full rounded-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        />
-                    </div>
-                    <div className="flex flex-row justify-end items-center mt-2 ml-4">
-                        <button className="flex items-center mr-2">
-                            <AddIcon fill="blue" width="24" height="24" />
-                            <span className="ml-1 text-gray-600">Photo</span>
-                        </button>
-                    </div>
-                </div>
+                <Post />
                 <div className="col-span-2 md:col-span-2 gap-4">
                     {Posts.map((post) => (
                         <div
@@ -203,6 +180,7 @@ const Forum = () => {
                     ))}
                 </div>
             </div>
+            <MessagePopup />
         </Page>
     )
 }
