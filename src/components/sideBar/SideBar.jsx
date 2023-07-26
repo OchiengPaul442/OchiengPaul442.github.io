@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
 import {
     HomeIcon,
     ForumIcon,
@@ -9,6 +9,12 @@ import {
 } from '../icons/Icons'
 
 const SideBar = ({ show }) => {
+    const [showRegister, setShowRegister] = useState(false)
+
+    const showRegisterBox = () => {
+        setShowRegister(true)
+    }
+
     return (
         <aside
             id="logo-sidebar"
@@ -30,15 +36,18 @@ const SideBar = ({ show }) => {
                             </Link>
                         </li>
                         <li>
-                            <Link
+                            <NavLink
                                 to="/forum"
                                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                                activeClassName={
+                                    'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400'
+                                }
                             >
                                 <ForumIcon fill="none" width="24" height="24" />
                                 <span className="flex-1 ml-3 whitespace-nowrap">
                                     Forum
                                 </span>
-                            </Link>
+                            </NavLink>
                         </li>
                         <li>
                             <Link
@@ -53,7 +62,7 @@ const SideBar = ({ show }) => {
                                 <span className="flex-1 ml-3 whitespace-nowrap">
                                     MailBox
                                 </span>
-                                <span className="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium text-orange-800 bg-orange-100 rounded-full dark:bg-orange-900 dark:text-orange-300">
+                                <span className="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">
                                     3
                                 </span>
                             </Link>
@@ -61,7 +70,7 @@ const SideBar = ({ show }) => {
 
                         <li>
                             <Link
-                                to="/login"
+                                to="/community_box"
                                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                             >
                                 <LoginIcon fill="none" width="24" height="24" />
@@ -73,19 +82,19 @@ const SideBar = ({ show }) => {
                     </ul>
                 </div>
                 <div
-                    id="dropdown-cta"
-                    className="p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900"
+                    className={`p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900 ${
+                        !showRegister ? 'block' : 'hidden'
+                    }`}
                     role="alert"
                 >
                     <div className="flex items-center mb-3">
-                        <span className="bg-orange-100 text-orange-800 text-sm font-semibold mr-2 px-2.5 py-1 rounded dark:bg-orange-200 dark:text-orange-900">
+                        <span className="bg-orange-100  text-sm font-semibold mr-2 px-2.5 py-1 rounded dark:bg-orange-200">
                             <SignInIcon fill="none" width="24" height="24" />
                         </span>
                         <button
+                            onClick={showRegisterBox}
                             type="button"
                             className="ml-auto -mx-1.5 -my-1.5 bg-blue-50 inline-flex justify-center items-center text-blue-900 rounded-lg focus:ring-2 focus:ring-blue-400 p-1 hover:bg-blue-200 h-6 w-6 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800"
-                            data-dismiss-target="#dropdown-cta"
-                            aria-label="Close"
                         >
                             <span className="sr-only">Close</span>
                             <svg
@@ -109,12 +118,13 @@ const SideBar = ({ show }) => {
                         In case you are not yet registered for the community
                         box, you can do so by clicking the button below.
                     </p>
-                    <a
+                    <Link
+                        to="/community_box"
                         className="text-sm text-blue-800 underline font-medium hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                         href="#"
                     >
                         Register Me
-                    </a>
+                    </Link>
                 </div>
             </div>
         </aside>

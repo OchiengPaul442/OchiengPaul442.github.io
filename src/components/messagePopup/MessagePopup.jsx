@@ -3,6 +3,24 @@ import { UpArrowIcon, DownArrowIcon } from '../icons/Icons'
 
 const MessagePopup = () => {
     const [isExpanded, setIsExpanded] = useState(false)
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 868) {
+                setIsMobile(true)
+            } else {
+                setIsMobile(false)
+            }
+        }
+
+        window.addEventListener('resize', handleResize)
+
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [])
+
     const messages = [
         {
             id: 1,
@@ -25,7 +43,7 @@ const MessagePopup = () => {
     ]
 
     return (
-        window.innerWidth > 868 && (
+        !isMobile && (
             <div className="fixed bottom-2 right-2">
                 <div
                     className={`mt-4 bg-white rounded-lg shadow-md p-4 w-80 transition-all duration-300 ease-in-out ${
@@ -45,13 +63,13 @@ const MessagePopup = () => {
                                 <DownArrowIcon
                                     width={24}
                                     height={24}
-                                    fill="orange"
+                                    fill="blue"
                                 />
                             ) : (
                                 <UpArrowIcon
                                     width={24}
                                     height={24}
-                                    fill="orange"
+                                    fill="blue"
                                 />
                             )}
                         </button>

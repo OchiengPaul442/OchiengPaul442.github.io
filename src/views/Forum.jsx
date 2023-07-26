@@ -92,7 +92,7 @@ const Forum = () => {
                     </div>
                     <div className="flex flex-row justify-end items-center mt-2 ml-4">
                         <button className="flex items-center mr-2">
-                            <AddIcon fill="orange" width="24" height="24" />
+                            <AddIcon fill="blue" width="24" height="24" />
                             <span className="ml-1 text-gray-600">Photo</span>
                         </button>
                     </div>

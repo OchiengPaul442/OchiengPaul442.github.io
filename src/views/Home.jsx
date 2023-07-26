@@ -114,7 +114,7 @@ const Home = () => {
                         </div>
                         <div className="flex flex-row justify-end items-center mt-2 ml-4">
                             <button className="flex items-center mr-2">
-                                <AddIcon fill="orange" width="24" height="24" />
+                                <AddIcon fill="blue" width="24" height="24" />
                                 <span className="ml-1 text-gray-600">
                                     Photo
                                 </span>
@@ -126,7 +126,7 @@ const Home = () => {
                         <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
                             <button
                                 type="button"
-                                className="text-orange-700 hover:text-white border border-orange-600 bg-white hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 text-center mr-3 mb-3 dark:border-orange-500 dark:text-orange-500 dark:hover:text-white dark:hover:bg-orange-500 dark:bg-gray-900 dark:focus:ring-orange-800"
+                                className="text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 text-center mr-3 mb-3 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
                             >
                                 All categories
                             </button>
@@ -265,7 +265,7 @@ const Home = () => {
                             <div className="flex flex-col justify-center">
                                 <button
                                     type="button"
-                                    className="text-orange-700 hover:text-white border border-orange-600 bg-white hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 rounded-full text-base font-medium px-5 py-2.5 text-center mr-3 mb-3 dark:border-orange-500 dark:text-orange-500 dark:hover:text-white dark:hover:bg-orange-500 dark:bg-gray-900 dark:focus:ring-orange-800"
+                                    className="text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 text-center mr-3 mb-3 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
                                 >
                                     All categories
                                 </button>
