@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Drawer, List } from '@mui/material'
 import { Link, NavLink } from 'react-router-dom'
 import {
     HomeIcon,
@@ -16,16 +17,18 @@ const SideBar = ({ show }) => {
     }
 
     return (
-        <aside
-            id="logo-sidebar"
-            className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${
+        <Drawer
+            anchor="left"
+            open={show}
+            variant="persistent"
+            className={`fixed top-0 z-40 w-64 h-screen pt-20 transition-transform ${
                 !show ? '-translate-x-full' : 'sm:translate-x-0'
             } bg-white border-r border-gray-200  dark:bg-gray-800 dark:border-gray-700`}
             aria-label="Sidebar"
         >
             <div className="h-full px-3 py-4 overflow-y-auto justify-between flex flex-col">
-                <div className=" px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-                    <ul className="space-y-2 font-medium">
+                <div className=" px-3 pb-4 mt-14 overflow-y-auto bg-white dark:bg-gray-800">
+                    <List component="nav" className="space-y-2 font-medium">
                         <li>
                             <NavLink
                                 to="/community_box"
@@ -88,7 +91,7 @@ const SideBar = ({ show }) => {
                                 </span>
                             </Link>
                         </li>
-                    </ul>
+                    </List>
                 </div>
                 <div
                     className={`p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900 ${
@@ -136,7 +139,7 @@ const SideBar = ({ show }) => {
                     </Link>
                 </div>
             </div>
-        </aside>
+        </Drawer>
     )
 }
 

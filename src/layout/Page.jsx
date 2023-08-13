@@ -1,17 +1,15 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 const TopBar = React.lazy(() => import('../components/topBar/TopBar'))
 const SideBar = React.lazy(() => import('../components/sideBar/SideBar'))
 
 const Page = ({ children, title }) => {
     const [showSideBar, setShowSideBar] = React.useState(true)
-    // if screen size is less than 768px, hide the sidebar
-    useEffect(() => {
-        if (window.innerWidth < 768) {
-            setShowSideBar(false)
-        } else {
-            setShowSideBar(true)
+
+    React.useEffect(() => {
+        if (window.innerWidth < 640) {
+            setShowSideBar(!showSideBar)
         }
-    }, [])
+    }, [window.innerWidth])
 
     return (
         <>

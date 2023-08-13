@@ -1,7 +1,6 @@
 import React from 'react'
 import Page from '../layout/Page'
-import { Post, MessagePopup } from '../components'
-import { ShareIcon, LikeIcon, CommentIcon } from '../components/icons/Icons'
+import { MessagePopup, PostCard } from '../components'
 
 const Forum = () => {
     const Posts = [
@@ -72,111 +71,9 @@ const Forum = () => {
     return (
         <Page>
             <div className="max-w-3xl mx-auto">
-                {/* post */}
-                <Post />
                 <div className="col-span-2 md:col-span-2 gap-4">
                     {Posts.map((post) => (
-                        <div
-                            key={post.id}
-                            className="w-full h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
-                        >
-                            <div className="px-6 py-4">
-                                <div className="font-bold text-xl mb-2 flex items-center">
-                                    <img
-                                        className="w-10 h-10 rounded-full mr-4"
-                                        src={post.photo}
-                                        alt=""
-                                    />
-                                    <div>
-                                        <h3>{post.Name}</h3>
-                                        <p className="text-gray-400 text-base">
-                                            {post.Date}
-                                        </p>
-                                    </div>
-                                </div>
-                                <p className="text-gray-700 text-base">
-                                    {post.content}
-                                </p>
-                                <div
-                                    className={`w-full h-auto rounded-lg mt-4 mb-2 ${
-                                        post.images.length > 1
-                                            ? 'grid grid-cols-3 gap-4'
-                                            : ''
-                                    }`}
-                                >
-                                    {post.images.length > 1 ? (
-                                        <>
-                                            <img
-                                                className="w-full h-full object-cover rounded-lg col-span-2"
-                                                src={post.images[0]}
-                                                alt=""
-                                            />
-                                            <div className="flex flex-col col-span-1 gap-4">
-                                                {post.images
-                                                    .slice(1)
-                                                    .map((image, index) => (
-                                                        <img
-                                                            key={index}
-                                                            className="w-full h-full object-cover rounded-lg"
-                                                            src={image}
-                                                            alt=""
-                                                        />
-                                                    ))}
-                                            </div>
-                                        </>
-                                    ) : (
-                                        post.images.map((image, index) => (
-                                            <img
-                                                key={index}
-                                                className="w-full h-full object-cover rounded-sm"
-                                                src={image}
-                                                alt=""
-                                            />
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                            <div className="px-6 pt-4 pb-2 flex space-x-2">
-                                <button className="inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
-                                    <LikeIcon
-                                        fill="none"
-                                        width="24"
-                                        height="24"
-                                    />
-                                    <span className="ml-2">like</span>
-                                </button>
-                                <button className="inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
-                                    <CommentIcon
-                                        fill="none"
-                                        width="24"
-                                        height="24"
-                                        className="mr-1"
-                                    />
-                                    <span className="ml-2">comment</span>
-                                </button>
-                                <button className="inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
-                                    <ShareIcon
-                                        fill="none"
-                                        width="24"
-                                        height="24"
-                                    />
-                                    <span className="ml-2">share</span>
-                                </button>
-                            </div>
-
-                            <div className="px-6 pt-4 pb-2 flex items-center border-t-2">
-                                <img
-                                    className="w-10 h-10 rounded-full mr-4"
-                                    src={post.photo}
-                                    alt=""
-                                />
-                                <input
-                                    type="comment"
-                                    placeholder="write a comment"
-                                    className="appearance-none  w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                />
-                            </div>
-                        </div>
+                        <PostCard key={post.id} post={post} comment={true} />
                     ))}
                 </div>
             </div>
