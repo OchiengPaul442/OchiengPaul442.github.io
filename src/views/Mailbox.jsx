@@ -44,60 +44,7 @@ const Mailbox = () => {
             date: '2020-01-01',
         },
     ]
-    return (
-        <Page title="Mailbox">
-            <div className="flex h-full">
-                <div className="w-1/4 h-full border-r border-gray-300">
-                    {/* search field */}
-                    <div className="p-4">
-                        <input
-                            type="text"
-                            className="w-full rounded-lg border border-gray-300 p-2"
-                            placeholder="Search"
-                        />
-                    </div>
-                    {/* list of chats */}
-                    <div className="p-2 h-full">
-                        {messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className="flex items-center my-4 hover:bg-gray-100 cursor-pointer p-2 rounded-lg"
-                            >
-                                <img
-                                    className="w-12 h-12 rounded-full"
-                                    src={
-                                        message.photo ||
-                                        'https://via.placeholder.com/150'
-                                    }
-                                    alt=""
-                                />
-                                <div className="flex flex-col ml-2 text-left">
-                                    <span className="font-semibold">
-                                        {message.sender}
-                                    </span>
-                                    <span>
-                                        {message.message.substring(0, 20)}...
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className="w-3/4">
-                    <div className="p-4 h-full overflow-y-scroll">
-                        {/* messages */}
-                    </div>
-                    <div className="p-4 border-t border-gray-300">
-                        <input
-                            type="text"
-                            className="w-full rounded-lg border border-gray-300 p-2"
-                            placeholder="Write a message..."
-                        />
-                    </div>
-                </div>
-            </div>
-        </Page>
-    )
+    return <Page title="Mailbox"></Page>
 }
 
 export default Mailbox
