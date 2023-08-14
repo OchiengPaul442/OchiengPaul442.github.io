@@ -26,16 +26,15 @@ import { useDispatch, useSelector } from 'react-redux'
 import ImageUploader from 'react-images-upload'
 
 const style = {
+    width: '800px', // Adjust the width as needed
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 800,
-    bgcolor: 'background.paper',
-    borderRadius: '10px',
-    border: 'none',
+    backgroundColor: 'white',
+    borderRadius: '4px',
     boxShadow: 24,
-    p: 2,
+    p: 4,
     '@media (max-width: 768px)': {
         width: '90%',
         // margin: 'auto',
@@ -249,65 +248,67 @@ const TopBar = ({ onClick, value }) => {
                         Add Item to{' '}
                         <span className="text-blue-700">Community Box</span>
                     </Typography>
-                    <TextField
-                        fullWidth
-                        label="Post Title"
-                        value={title}
-                        onChange={handleTitleChange}
-                        sx={{ mt: 2 }}
-                    />
-                    <TextField
-                        fullWidth
-                        label="Description"
-                        multiline
-                        rows={4}
-                        value={description}
-                        onChange={handleDescriptionChange}
-                        variant="outlined"
-                        sx={{ mt: 2 }}
-                    />
-                    <TextField
-                        fullWidth
-                        id="Select Item Type"
-                        sx={{
-                            mt: 2,
-                            mb: 2,
-                        }}
-                        variant="outlined"
-                        select
-                        label="Select Item Type"
-                        SelectProps={{
-                            native: true,
-                        }}
-                    >
-                        <option value="free">Free</option>
-                        <option value="borrow">Borrow</option>
-                        <option value="wanted">Wanted</option>
-                    </TextField>
-                    <ImageUploader
-                        withIcon={true}
-                        buttonText="Choose images"
-                        onChange={onDrop}
-                        imgExtension={[
-                            '.jpg',
-                            '.gif',
-                            '.png',
-                            '.jpeg',
-                            '.webp',
-                            '.jfif',
-                            '.svg',
-                            '.bmp',
-                        ]}
-                        fileContainerStyle={{
-                            backgroundColor: '#f5f5f5',
-                            boxShadow: 'none',
-                            borderRadius: '5px',
-                        }}
-                        maxFileSize={5242880}
-                        withPreview={true}
-                        fileSizeError="file size is too big"
-                        label="Max file size: 5mb, accepted: jpg | gif | png | jpeg | webp | jfif | svg | bmp"
-                    />
+                    <Box sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                        <TextField
+                            fullWidth
+                            label="Post Title"
+                            value={title}
+                            onChange={handleTitleChange}
+                            sx={{ mt: 2 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Description"
+                            multiline
+                            rows={4}
+                            value={description}
+                            onChange={handleDescriptionChange}
+                            variant="outlined"
+                            sx={{ mt: 2 }}
+                        />
+                        <TextField
+                            fullWidth
+                            id="Select Item Type"
+                            sx={{
+                                mt: 2,
+                                mb: 2,
+                            }}
+                            variant="outlined"
+                            select
+                            label="Select Item Type"
+                            SelectProps={{
+                                native: true,
+                            }}
+                        >
+                            <option value="free">Free</option>
+                            <option value="borrow">Borrow</option>
+                            <option value="wanted">Wanted</option>
+                        </TextField>
+                        <ImageUploader
+                            withIcon={true}
+                            buttonText="Choose images"
+                            onChange={onDrop}
+                            imgExtension={[
+                                '.jpg',
+                                '.gif',
+                                '.png',
+                                '.jpeg',
+                                '.webp',
+                                '.jfif',
+                                '.svg',
+                                '.bmp',
+                            ]}
+                            fileContainerStyle={{
+                                backgroundColor: '#f5f5f5',
+                                boxShadow: 'none',
+                                borderRadius: '5px',
+                            }}
+                            maxFileSize={5242880}
+                            withPreview={true}
+                            fileSizeError="file size is too big"
+                            label="Max file size: 5mb, accepted: jpg | gif | png | jpeg | webp | jfif | svg | bmp"
+                        />
+                    </Box>
                     <Button variant="contained" sx={{ mt: 2 }}>
                         Add Item
                     </Button>
