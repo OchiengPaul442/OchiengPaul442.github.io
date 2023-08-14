@@ -37,6 +37,7 @@ const style = {
     p: 2,
     '@media (max-width: 768px)': {
         width: '90%',
+        // margin: 'auto',
     },
 }
 
@@ -287,11 +288,19 @@ const TopBar = ({ onClick }) => {
                             '.svg',
                             '.bmp',
                         ]}
+                        fileContainerStyle={{
+                            backgroundColor: '#f5f5f5',
+                            boxShadow: 'none',
+                            borderRadius: '5px',
+                        }}
                         maxFileSize={5242880}
                         withPreview={true}
                         fileSizeError="file size is too big"
                         label="Max file size: 5mb, accepted: jpg | gif | png | jpeg | webp | jfif | svg | bmp"
                     />
+                    <Button variant="contained" sx={{ mt: 2 }}>
+                        Add Item
+                    </Button>
                 </Box>
             </Modal>
         </nav>
