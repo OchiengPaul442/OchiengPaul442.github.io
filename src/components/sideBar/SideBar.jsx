@@ -179,7 +179,11 @@ const SideBar = ({ show }) => {
                                 className="ml-auto -mx-1.5 -my-1.5 bg-blue-50 inline-flex justify-center items-center text-blue-900 rounded-lg focus:ring-2 focus:ring-blue-400 p-1 hover:bg-blue-200 h-6 w-6 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800"
                             >
                                 <span className="sr-only">Close</span>
-                                <CloseIcon fill="none" width="40" height="40" />
+                                <CloseIcon
+                                    fill="#1c274c"
+                                    width="40"
+                                    height="40"
+                                />
                             </button>
                         </div>
                         <p className="mb-3 text-sm text-blue-800 dark:text-blue-400">

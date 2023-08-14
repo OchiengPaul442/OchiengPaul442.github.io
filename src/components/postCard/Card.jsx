@@ -119,7 +119,12 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 </div>
             </div>
             {quantity && (
-                <div className="px-6 pt-4 pb-2 flex items-center border-t-2">
+                <div
+                    className="px-6 pt-4 pb-2 flex items-center border-t-2"
+                    style={{
+                        borderTopColor: '#1c274c',
+                    }}
+                >
                     Quantity available:
                     <span className="ml-2 inline-flex items-center justify-center px-2 py-1 mr-2 text-xs font-bold leading-none text-gray-700 bg-gray-200 rounded-full">
                         {loading ? (
