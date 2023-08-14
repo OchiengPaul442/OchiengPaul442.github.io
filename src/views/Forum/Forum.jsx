@@ -73,7 +73,12 @@ const Forum = () => {
             <div className="max-w-3xl mx-auto">
                 <div className="col-span-2 md:col-span-2 gap-4">
                     {Posts.map((post) => (
-                        <PostCard key={post.id} post={post} comment={true} />
+                        <PostCard
+                            key={post.id}
+                            post={post}
+                            comment={true}
+                            loading={true}
+                        />
                     ))}
                 </div>
             </div>

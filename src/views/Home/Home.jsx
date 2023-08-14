@@ -160,6 +160,7 @@ const Home = () => {
                                     key={post.id}
                                     post={post}
                                     quantity={true}
+                                    loading={false}
                                 />
                             )
                     )}
