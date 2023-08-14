@@ -8,6 +8,8 @@ import {
     MailBoxIcon,
     SignInIcon,
     LoginIcon,
+    Settings,
+    CloseIcon,
 } from '../icons/Icons'
 
 const SideBar = ({ show }) => {
@@ -121,6 +123,26 @@ const SideBar = ({ show }) => {
                             </li>
 
                             <li>
+                                <NavLink
+                                    to="/settings"
+                                    className={({ isActive }) =>
+                                        isActive
+                                            ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
+                                            : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+                                    }
+                                >
+                                    <Settings
+                                        fill="none"
+                                        width="24"
+                                        height="24"
+                                    />
+                                    <span className="flex-1 ml-3 whitespace-nowrap">
+                                        Settings
+                                    </span>
+                                </NavLink>
+                            </li>
+
+                            <li>
                                 <Link
                                     to="/auth"
                                     className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
@@ -157,21 +179,7 @@ const SideBar = ({ show }) => {
                                 className="ml-auto -mx-1.5 -my-1.5 bg-blue-50 inline-flex justify-center items-center text-blue-900 rounded-lg focus:ring-2 focus:ring-blue-400 p-1 hover:bg-blue-200 h-6 w-6 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800"
                             >
                                 <span className="sr-only">Close</span>
-                                <svg
-                                    className="w-2.5 h-2.5"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 14 14"
-                                >
-                                    <path
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                    />
-                                </svg>
+                                <CloseIcon fill="none" width="40" height="40" />
                             </button>
                         </div>
                         <p className="mb-3 text-sm text-blue-800 dark:text-blue-400">

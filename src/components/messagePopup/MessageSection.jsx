@@ -19,7 +19,7 @@ const MessagingSection = ({ message, close }) => {
                     onClick={close}
                     className="text-gray-600 hover:text-gray-800"
                 >
-                    <CloseIcon width={24} height={24} fill="none" />
+                    <CloseIcon width={24} height={24} fill="orange" />
                 </button>
             </div>
             <div className="flex-grow overflow-y-scroll scrollbar-hide">

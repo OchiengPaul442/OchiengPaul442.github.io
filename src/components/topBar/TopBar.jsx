@@ -19,6 +19,7 @@ import {
     HomeIcon,
     Settings,
     Logout,
+    CloseIcon,
 } from '../icons/Icons'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -41,7 +42,7 @@ const style = {
     },
 }
 
-const TopBar = ({ onClick }) => {
+const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
@@ -92,11 +93,19 @@ const TopBar = ({ onClick }) => {
                             type="button"
                             className="inline-flex items-center p-2 sm:hidden"
                         >
-                            <HamBurgerIcon
-                                fill="orange"
-                                width="35"
-                                height="35"
-                            />
+                            {!value ? (
+                                <HamBurgerIcon
+                                    fill="orange"
+                                    width="35"
+                                    height="35"
+                                />
+                            ) : (
+                                <CloseIcon
+                                    fill="orange"
+                                    width="35"
+                                    height="35"
+                                />
+                            )}
                         </button>
                         <Link
                             to="/community_box"

@@ -55,11 +55,7 @@ const Auth = () => {
                     id="formcard"
                     className="form_card flex flex-col justify-center"
                 >
-                    <h1
-                        className={`text-center font-bold ${
-                            isMobile ? 'text-lg' : 'text-5xl'
-                        } relative mb-10`}
-                    >
+                    <h1 className="text-2xl lg:text-4xl text-center font-bold relative mb-10">
                         Community Box
                     </h1>
                     {/* <!-- login section --> */}

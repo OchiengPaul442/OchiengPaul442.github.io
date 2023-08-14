@@ -13,17 +13,20 @@ const Page = ({ children, title }) => {
 
     return (
         <>
-            <TopBar onClick={() => setShowSideBar(!showSideBar)} />
+            <TopBar
+                onClick={() => setShowSideBar(!showSideBar)}
+                value={showSideBar}
+            />
             <SideBar show={showSideBar} />
             <div
                 className={`${
                     window.innerWidth < 764 ? 'p-2' : 'p-4'
                 } sm:ml-64`}
             >
-                <div className="mt-14">
+                <div className="mt-20 lg:mt-14 h-full lg:mx-6">
                     <div className="flex items-center justify-between mb-4">
                         {title && (
-                            <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+                            <h1 className="text-lg lg:text-4xl font-bold text-gray-800 dark:text-white">
                                 {title}
                             </h1>
                         )}
