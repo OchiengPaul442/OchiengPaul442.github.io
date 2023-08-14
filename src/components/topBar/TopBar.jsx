@@ -110,7 +110,8 @@ const TopBar = ({ onClick }) => {
                             )}
                         </Link>
                     </div>
-                    {window.location.pathname === '/community_box' && (
+                    {window.location.pathname === '/community_box' ||
+                    window.location.pathname === '/community_box/' ? (
                         <div
                             className="hidden sm:inline-flex  rounded-md shadow-sm "
                             role="group"
@@ -149,7 +150,7 @@ const TopBar = ({ onClick }) => {
                                 Wanted
                             </button>
                         </div>
-                    )}
+                    ) : null}
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
                             <button onClick={handleOpen} className="mx-3">
