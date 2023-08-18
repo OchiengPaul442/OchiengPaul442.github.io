@@ -1,32 +1,80 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import { ShareIcon, CommentIcon, LikeIcon } from '../icons/Icons'
 import Skeleton from '@mui/material/Skeleton'
-import Stack from '@mui/material/Stack'
+import FacebookIcon from '@mui/icons-material/Facebook'
+import TwitterIcon from '@mui/icons-material/Twitter'
+import InstagramIcon from '@mui/icons-material/Instagram'
+import Box from '@mui/material/Box'
+import Modal from '@mui/material/Modal'
+import Typography from '@mui/material/Typography'
+
+const style = {
+    width: '800px',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'white',
+    borderRadius: '4px',
+    boxShadow: 24,
+    p: 2,
+    '@media (max-width: 768px)': {
+        width: '90%',
+    },
+}
+
+const socialMedia = [
+    {
+        name: 'Facebook',
+        icon: <FacebookIcon />,
+        url: 'https://www.facebook.com/sharer/sharer.php?u=',
+    },
+    {
+        name: 'Twitter',
+        icon: <TwitterIcon />,
+        url: 'https://twitter.com/intent/tweet?url=',
+    },
+    {
+        name: 'Instagram',
+        icon: <InstagramIcon />,
+        url: 'https://www.instagram.com/share?url=',
+    },
+]
 
 const Card = ({ post, comment = false, quantity = false, loading = false }) => {
+    const [commentSec, setCommentSec] = React.useState(false)
+    const [open, setOpen] = useState(false)
+    const handleOpen = () => setOpen(true)
+    const handleClose = () => setOpen(false)
+
+    const handleComment = () => {
+        setCommentSec(!commentSec)
+    }
     return (
         <div
             key={post.id}
-            className="max-w-3xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+            className="max-w-2xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
         >
-            <div className="px-6 py-4">
-                <div className="font-bold text-xl mb-2 flex items-center">
+            <div className="py-4">
+                <div className="px-2 md:px-4 font-bold text-xl mb-2 flex items-center">
                     {loading ? (
                         <Skeleton variant="text" width={150} height={24} />
                     ) : (
-                        <h1>Product Name</h1>
+                        <h1>{post.title}</h1>
                     )}
                 </div>
-                <p className="text-gray-700 lg:text-base text-sm">
+                <p className="px-2 md:px-4 text-gray-700 lg:text-base text-sm">
                     {loading ? (
                         <Skeleton variant="text" width="100%" height={80} />
                     ) : (
-                        post.content
+                        post.description
                     )}
                 </p>
-                <div className={`w-full h-auto rounded-lg mt-4 mb-2 `}>
+                <div
+                    className={`w-full h-auto md:px-4 md:rounded-lg mt-4 mb-2 `}
+                >
                     {loading ? (
                         <Skeleton
                             variant="rectangular"
@@ -42,20 +90,23 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             autoPlay
                             swipeable
                             emulateTouch
+                            interval={5000}
+                            transitionTime={500}
                         >
                             {post.images.map((image, index) => (
                                 <img
+                                    style={{ maxHeight: '520px' }}
                                     key={index}
-                                    className="w-full h-full object-cover rounded-lg"
+                                    className="w-full h-full object-cover md:rounded-lg"
                                     src={image}
-                                    alt=""
+                                    alt="post image"
                                 />
                             ))}
                         </Carousel>
                     )}
                 </div>
             </div>
-            <div className="px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
+            <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
                 <div className="space-x-2 flex justify-end mt-2">
                     {loading ? (
                         <Skeleton variant="circle" width={24} height={24} />
@@ -66,7 +117,10 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                         </button>
                     )}
                     {comment && (
-                        <button className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
+                        <button
+                            onClick={handleComment}
+                            className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                        >
                             {loading ? (
                                 <Skeleton
                                     variant="circle"
@@ -85,7 +139,10 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             <span className="ml-2">comment</span>
                         </button>
                     )}
-                    <button className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
+                    <button
+                        onClick={handleOpen}
+                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                    >
                         {loading ? (
                             <Skeleton variant="circle" width={24} height={24} />
                         ) : (
@@ -100,8 +157,8 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     ) : (
                         <img
                             className="w-8 h-8 rounded-full mr-4"
-                            src={post.photo}
-                            alt=""
+                            src={post.photoURL}
+                            alt="Avatar"
                         />
                     )}
                     <div>
@@ -109,9 +166,9 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             <Skeleton variant="text" width={100} height={20} />
                         ) : (
                             <>
-                                <h4>{post.Name}</h4>
+                                <h4>{post.displayName}</h4>
                                 <p className="text-gray-400 text-sm">
-                                    {post.Date}
+                                    {post.createdAt.toDate().toDateString()}
                                 </p>
                             </>
                         )}
@@ -130,11 +187,61 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                         {loading ? (
                             <Skeleton variant="text" width={20} height={16} />
                         ) : (
-                            2
+                            post.quantity
                         )}
                     </span>
                 </div>
             )}
+            {/* comment input field */}
+            {commentSec && (
+                <div className="px-2 md:px-6 py-2">
+                    <div className="flex items-center justify-between">
+                        <input
+                            type="text"
+                            placeholder="Add a comment"
+                            className="w-full px-4 py-2 mr-2 text-sm text-gray-700 bg-gray-200 rounded-lg  focus:outline-none focus:bg-white focus:border-slate-900 focus:ring-0"
+                        />
+                        <button className="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none">
+                            Post
+                        </button>
+                    </div>
+                </div>
+            )}
+            <Modal
+                keepMounted
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="keep-mounted-modal-title"
+                aria-describedby="keep-mounted-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography variant="h6" component="h2">
+                        Share on
+                    </Typography>
+                    <Box sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                        {socialMedia.map((social) => (
+                            <div
+                                key={social.name}
+                                className="flex items-center justify-between px-4 py-2 my-2 bg-gray-200 rounded-lg"
+                            >
+                                <div className="flex items-center">
+                                    {social.icon}
+                                    <span className="ml-2">{social.name}</span>
+                                </div>
+                                <a
+                                    href={`${social.url}${window.location.href}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    <button className="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none">
+                                        Share
+                                    </button>
+                                </a>
+                            </div>
+                        ))}
+                    </Box>
+                </Box>
+            </Modal>
         </div>
     )
 }

@@ -1,10 +1,8 @@
-import { configureStore } from '@reduxjs/toolkit'
-
-const initialState = {
+const initialCategoriesState = {
     categories: 'free',
 }
 
-const reducer = (state = initialState, action) => {
+const categoriesReducer = (state = initialCategoriesState, action) => {
     switch (action.type) {
         case 'SET_CATEGORIES':
             return {
@@ -16,8 +14,4 @@ const reducer = (state = initialState, action) => {
     }
 }
 
-const store = configureStore({
-    reducer,
-})
-
-export default store
+export default categoriesReducer

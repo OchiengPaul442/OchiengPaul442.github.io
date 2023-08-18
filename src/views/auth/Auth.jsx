@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import '../../assets/styles/main.scss'
 import Signup from '../../assets/images/signup.svg'
 import Login from '../../assets/images/login.svg'
 import Forgotpwd from '../../assets/images/forgotpwd.svg'
 import { Link } from 'react-router-dom'
 import { signInWithGoogle } from '../../backend/auth/index.js'
+import { useDispatch } from 'react-redux'
 
 const Auth = () => {
+    const dispatch = useDispatch()
     const [formState, setFormState] = useState('login')
-    const [isMobile, setIsMobile] = useState(false)
 
     const handleSignupClick = () => {
         setFormState('signup')
@@ -34,27 +35,28 @@ const Auth = () => {
         document.getElementById('formcard').classList.add('change4')
     }
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 768) {
-                setIsMobile(true)
-            } else {
-                setIsMobile(false)
-            }
-        }
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
-    }, [])
-
     const handleSignWithGoogle = async () => {
         try {
-            await signInWithGoogle().then((res) => {
-                if (res.success === true) {
-                    window.location.href = '/community_box'
-                } else {
-                    alert(res.message)
-                }
-            })
+            const res = await signInWithGoogle()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: res.accessToken,
+                })
+
+                window.location.href = '/community_box'
+            } else {
+                alert(res.message)
+            }
         } catch (error) {
             console.log(error)
         }

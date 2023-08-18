@@ -8,7 +8,6 @@ export const signInWithGoogle = async () => {
         const result = await signInWithPopup(auth, googleProvider)
         const user = result.user
 
-        console.log(user)
         // Check if the user exists in the users collection
         const userRef = doc(db, 'users', user.uid)
         const userDoc = await getDoc(userRef)
@@ -37,15 +36,35 @@ export const signInWithGoogle = async () => {
         return {
             success: true,
             message: 'Successfully signed in with Google',
-            // Return the user data
             user: {
+                uid: user.uid,
                 displayName: user.displayName,
                 email: user.email,
                 photoURL: user.photoURL,
             },
+            accessToken: user.accessToken,
         }
     } catch (err) {
         console.error(err)
         alert(err.message)
     }
 }
+
+// Function to sign in user anonymously
+// export const signInAnonymously = async () => {
+//     try {
+//         const result = await anonymousUser
+//         const user = result.user
+
+//         return {
+//             success: true,
+//             message: 'Successfully signed in anonymously',
+//             user: {
+//                 uid: user.uid,
+//             },
+//         }
+//     } catch (err) {
+//         console.error(err)
+//         alert(err.message)
+//     }
+// }

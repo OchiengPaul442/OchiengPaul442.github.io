@@ -1,7 +1,7 @@
 import './App.css'
 import React, { Suspense } from 'react'
 import { Loader } from './components'
-import store from './reduxStore/categories'
+import store from './reduxStore/store'
 import { Provider } from 'react-redux'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 

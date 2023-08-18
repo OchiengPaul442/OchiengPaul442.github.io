@@ -6,12 +6,7 @@ import {
     ListItemIcon,
     ListItemText,
 } from '@mui/material'
-import Box from '@mui/material/Box'
-import Modal from '@mui/material/Modal'
-import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
 import {
     CommunityIcon,
     AddIcon,
@@ -23,30 +18,11 @@ import {
 } from '../icons/Icons'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import ImageUploader from 'react-images-upload'
-
-const style = {
-    width: '800px', // Adjust the width as needed
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: 'white',
-    borderRadius: '4px',
-    boxShadow: 24,
-    p: 4,
-    '@media (max-width: 768px)': {
-        width: '90%',
-        // margin: 'auto',
-    },
-}
+import PostModal from '../posts/PostModal'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
-    const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
-    const [images, setImages] = useState([])
-
+    const imageURL = useSelector((state) => state.auth.user.photoURL)
     const categories = useSelector((state) => state.categories)
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -58,18 +34,6 @@ const TopBar = ({ onClick, value }) => {
         setAnchorEl(null)
     }
 
-    const handleTitleChange = (event) => {
-        setTitle(event.target.value)
-    }
-
-    const handleDescriptionChange = (event) => {
-        setDescription(event.target.value)
-    }
-
-    const onDrop = (pictureFiles, pictureDataURLs) => {
-        setImages(pictureFiles)
-    }
-
     const handleCategory = (category) => (event) => {
         event.preventDefault()
         dispatch({
@@ -78,7 +42,17 @@ const TopBar = ({ onClick, value }) => {
         })
     }
 
-    const [open, setOpen] = React.useState(false)
+    const handleLogout = () => {
+        const logout = dispatch({
+            type: 'LOGOUT',
+        })
+        if (logout) {
+            window.location.href = '/auth'
+            localStorage.removeItem('persist:root')
+        }
+    }
+
+    const [open, setOpen] = useState(false)
     const handleOpen = () => setOpen(true)
     const handleCloseModal = () => setOpen(false)
 
@@ -175,7 +149,7 @@ const TopBar = ({ onClick, value }) => {
                                 onClick={handleClick}
                                 className="cursor-pointer"
                                 alt="Remy Sharp"
-                                src="https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
+                                src={imageURL}
                             />
 
                             <Menu
@@ -216,7 +190,7 @@ const TopBar = ({ onClick, value }) => {
                                         />
                                     </Link>
                                 </MenuItem>
-                                <MenuItem onClick={handleClose}>
+                                <MenuItem onClick={handleLogout}>
                                     <ListItemIcon>
                                         <Logout
                                             fill="none"
@@ -236,84 +210,7 @@ const TopBar = ({ onClick, value }) => {
                     </div>
                 </div>
             </div>
-            <Modal
-                keepMounted
-                open={open}
-                onClose={handleCloseModal}
-                aria-labelledby="keep-mounted-modal-title"
-                aria-describedby="keep-mounted-modal-description"
-            >
-                <Box sx={style}>
-                    <Typography variant="h6" component="h2">
-                        Add Item to{' '}
-                        <span className="text-blue-700">Community Box</span>
-                    </Typography>
-                    <Box sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
-                        <TextField
-                            fullWidth
-                            label="Post Title"
-                            value={title}
-                            onChange={handleTitleChange}
-                            sx={{ mt: 2 }}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Description"
-                            multiline
-                            rows={4}
-                            value={description}
-                            onChange={handleDescriptionChange}
-                            variant="outlined"
-                            sx={{ mt: 2 }}
-                        />
-                        <TextField
-                            fullWidth
-                            id="Select Item Type"
-                            sx={{
-                                mt: 2,
-                                mb: 2,
-                            }}
-                            variant="outlined"
-                            select
-                            label="Select Item Type"
-                            SelectProps={{
-                                native: true,
-                            }}
-                        >
-                            <option value="free">Free</option>
-                            <option value="borrow">Borrow</option>
-                            <option value="wanted">Wanted</option>
-                        </TextField>
-                        <ImageUploader
-                            withIcon={true}
-                            buttonText="Choose images"
-                            onChange={onDrop}
-                            imgExtension={[
-                                '.jpg',
-                                '.gif',
-                                '.png',
-                                '.jpeg',
-                                '.webp',
-                                '.jfif',
-                                '.svg',
-                                '.bmp',
-                            ]}
-                            fileContainerStyle={{
-                                backgroundColor: '#f5f5f5',
-                                boxShadow: 'none',
-                                borderRadius: '5px',
-                            }}
-                            maxFileSize={5242880}
-                            withPreview={true}
-                            fileSizeError="file size is too big"
-                            label="Max file size: 5mb, accepted: jpg | gif | png | jpeg | webp | jfif | svg | bmp"
-                        />
-                    </Box>
-                    <Button variant="contained" sx={{ mt: 2 }}>
-                        Add Item
-                    </Button>
-                </Box>
-            </Modal>
+            <PostModal open={open} handleCloseModal={handleCloseModal} />
         </nav>
     )
 }
