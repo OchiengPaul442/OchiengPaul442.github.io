@@ -11,6 +11,8 @@ import Modal from '@mui/material/Modal'
 import Typography from '@mui/material/Typography'
 import { useSelector } from 'react-redux'
 import { GoogleIcon } from '../../components'
+import { signInWithGoogle } from '../../backend/auth'
+import { useDispatch } from 'react-redux'
 
 const style = {
     width: '800px',
@@ -61,6 +63,7 @@ const socialMedia = [
 ]
 
 const Card = ({ post, comment = false, quantity = false, loading = false }) => {
+    const dispatch = useDispatch()
     const accessToken = useSelector((state) => state.auth.accessToken)
     const [commentSec, setCommentSec] = React.useState(false)
     const [open, setOpen] = useState(false)
@@ -71,6 +74,33 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const handleComment = () => {
         setCommentSec(!commentSec)
     }
+
+    const handleSignWithGoogle = async () => {
+        try {
+            const res = await signInWithGoogle()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: res.accessToken,
+                })
+                window.location.href = '/community_box'
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <div
             key={post.id}
@@ -290,7 +320,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     >
                         <button
                             onClick={() => {
-                                return null
+                                handleSignWithGoogle()
                             }}
                             className="px-4 py-2 flex justify-center w-full font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
                         >
