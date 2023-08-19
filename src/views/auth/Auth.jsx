@@ -53,7 +53,6 @@ const Auth = () => {
                     type: 'SET_ACCESS_TOKEN',
                     payload: res.accessToken,
                 })
-
                 window.location.href = '/community_box'
             } else {
                 alert(res.message)
@@ -82,7 +81,7 @@ const Auth = () => {
                     transform: 'translate(-50%, 0)',
                 }}
             >
-                <Link to={'/community_box'} className="text-white">
+                <Link to={'/community_box'} className="text-white shadow-md">
                     Visit Community
                 </Link>
             </div>
