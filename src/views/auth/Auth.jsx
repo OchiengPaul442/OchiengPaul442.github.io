@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import '../../assets/styles/main.scss'
 import Signup from '../../assets/images/signup.svg'
 import Login from '../../assets/images/login.svg'
 import Forgotpwd from '../../assets/images/forgotpwd.svg'
 import { Link } from 'react-router-dom'
+import { signInWithGoogle } from '../../backend/auth/index.js'
+import { useDispatch } from 'react-redux'
+import { GoogleIcon } from '../../components'
 
 const Auth = () => {
+    const dispatch = useDispatch()
     const [formState, setFormState] = useState('login')
-    const [isMobile, setIsMobile] = useState(false)
 
     const handleSignupClick = () => {
         setFormState('signup')
@@ -33,33 +36,61 @@ const Auth = () => {
         document.getElementById('formcard').classList.add('change4')
     }
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 768) {
-                setIsMobile(true)
+    const handleSignWithGoogle = async () => {
+        try {
+            const res = await signInWithGoogle()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: res.accessToken,
+                })
+                window.location.href = '/community_box'
             } else {
-                setIsMobile(false)
+                alert(res.message)
             }
+        } catch (error) {
+            console.log(error)
         }
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
-    }, [])
+    }
+
     return (
         <>
             <div className="con_colors">
                 <div id="color1"></div>
                 <div id="color2"></div>
             </div>
+            {/* Link to visit the community */}
+            <div
+                style={{
+                    width: 'fit-content',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: 'orange',
+                    borderRadius: '0.5rem',
+                    position: 'absolute',
+                    top: '3.5rem',
+                    left: '50%',
+                    transform: 'translate(-50%, 0)',
+                }}
+            >
+                <Link to={'/community_box'} className="text-white shadow-md">
+                    Visit Community
+                </Link>
+            </div>
             <div className="auth_card" id="authCard">
                 <div
                     id="formcard"
                     className="form_card flex flex-col justify-center"
                 >
-                    <h1
-                        className={`text-center font-bold ${
-                            isMobile ? 'text-lg' : 'text-5xl'
-                        } relative mb-10`}
-                    >
+                    <h1 className="text-2xl lg:text-4xl text-center font-bold relative mb-10">
                         Community Box
                     </h1>
                     {/* <!-- login section --> */}
@@ -116,25 +147,7 @@ const Auth = () => {
                                     placeholder="Password"
                                 />
                             </div>
-                            <div className="flex items-start mb-6">
-                                <div className="flex items-center h-5">
-                                    <input
-                                        id="terms"
-                                        aria-describedby="terms"
-                                        type="checkbox"
-                                        className="w-4 h-4 bg-gray-50 rounded border border-gray-300 focus:ring-3 focus:ring-blue-300"
-                                        required
-                                    />
-                                </div>
-                                <div className="ml-3 text-sm">
-                                    <label
-                                        htmlFor="terms"
-                                        className="font-medium text-gray-900 dark:text-gray-300"
-                                    >
-                                        Remember Me
-                                    </label>
-                                </div>
-                            </div>
+
                             {/* <!-- link to open the home page --> */}
                             <Link
                                 to={'/community_box'}
@@ -144,6 +157,19 @@ const Auth = () => {
                             >
                                 Login
                             </Link>
+                            <button
+                                onClick={handleSignWithGoogle}
+                                className="flex justify-center focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6 border border-blue-950 "
+                            >
+                                <GoogleIcon
+                                    fill="none"
+                                    width="20"
+                                    height="20"
+                                />
+                                <span className="ml-2 font-normal">
+                                    Login with Google
+                                </span>
+                            </button>
                             <div className="text-center mb-6">
                                 <a
                                     href="#"
@@ -154,6 +180,7 @@ const Auth = () => {
                                     Forgot Password?
                                 </a>
                             </div>
+
                             <div className="extra_on_mobile text-center">
                                 <small>
                                     Dont have an acount?{' '}

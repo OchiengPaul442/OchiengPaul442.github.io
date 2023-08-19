@@ -6,12 +6,7 @@ import {
     ListItemIcon,
     ListItemText,
 } from '@mui/material'
-import Box from '@mui/material/Box'
-import Modal from '@mui/material/Modal'
-import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
 import {
     CommunityIcon,
     AddIcon,
@@ -19,35 +14,18 @@ import {
     HomeIcon,
     Settings,
     Logout,
+    CloseIcon,
 } from '../icons/Icons'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import ImageUploader from 'react-images-upload'
+import PostModal from '../posts/PostModal'
+import TopNav from './TopNav'
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 800,
-    bgcolor: 'background.paper',
-    borderRadius: '10px',
-    border: 'none',
-    boxShadow: 24,
-    p: 2,
-    '@media (max-width: 768px)': {
-        width: '90%',
-        // margin: 'auto',
-    },
-}
-
-const TopBar = ({ onClick }) => {
+const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
-    const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
-    const [images, setImages] = useState([])
-
-    const categories = useSelector((state) => state.categories)
+    const accessToken = useSelector((state) => state.auth.accessToken)
+    const imageURL = useSelector((state) => state.auth.user.photoURL)
+    const categories = useSelector((state) => state.categories.categories)
     const [anchorEl, setAnchorEl] = useState(null)
 
     const handleClick = (event) => {
@@ -58,18 +36,6 @@ const TopBar = ({ onClick }) => {
         setAnchorEl(null)
     }
 
-    const handleTitleChange = (event) => {
-        setTitle(event.target.value)
-    }
-
-    const handleDescriptionChange = (event) => {
-        setDescription(event.target.value)
-    }
-
-    const onDrop = (pictureFiles, pictureDataURLs) => {
-        setImages(pictureFiles)
-    }
-
     const handleCategory = (category) => (event) => {
         event.preventDefault()
         dispatch({
@@ -78,7 +44,17 @@ const TopBar = ({ onClick }) => {
         })
     }
 
-    const [open, setOpen] = React.useState(false)
+    const handleLogout = () => {
+        const logout = dispatch({
+            type: 'LOGOUT',
+        })
+        if (logout) {
+            window.location.href = '/auth'
+            localStorage.removeItem('persist:root')
+        }
+    }
+
+    const [open, setOpen] = useState(false)
     const handleOpen = () => setOpen(true)
     const handleCloseModal = () => setOpen(false)
 
@@ -92,11 +68,19 @@ const TopBar = ({ onClick }) => {
                             type="button"
                             className="inline-flex items-center p-2 sm:hidden"
                         >
-                            <HamBurgerIcon
-                                fill="orange"
-                                width="35"
-                                height="35"
-                            />
+                            {!value ? (
+                                <HamBurgerIcon
+                                    fill="orange"
+                                    width="35"
+                                    height="35"
+                                />
+                            ) : (
+                                <CloseIcon
+                                    fill="orange"
+                                    width="35"
+                                    height="35"
+                                />
+                            )}
                         </button>
                         <Link
                             to="/community_box"
@@ -112,62 +96,32 @@ const TopBar = ({ onClick }) => {
                     </div>
                     {window.location.pathname === '/community_box' ||
                     window.location.pathname === '/community_box/' ? (
-                        <div
-                            className="hidden sm:inline-flex  rounded-md shadow-sm "
-                            role="group"
-                        >
-                            <button
-                                type="button"
-                                onClick={handleCategory('free')}
-                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-gray-700 focus:text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500 dark:focus:text-white"
-                                style={{
-                                    backgroundColor:
-                                        categories === 'free' && '#e1effe',
-                                }}
-                            >
-                                Free
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleCategory('borrow')}
-                                className=" inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-gray-700 focus:text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500 dark:focus:text-white"
-                                style={{
-                                    backgroundColor:
-                                        categories === 'borrow' && '#e1effe',
-                                }}
-                            >
-                                Borrowed
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleCategory('wanted')}
-                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-gray-700 focus:text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500 dark:focus:text-white"
-                                style={{
-                                    backgroundColor:
-                                        categories === 'wanted' && '#e1effe',
-                                }}
-                            >
-                                Wanted
-                            </button>
+                        <div className="hidden sm:inline-flex">
+                            <TopNav
+                                handleCategory={handleCategory}
+                                categories={categories}
+                            />
                         </div>
                     ) : null}
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            <button onClick={handleOpen} className="mx-3">
-                                <Tooltip title="Add Post">
-                                    <AddIcon
-                                        fill="#1c274c"
-                                        width="36"
-                                        height="36"
-                                    />
-                                </Tooltip>
-                            </button>
+                            {accessToken && (
+                                <button onClick={handleOpen} className="mx-3">
+                                    <Tooltip title="Add Post">
+                                        <AddIcon
+                                            fill="orange"
+                                            width="36"
+                                            height="36"
+                                        />
+                                    </Tooltip>
+                                </button>
+                            )}
 
                             <Avatar
                                 onClick={handleClick}
                                 className="cursor-pointer"
                                 alt="Remy Sharp"
-                                src="https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
+                                src={imageURL}
                             />
 
                             <Menu
@@ -193,117 +147,46 @@ const TopBar = ({ onClick }) => {
                                         />
                                     </Link>
                                 </MenuItem>
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <Settings
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
-                                    </ListItemIcon>
-                                    <Link to="/settings">
-                                        <ListItemText
-                                            primary="Settings"
-                                            className="text-sm"
-                                        />
-                                    </Link>
-                                </MenuItem>
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <Logout
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
-                                    </ListItemIcon>
-                                    <Link to="/logout">
-                                        <ListItemText
-                                            primary="Logout"
-                                            className="text-sm"
-                                        />
-                                    </Link>
-                                </MenuItem>
+                                {accessToken && (
+                                    <>
+                                        <MenuItem onClick={handleClose}>
+                                            <ListItemIcon>
+                                                <Settings
+                                                    fill="none"
+                                                    width="24"
+                                                    height="24"
+                                                />
+                                            </ListItemIcon>
+                                            <Link to="/settings">
+                                                <ListItemText
+                                                    primary="Settings"
+                                                    className="text-sm"
+                                                />
+                                            </Link>
+                                        </MenuItem>
+                                        <MenuItem onClick={handleLogout}>
+                                            <ListItemIcon>
+                                                <Logout
+                                                    fill="none"
+                                                    width="24"
+                                                    height="24"
+                                                />
+                                            </ListItemIcon>
+                                            <Link to="/logout">
+                                                <ListItemText
+                                                    primary="Logout"
+                                                    className="text-sm"
+                                                />
+                                            </Link>
+                                        </MenuItem>
+                                    </>
+                                )}
                             </Menu>
                         </div>
                     </div>
                 </div>
             </div>
-            <Modal
-                keepMounted
-                open={open}
-                onClose={handleCloseModal}
-                aria-labelledby="keep-mounted-modal-title"
-                aria-describedby="keep-mounted-modal-description"
-            >
-                <Box sx={style}>
-                    <Typography variant="h6" component="h2">
-                        Add Item to{' '}
-                        <span className="text-blue-700">Community Box</span>
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        label="Post Title"
-                        value={title}
-                        onChange={handleTitleChange}
-                        sx={{ mt: 2 }}
-                    />
-                    <TextField
-                        fullWidth
-                        label="Description"
-                        multiline
-                        rows={4}
-                        value={description}
-                        onChange={handleDescriptionChange}
-                        variant="outlined"
-                        sx={{ mt: 2 }}
-                    />
-                    <TextField
-                        fullWidth
-                        id="Select Item Type"
-                        sx={{
-                            mt: 2,
-                            mb: 2,
-                        }}
-                        variant="outlined"
-                        select
-                        label="Select Item Type"
-                        SelectProps={{
-                            native: true,
-                        }}
-                    >
-                        <option value="free">Free</option>
-                        <option value="borrow">Borrow</option>
-                        <option value="wanted">Wanted</option>
-                    </TextField>
-                    <ImageUploader
-                        withIcon={true}
-                        buttonText="Choose images"
-                        onChange={onDrop}
-                        imgExtension={[
-                            '.jpg',
-                            '.gif',
-                            '.png',
-                            '.jpeg',
-                            '.webp',
-                            '.jfif',
-                            '.svg',
-                            '.bmp',
-                        ]}
-                        fileContainerStyle={{
-                            backgroundColor: '#f5f5f5',
-                            boxShadow: 'none',
-                            borderRadius: '5px',
-                        }}
-                        maxFileSize={5242880}
-                        withPreview={true}
-                        fileSizeError="file size is too big"
-                        label="Max file size: 5mb, accepted: jpg | gif | png | jpeg | webp | jfif | svg | bmp"
-                    />
-                    <Button variant="contained" sx={{ mt: 2 }}>
-                        Add Item
-                    </Button>
-                </Box>
-            </Modal>
+            <PostModal open={open} handleCloseModal={handleCloseModal} />
         </nav>
     )
 }
