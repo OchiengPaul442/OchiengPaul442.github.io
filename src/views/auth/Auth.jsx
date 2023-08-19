@@ -80,8 +80,9 @@ const Auth = () => {
                     left: '50%',
                     transform: 'translate(-50%, 0)',
                 }}
+                className="shadow-md"
             >
-                <Link to={'/community_box'} className="text-white shadow-md">
+                <Link to={'/community_box'} className="text-white">
                     Visit Community
                 </Link>
             </div>
