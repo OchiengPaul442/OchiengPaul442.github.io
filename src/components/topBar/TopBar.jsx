@@ -172,7 +172,7 @@ const TopBar = ({ onClick, value }) => {
                                                     height="24"
                                                 />
                                             </ListItemIcon>
-                                            <Link to="/logout">
+                                            <Link>
                                                 <ListItemText
                                                     primary="Logout"
                                                     className="text-sm"

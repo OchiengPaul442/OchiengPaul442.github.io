@@ -92,7 +92,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     type: 'SET_ACCESS_TOKEN',
                     payload: res.accessToken,
                 })
-                window.location.href = '/'
+                window.location.href = '/community_box'
             } else {
                 alert(res.message)
             }
