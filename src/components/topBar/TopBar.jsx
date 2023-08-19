@@ -19,11 +19,13 @@ import {
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import PostModal from '../posts/PostModal'
+import TopNav from './TopNav'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
+    const accessToken = useSelector((state) => state.auth.accessToken)
     const imageURL = useSelector((state) => state.auth.user.photoURL)
-    const categories = useSelector((state) => state.categories)
+    const categories = useSelector((state) => state.categories.categories)
     const [anchorEl, setAnchorEl] = useState(null)
 
     const handleClick = (event) => {
@@ -94,56 +96,26 @@ const TopBar = ({ onClick, value }) => {
                     </div>
                     {window.location.pathname === '/community_box' ||
                     window.location.pathname === '/community_box/' ? (
-                        <div
-                            className="hidden sm:inline-flex  rounded-md shadow-sm "
-                            role="group"
-                        >
-                            <button
-                                type="button"
-                                onClick={handleCategory('free')}
-                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-gray-700 focus:text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500 dark:focus:text-white"
-                                style={{
-                                    backgroundColor:
-                                        categories === 'free' && '#e1effe',
-                                }}
-                            >
-                                Free
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleCategory('borrow')}
-                                className=" inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-gray-700 focus:text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500 dark:focus:text-white"
-                                style={{
-                                    backgroundColor:
-                                        categories === 'borrow' && '#e1effe',
-                                }}
-                            >
-                                Borrowed
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleCategory('wanted')}
-                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-gray-700 focus:text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500 dark:focus:text-white"
-                                style={{
-                                    backgroundColor:
-                                        categories === 'wanted' && '#e1effe',
-                                }}
-                            >
-                                Wanted
-                            </button>
+                        <div className="hidden sm:inline-flex">
+                            <TopNav
+                                handleCategory={handleCategory}
+                                categories={categories}
+                            />
                         </div>
                     ) : null}
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            <button onClick={handleOpen} className="mx-3">
-                                <Tooltip title="Add Post">
-                                    <AddIcon
-                                        fill="#1c274c"
-                                        width="36"
-                                        height="36"
-                                    />
-                                </Tooltip>
-                            </button>
+                            {accessToken && (
+                                <button onClick={handleOpen} className="mx-3">
+                                    <Tooltip title="Add Post">
+                                        <AddIcon
+                                            fill="orange"
+                                            width="36"
+                                            height="36"
+                                        />
+                                    </Tooltip>
+                                </button>
+                            )}
 
                             <Avatar
                                 onClick={handleClick}
@@ -175,36 +147,40 @@ const TopBar = ({ onClick, value }) => {
                                         />
                                     </Link>
                                 </MenuItem>
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <Settings
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
-                                    </ListItemIcon>
-                                    <Link to="/settings">
-                                        <ListItemText
-                                            primary="Settings"
-                                            className="text-sm"
-                                        />
-                                    </Link>
-                                </MenuItem>
-                                <MenuItem onClick={handleLogout}>
-                                    <ListItemIcon>
-                                        <Logout
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
-                                    </ListItemIcon>
-                                    <Link to="/logout">
-                                        <ListItemText
-                                            primary="Logout"
-                                            className="text-sm"
-                                        />
-                                    </Link>
-                                </MenuItem>
+                                {accessToken && (
+                                    <>
+                                        <MenuItem onClick={handleClose}>
+                                            <ListItemIcon>
+                                                <Settings
+                                                    fill="none"
+                                                    width="24"
+                                                    height="24"
+                                                />
+                                            </ListItemIcon>
+                                            <Link to="/settings">
+                                                <ListItemText
+                                                    primary="Settings"
+                                                    className="text-sm"
+                                                />
+                                            </Link>
+                                        </MenuItem>
+                                        <MenuItem onClick={handleLogout}>
+                                            <ListItemIcon>
+                                                <Logout
+                                                    fill="none"
+                                                    width="24"
+                                                    height="24"
+                                                />
+                                            </ListItemIcon>
+                                            <Link to="/logout">
+                                                <ListItemText
+                                                    primary="Logout"
+                                                    className="text-sm"
+                                                />
+                                            </Link>
+                                        </MenuItem>
+                                    </>
+                                )}
                             </Menu>
                         </div>
                     </div>

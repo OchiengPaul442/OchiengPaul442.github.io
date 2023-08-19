@@ -3,8 +3,10 @@ import Page from '../../layout/Page'
 
 import { getPosts } from '../../backend/posts'
 import { MessagePopup, PostCard } from '../../components'
+import { useSelector } from 'react-redux'
 
 const Forum = () => {
+    const accessToken = useSelector((state) => state.auth.accessToken)
     const [loading, setLoading] = useState(false)
     const [posts, setPosts] = useState([])
 
@@ -36,7 +38,7 @@ const Forum = () => {
                     ))}
                 </div>
             </div>
-            <MessagePopup />
+            {accessToken && <MessagePopup />}
         </Page>
     )
 }

@@ -20,18 +20,19 @@ export const signInWithGoogle = async () => {
                 email: user.email,
                 photoURL: user.photoURL,
             })
-        } else {
-            // If the user exists, update the existing document with their data
-            await setDoc(
-                userRef,
-                {
-                    displayName: user.displayName,
-                    email: user.email,
-                    photoURL: user.photoURL,
-                },
-                { merge: true }
-            )
         }
+        // else {
+        //     // If the user exists, update the existing document with their data
+        //     await setDoc(
+        //         userRef,
+        //         {
+        //             displayName: user.displayName,
+        //             email: user.email,
+        //             photoURL: user.photoURL,
+        //         },
+        //         { merge: true }
+        //     )
+        // }
 
         return {
             success: true,
