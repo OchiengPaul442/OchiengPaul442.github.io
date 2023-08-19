@@ -53,7 +53,7 @@ const Auth = () => {
                     type: 'SET_ACCESS_TOKEN',
                     payload: res.accessToken,
                 })
-                window.location.href = '/'
+                window.location.href = '/community_box'
             } else {
                 alert(res.message)
             }
@@ -82,7 +82,7 @@ const Auth = () => {
                 }}
                 className="shadow-md"
             >
-                <Link to={'/'} className="text-white">
+                <Link to={'/community_box'} className="text-white">
                     Visit Community
                 </Link>
             </div>
@@ -151,14 +151,14 @@ const Auth = () => {
 
                             {/* <!-- link to open the home page --> */}
                             <Link
-                                to={'/'}
+                                to={'/community_box'}
                                 type="submit"
                                 id="submit_btn"
                                 className="text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6"
                             >
                                 Login
                             </Link>
-                            <Link
+                            <button
                                 onClick={handleSignWithGoogle}
                                 className="flex justify-center focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6 border border-blue-950 "
                             >
@@ -170,7 +170,7 @@ const Auth = () => {
                                 <span className="ml-2 font-normal">
                                     Login with Google
                                 </span>
-                            </Link>
+                            </button>
                             <div className="text-center mb-6">
                                 <a
                                     href="#"
@@ -298,7 +298,7 @@ const Auth = () => {
                                 </div>
                             </div>
                             <Link
-                                to={'/'}
+                                to={'/community_box'}
                                 type="submit"
                                 id="submit_btn"
                                 className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"

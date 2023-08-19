@@ -82,7 +82,10 @@ const TopBar = ({ onClick, value }) => {
                                 />
                             )}
                         </button>
-                        <Link to="/" className="flex ml-2 md:mr-24">
+                        <Link
+                            to="/community_box"
+                            className="flex ml-2 md:mr-24"
+                        >
                             <CommunityIcon fill="none" width="40" height="40" />
                             {window.innerWidth > 768 && (
                                 <span className="self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white">
@@ -91,8 +94,8 @@ const TopBar = ({ onClick, value }) => {
                             )}
                         </Link>
                     </div>
-                    {window.location.pathname === '/' ||
-                    window.location.pathname === '/' ? (
+                    {window.location.pathname === '/community_box' ||
+                    window.location.pathname === '/community_box/' ? (
                         <div className="hidden sm:inline-flex">
                             <TopNav
                                 handleCategory={handleCategory}
@@ -137,7 +140,7 @@ const TopBar = ({ onClick, value }) => {
                                             height="24"
                                         />
                                     </ListItemIcon>
-                                    <Link to="/">
+                                    <Link to="/community_box">
                                         <ListItemText
                                             primary="Home"
                                             className="text-sm"

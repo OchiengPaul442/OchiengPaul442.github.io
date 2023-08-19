@@ -9,7 +9,10 @@ const Eror404 = () => {
                 <div className="px-3 py-3 lg:px-5 lg:pl-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center justify-start">
-                            <Link to="/" className="flex ml-2 md:mr-24">
+                            <Link
+                                to="/community_box"
+                                className="flex ml-2 md:mr-24"
+                            >
                                 <CommunityIcon
                                     fill="none"
                                     width="40"
@@ -38,7 +41,7 @@ const Eror404 = () => {
                         deleted.
                     </p>
                     <Link
-                        to="/"
+                        to="/community_box"
                         className="inline-block bg-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-600"
                     >
                         Go back home
