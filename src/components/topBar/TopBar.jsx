@@ -49,7 +49,7 @@ const TopBar = ({ onClick, value }) => {
             type: 'LOGOUT',
         })
         if (logout) {
-            window.location.href = '/auth'
+            window.location.href = '/'
             localStorage.removeItem('persist:root')
         }
     }
