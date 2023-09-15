@@ -40,8 +40,7 @@ const Home = () => {
             <div className="flex flex-col items-center gap-4">
                 {/* first section */}
                 <div className="w-full max-w-3xl">
-                    {window.location.pathname === '/community_box' ||
-                    window.location.pathname === '/community_box/' ? (
+                    {window.location.pathname === '/' ? (
                         <div className="inline-flex md:hidden mb-4 w-full justify-center">
                             <TopNav
                                 handleCategory={handleCategory}
