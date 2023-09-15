@@ -93,7 +93,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     type: 'SET_ACCESS_TOKEN',
                     payload: res.accessToken,
                 })
-                window.location.href = '/'
+                setOpenLogin(false)
             } else {
                 alert(res.message)
             }
