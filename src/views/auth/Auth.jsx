@@ -53,7 +53,7 @@ const Auth = () => {
                     type: 'SET_ACCESS_TOKEN',
                     payload: res.accessToken,
                 })
-                window.location.href = '/community_box'
+                window.location.href = '/'
             } else {
                 alert(res.message)
             }
@@ -82,7 +82,7 @@ const Auth = () => {
                 }}
                 className="shadow-md"
             >
-                <Link to={'/community_box'} className="text-white">
+                <Link to={'/'} className="text-white">
                     Visit Community
                 </Link>
             </div>
@@ -151,7 +151,7 @@ const Auth = () => {
 
                             {/* <!-- link to open the home page --> */}
                             <Link
-                                to={'/community_box'}
+                                to={'/'}
                                 type="submit"
                                 id="submit_btn"
                                 className="text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6"
@@ -298,7 +298,7 @@ const Auth = () => {
                                 </div>
                             </div>
                             <Link
-                                to={'/community_box'}
+                                to={'/'}
                                 type="submit"
                                 id="submit_btn"
                                 className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"

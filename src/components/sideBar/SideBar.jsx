@@ -67,7 +67,7 @@ const SideBar = ({ show }) => {
                         <List component="nav" className="space-y-2 font-medium">
                             <li>
                                 <NavLink
-                                    to="/community_box"
+                                    to="/"
                                     className={({ isActive }) =>
                                         isActive
                                             ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
