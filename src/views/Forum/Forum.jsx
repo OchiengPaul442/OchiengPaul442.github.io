@@ -7,28 +7,29 @@ import { useSelector } from 'react-redux'
 
 const Forum = () => {
     const accessToken = useSelector((state) => state.auth.accessToken)
-    const [loading, setLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [posts, setPosts] = useState([])
 
     useEffect(() => {
         const fetchPosts = async () => {
+            setIsLoading(true)
             try {
-                setLoading(true)
                 const res = await getPosts()
                 setPosts(res)
-                setLoading(false)
             } catch (error) {
-                setLoading(false)
                 console.log(error)
+            } finally {
+                setIsLoading(false)
             }
         }
         fetchPosts()
     }, [])
+
     return (
         <Page>
             <div className="max-w-3xl mx-auto">
                 <div className="col-span-2 md:col-span-2 gap-4 h-screen">
-                    {loading ? (
+                    {isLoading ? (
                         <div className="flex justify-center items-center">
                             <Loader width="200" height="200" />
                         </div>
@@ -38,7 +39,7 @@ const Forum = () => {
                                 key={post.id}
                                 post={post}
                                 comment={true}
-                                loading={loading}
+                                loading={isLoading}
                             />
                         ))
                     ) : (

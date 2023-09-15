@@ -1,13 +1,10 @@
 import React, { useState } from 'react'
-import Box from '@mui/material/Box'
-import Modal from '@mui/material/Modal'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
+import { TextField, Typography, Button, Modal, Box } from '@mui/material'
 import ImageUploader from 'react-images-upload'
 import { createPost } from '../../backend/posts'
 import { Loader } from '../icons/Icons'
 import { useDispatch, useSelector } from 'react-redux'
+import Alert from '@mui/material/Alert'
 
 const style = {
     width: '800px',
@@ -33,6 +30,11 @@ const PostModal = ({ open, handleCloseModal }) => {
     const [images, setImages] = useState([])
     const [loading, setLoading] = useState(false)
     const [quantity, setQuantity] = useState(0)
+    const [alert, setAlert] = useState({
+        show: false,
+        message: '',
+        type: 'success',
+    })
 
     const handleTitleChange = (event) => {
         setTitle(event.target.value)
@@ -55,6 +57,15 @@ const PostModal = ({ open, handleCloseModal }) => {
     }
 
     const handleSubmit = async () => {
+        if (!title || !description || !itemType || !images.length) {
+            setAlert({
+                show: true,
+                message: 'Please fill all the fields',
+                type: 'error',
+            })
+            return
+        }
+
         const post = {
             userId,
             title,
@@ -63,35 +74,37 @@ const PostModal = ({ open, handleCloseModal }) => {
             images,
             quantity,
         }
+
         try {
             setLoading(true)
             await createPost(post)
-            setTitle('')
-            setDescription('')
-            setItemType('free')
-            setImages([])
-            setLoading(false)
+            resetForm()
             handleCloseModal()
-            dispatch({
-                type: 'SET_ALERT',
-                payload: {
-                    show: true,
-                    message: 'Post created successfully',
-                    type: 'success',
-                },
-            })
+            showAlert('Post created successfully', 'success')
         } catch (error) {
             console.log(error)
+            showAlert(error.message, 'error')
+        } finally {
             setLoading(false)
-            dispatch({
-                type: 'SET_ALERT',
-                payload: {
-                    show: true,
-                    message: error.message,
-                    type: 'error',
-                },
-            })
         }
+    }
+
+    const resetForm = () => {
+        setTitle('')
+        setDescription('')
+        setItemType('free')
+        setImages([])
+    }
+
+    const showAlert = (message, type) => {
+        dispatch({
+            type: 'SET_ALERT',
+            payload: {
+                show: true,
+                message,
+                type,
+            },
+        })
     }
 
     return (
@@ -107,14 +120,26 @@ const PostModal = ({ open, handleCloseModal }) => {
                     Add Item to
                     <span className="text-blue-700"> Community Box</span>
                 </Typography>
+                {alert.show && (
+                    <Alert
+                        severity={alert.type}
+                        onClose={() => setAlert({ ...alert, show: false })}
+                        sx={{ mt: 2 }}
+                    >
+                        {alert.message}
+                    </Alert>
+                )}
                 <Box sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
                     <TextField
                         fullWidth
                         label="Post Title"
                         value={title}
                         onChange={handleTitleChange}
-                        sx={{ mt: 2 }}
+                        sx={{
+                            mt: 2,
+                        }}
                     />
+
                     <TextField
                         fullWidth
                         label="Description"
@@ -123,8 +148,11 @@ const PostModal = ({ open, handleCloseModal }) => {
                         value={description}
                         onChange={handleDescriptionChange}
                         variant="outlined"
-                        sx={{ mt: 2 }}
+                        sx={{
+                            mt: 2,
+                        }}
                     />
+
                     <TextField
                         fullWidth
                         id="Select Item Type"
