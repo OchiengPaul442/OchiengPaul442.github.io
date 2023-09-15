@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux'
 import { GoogleIcon } from '../../components'
 import { signInWithGoogle } from '../../backend/auth'
 import { useDispatch } from 'react-redux'
+import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
 
 const style = {
     width: '800px',
@@ -142,15 +143,24 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             interval={5000}
                             transitionTime={500}
                         >
-                            {post.images.map((image, index) => (
+                            {post.images.length > 0 ? (
+                                post.images.map((image, index) => (
+                                    <img
+                                        style={{ maxHeight: '520px' }}
+                                        key={index}
+                                        className="w-full h-full object-cover md:rounded-lg"
+                                        src={image}
+                                        alt="post image"
+                                    />
+                                ))
+                            ) : (
                                 <img
                                     style={{ maxHeight: '520px' }}
-                                    key={index}
                                     className="w-full h-full object-cover md:rounded-lg"
-                                    src={image}
-                                    alt="post image"
+                                    src={ImagePlaceholder}
+                                    alt="placeholder"
                                 />
-                            ))}
+                            )}
                         </Carousel>
                     )}
                 </div>
