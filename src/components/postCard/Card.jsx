@@ -96,8 +96,12 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 })
                 dispatch({
                     type: 'SET_ACCESS_TOKEN',
-                    payload: res.accessToken,
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
                 })
+
                 setOpenLogin(false)
             } else {
                 alert(res.message)
