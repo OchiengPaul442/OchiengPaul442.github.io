@@ -16,6 +16,8 @@ import { signInWithGoogle } from '../../backend/auth'
 import { useDispatch } from 'react-redux'
 import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
 import { Link } from 'react-router-dom'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
 
 const style = {
     width: '800px',
@@ -424,9 +426,20 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 aria-describedby="keep-mounted-modal-description"
             >
                 <Box sx={style}>
-                    <Typography variant="h6" component="h2">
-                        Share on
-                    </Typography>
+                    <div className="flex justify-between py-4">
+                        <Typography variant="h6" component="h2">
+                            Share on
+                        </Typography>
+                        <IconButton
+                            aria-label="delete"
+                            sx={{ color: 'red' }}
+                            onClick={() => {
+                                handleClose()
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </div>
                     <Box sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
                         {socialMedia.map((social) => (
                             <div
@@ -459,9 +472,20 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 aria-describedby="keep-mounted-modal-description"
             >
                 <Box sx={styleLogin}>
-                    <Typography variant="h6" component="h2">
-                        Login to Continue
-                    </Typography>
+                    <div className="flex justify-between py-4">
+                        <Typography variant="h6" component="h2">
+                            Login to Continue
+                        </Typography>
+                        <IconButton
+                            aria-label="delete"
+                            sx={{ color: 'red' }}
+                            onClick={() => {
+                                setOpenLogin(false)
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </div>
                     <Box
                         sx={{
                             maxHeight: '60vh',
