@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 const TopBar = React.lazy(() => import('../components/topBar/TopBar'))
 const SideBar = React.lazy(() => import('../components/sideBar/SideBar'))
 
 const Page = ({ children, title }) => {
-    const [showSideBar, setShowSideBar] = React.useState(true)
+    const [showSideBar, setShowSideBar] = useState(true)
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (window.innerWidth < 640) {
             setShowSideBar(!showSideBar)
         }
@@ -17,7 +17,7 @@ const Page = ({ children, title }) => {
                 onClick={() => setShowSideBar(!showSideBar)}
                 value={showSideBar}
             />
-            <SideBar show={showSideBar} />
+            <SideBar show={showSideBar} setShowSideBar={setShowSideBar} />
             <div
                 className={`${
                     window.innerWidth < 764 ? 'p-2' : 'p-4'

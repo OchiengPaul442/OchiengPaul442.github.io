@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, Fragment } from 'react'
 import { Drawer, List } from '@mui/material'
 import Box from '@mui/material/Box'
+import { useMediaQuery } from 'react-responsive'
 import { Link, NavLink } from 'react-router-dom'
 import {
     HomeIcon,
@@ -12,55 +13,44 @@ import {
 } from '../icons/Icons'
 import { useSelector } from 'react-redux'
 
-const SideBar = ({ show }) => {
+const SideBar = ({ show, setShowSideBar }) => {
     const accessToken = useSelector((state) => state.auth.accessToken)
     const [showRegister, setShowRegister] = useState(false)
-    const [isMobileView, setIsMobileView] = useState(window.innerWidth < 960)
+    const isMobileView = useMediaQuery({ query: '(max-width: 960px)' })
 
     const showRegisterBox = () => {
         setShowRegister(true)
     }
 
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobileView(window.innerWidth < 960)
-        }
-
-        window.addEventListener('resize', handleResize)
-
-        return () => {
-            window.removeEventListener('resize', handleResize)
-        }
-    }, [])
-
     return (
-        <Box>
-            <Drawer
-                anchor="left"
-                open={isMobileView ? show : true}
-                variant="persistent"
-                className="fixed top-0 z-40 h-screen pt-20 transition-transform  bg-white border-r border-gray-200  dark:bg-gray-800 dark:border-gray-700"
-                ModalProps={{
-                    keepMounted: true,
-                }}
-                sx={{
-                    '& .MuiDrawer-paper': {
-                        top: '0',
-                        left: '0',
-                        width: '280px',
-                        maxWidth: '100%',
-                        height: '100%',
-                        maxHeight: '100%',
-                        overflowX: 'hidden',
-                        overflowY: 'auto',
-                        transition: 'all 0.25s ease-in-out',
-                        '&.MuiDrawer-paperAnchorLeft': {
-                            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                        },
+        <Drawer
+            anchor="left"
+            open={isMobileView ? show : true}
+            variant="persistent"
+            onClose={() => setShowSideBar(false)}
+            className="fixed top-0 z-40 h-screen pt-20 transition-transform  bg-white border-r border-gray-200  dark:bg-gray-800 dark:border-gray-700"
+            ModalProps={{
+                keepMounted: true,
+            }}
+            sx={{
+                '& .MuiDrawer-paper': {
+                    top: '0',
+                    left: '0',
+                    width: '280px',
+                    maxWidth: '100%',
+                    height: '100%',
+                    maxHeight: '100%',
+                    overflowX: 'hidden',
+                    overflowY: 'auto',
+                    transition: 'all 0.25s ease-in-out',
+                    '&.MuiDrawer-paperAnchorLeft': {
+                        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                     },
-                }}
-                aria-label="Sidebar"
-            >
+                },
+            }}
+            aria-label="Sidebar"
+        >
+            <Box>
                 <div className="h-full px-3 py-4 overflow-y-auto justify-between flex flex-col">
                     <div className=" px-3 pb-4 mt-14 overflow-y-auto bg-white dark:bg-gray-800">
                         <List component="nav" className="space-y-2 font-medium">
@@ -177,8 +167,8 @@ const SideBar = ({ show }) => {
                         </div>
                     )}
                 </div>
-            </Drawer>
-        </Box>
+            </Box>
+        </Drawer>
     )
 }
 

@@ -109,12 +109,6 @@ const PostModal = ({ open, handleCloseModal }) => {
         })
     }
 
-    console.log('tes', images)
-    console.log('tes', itemType)
-    console.log('tes', quantity)
-    console.log('tes', description)
-    console.log('tes', title)
-
     return (
         <Modal
             keepMounted
