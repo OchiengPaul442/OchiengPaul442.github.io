@@ -17,7 +17,7 @@ const style = {
     backgroundColor: 'white',
     borderRadius: '4px',
     boxShadow: 24,
-    p: 4,
+    p: 2,
     '@media (max-width: 768px)': {
         width: '90%',
     },
@@ -225,7 +225,6 @@ const PostModal = ({ open, handleCloseModal }) => {
                             'image/png',
                             'image/jpg',
                         ]}
-                        style={{ width: '500px', height: '500px' }}
                     />
                 </Box>
                 {loading ? (

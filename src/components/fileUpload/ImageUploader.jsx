@@ -105,7 +105,7 @@ const ImageUploader = ({
     ))
 
     return (
-        <section className="container mx-auto p-4 font-mono">
+        <section className="container mx-auto font-mono">
             <div
                 {...getRootProps({
                     className:

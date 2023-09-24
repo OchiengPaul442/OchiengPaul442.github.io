@@ -102,175 +102,313 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
         }
     }
 
-    return (
-        <div
-            key={post.id}
-            className="max-w-2xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
-        >
-            <div className="py-4">
-                <div className="px-2 md:px-4 font-bold text-xl mb-2 flex items-center">
-                    {loading ? (
-                        <Skeleton variant="text" width={150} height={24} />
-                    ) : (
-                        <h1>{post.title}</h1>
-                    )}
-                </div>
-                <p className="px-2 md:px-4 text-gray-700 lg:text-base text-sm">
-                    {loading ? (
-                        <Skeleton variant="text" width="100%" height={80} />
-                    ) : (
-                        post.description
-                    )}
-                </p>
-                <div
-                    className={`w-full h-auto md:px-4 md:rounded-lg mt-4 mb-2 `}
-                >
-                    {loading ? (
-                        <Skeleton
-                            variant="rectangular"
-                            width="100%"
-                            height={300}
-                        />
-                    ) : (
-                        <Carousel
-                            showThumbs={false}
-                            showStatus={false}
-                            showIndicators={false}
-                            infiniteLoop
-                            autoPlay
-                            swipeable
-                            emulateTouch
-                            interval={5000}
-                            transitionTime={500}
-                        >
-                            {post.images.length > 0 ? (
-                                post.images.map((image, index) => (
-                                    <img
-                                        style={{ maxHeight: '520px' }}
-                                        key={index}
-                                        className="w-full h-full object-cover md:rounded-lg"
-                                        src={image}
-                                        alt="post image"
-                                    />
-                                ))
-                            ) : (
-                                <img
-                                    style={{ maxHeight: '520px' }}
-                                    className="w-full h-full object-cover md:rounded-lg"
-                                    src={ImagePlaceholder}
-                                    alt="placeholder"
-                                />
-                            )}
-                        </Carousel>
-                    )}
-                </div>
+    const renderImage = (image, index) => {
+        const imgSrc = image ? image : ImagePlaceholder
+        return (
+            <div
+                key={index}
+                style={{
+                    height: '500px',
+                    maxHeight: '520px',
+                    backgroundImage: `url(${ImagePlaceholder})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+                className="w-full h-full relative"
+            >
+                <img
+                    className="w-full h-full object-cover  absolute inset-0"
+                    src={imgSrc}
+                    alt="post image"
+                />
             </div>
-            <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
-                <div className="space-x-2 flex justify-end mt-2">
-                    {loading ? (
-                        <Skeleton variant="circle" width={24} height={24} />
-                    ) : (
-                        <button
-                            onClick={() => {
-                                if (accessToken) {
-                                    // handleComment()
-                                } else {
-                                    setOpenLogin(true)
-                                }
-                            }}
-                            className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-                        >
-                            <LikeIcon fill="none" width="24" height="24" />
-                            <span className="ml-2">like</span>
-                        </button>
-                    )}
-                    {comment && (
-                        <button
-                            onClick={() => {
-                                if (accessToken) {
-                                    handleComment()
-                                } else {
-                                    setOpenLogin(true)
-                                }
-                            }}
-                            className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-                        >
-                            <CommentIcon
-                                fill="none"
-                                width="24"
-                                height="24"
-                                className="mr-1"
-                            />
+        )
+    }
 
-                            <span className="ml-2">comment</span>
-                        </button>
-                    )}
-                    <button
-                        onClick={handleOpen}
-                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+    return (
+        <>
+            {post.length > 0 ? (
+                post.map((post) => (
+                    <div
+                        key={post.id}
+                        className="max-w-2xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
                     >
-                        {loading ? (
-                            <Skeleton variant="circle" width={24} height={24} />
-                        ) : (
-                            <ShareIcon fill="none" width="24" height="24" />
+                        <div className="py-4">
+                            <div className="px-2 md:px-4 font-bold text-xl mb-2 flex items-center">
+                                {loading ? (
+                                    <Skeleton
+                                        variant="text"
+                                        width={150}
+                                        height={24}
+                                    />
+                                ) : (
+                                    <h1>{post.title}</h1>
+                                )}
+                            </div>
+                            <p className="px-2 md:px-4 text-gray-700 lg:text-base text-sm">
+                                {loading ? (
+                                    <Skeleton
+                                        variant="text"
+                                        width="100%"
+                                        height={80}
+                                    />
+                                ) : (
+                                    post.description
+                                )}
+                            </p>
+                            <div
+                                className={`w-full h-auto md:px-4 md:rounded-lg mt-4 mb-2 `}
+                            >
+                                {loading ? (
+                                    <Skeleton
+                                        variant="rectangular"
+                                        width="100%"
+                                        height={300}
+                                    />
+                                ) : (
+                                    <Carousel
+                                        showThumbs={false}
+                                        showStatus={false}
+                                        showIndicators={false}
+                                        infiniteLoop
+                                        autoPlay
+                                        swipeable
+                                        emulateTouch
+                                        interval={5000}
+                                        transitionTime={500}
+                                    >
+                                        {post.images.length > 0
+                                            ? post.images.map(renderImage)
+                                            : renderImage(ImagePlaceholder)}
+                                    </Carousel>
+                                )}
+                            </div>
+                        </div>
+                        <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
+                            <div className="space-x-2 flex justify-end mt-2">
+                                {loading ? (
+                                    <Skeleton
+                                        variant="circle"
+                                        width={24}
+                                        height={24}
+                                    />
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            if (accessToken) {
+                                                // handleLike()
+                                            } else {
+                                                setOpenLogin(true)
+                                            }
+                                        }}
+                                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                    >
+                                        <LikeIcon
+                                            fill="none"
+                                            width="24"
+                                            height="24"
+                                        />
+                                        <span className="ml-2">like</span>
+                                    </button>
+                                )}
+                                {comment && (
+                                    <button
+                                        onClick={() => {
+                                            if (accessToken) {
+                                                handleComment()
+                                            } else {
+                                                setOpenLogin(true)
+                                            }
+                                        }}
+                                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                    >
+                                        <CommentIcon
+                                            fill="none"
+                                            width="24"
+                                            height="24"
+                                            className="mr-1"
+                                        />
+
+                                        <span className="ml-2">comment</span>
+                                    </button>
+                                )}
+                                <button
+                                    onClick={handleOpen}
+                                    className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                >
+                                    {loading ? (
+                                        <Skeleton
+                                            variant="circle"
+                                            width={24}
+                                            height={24}
+                                        />
+                                    ) : (
+                                        <ShareIcon
+                                            fill="none"
+                                            width="24"
+                                            height="24"
+                                        />
+                                    )}
+                                    <span className="ml-2">share</span>
+                                </button>
+                            </div>
+                            <div className="flex">
+                                {loading ? (
+                                    <Skeleton
+                                        variant="circle"
+                                        width={40}
+                                        height={40}
+                                    />
+                                ) : (
+                                    <img
+                                        className="w-8 h-8 rounded-full mr-4"
+                                        src={post.photoURL}
+                                        alt="Avatar"
+                                    />
+                                )}
+                                <div>
+                                    {loading ? (
+                                        <Skeleton
+                                            variant="text"
+                                            width={100}
+                                            height={20}
+                                        />
+                                    ) : (
+                                        <>
+                                            <h4>{post.displayName}</h4>
+                                            <p className="text-gray-400 text-sm">
+                                                {post.createdAt
+                                                    .toDate()
+                                                    .toDateString()}
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        {quantity && (
+                            <div
+                                className="px-6 pt-4 pb-2 flex items-center border-t-2"
+                                style={{
+                                    borderTopColor: '#1c274c',
+                                }}
+                            >
+                                Quantity available:
+                                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 mr-2 text-xs font-bold leading-none text-gray-700 bg-gray-200 rounded-full">
+                                    {loading ? (
+                                        <Skeleton
+                                            variant="text"
+                                            width={20}
+                                            height={16}
+                                        />
+                                    ) : (
+                                        post.quantity
+                                    )}
+                                </span>
+                            </div>
                         )}
-                        <span className="ml-2">share</span>
-                    </button>
-                </div>
-                <div className="flex">
-                    {loading ? (
-                        <Skeleton variant="circle" width={40} height={40} />
-                    ) : (
-                        <img
-                            className="w-8 h-8 rounded-full mr-4"
-                            src={post.photoURL}
-                            alt="Avatar"
-                        />
-                    )}
-                    <div>
-                        {loading ? (
-                            <Skeleton variant="text" width={100} height={20} />
-                        ) : (
-                            <>
-                                <h4>{post.displayName}</h4>
-                                <p className="text-gray-400 text-sm">
-                                    {post.createdAt.toDate().toDateString()}
-                                </p>
-                            </>
+                        {/* comment input field */}
+                        {commentSec && (
+                            <div className="px-2 md:px-6 py-2">
+                                <div className="flex items-center justify-between">
+                                    <input
+                                        type="text"
+                                        placeholder="Add a comment"
+                                        className="w-full px-4 py-2 mr-2 text-sm text-gray-700 bg-gray-200 rounded-lg  focus:outline-none focus:bg-white focus:border-slate-900 focus:ring-0"
+                                    />
+                                    <button className="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none">
+                                        Post
+                                    </button>
+                                </div>
+                            </div>
                         )}
                     </div>
-                </div>
-            </div>
-            {quantity && (
-                <div
-                    className="px-6 pt-4 pb-2 flex items-center border-t-2"
-                    style={{
-                        borderTopColor: '#1c274c',
-                    }}
-                >
-                    Quantity available:
-                    <span className="ml-2 inline-flex items-center justify-center px-2 py-1 mr-2 text-xs font-bold leading-none text-gray-700 bg-gray-200 rounded-full">
-                        {loading ? (
-                            <Skeleton variant="text" width={20} height={16} />
-                        ) : (
-                            post.quantity
+                ))
+            ) : loading ? (
+                [...Array(5)].map((_, index) => (
+                    <div
+                        key={index}
+                        className="max-w-2xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+                    >
+                        <div className="py-4">
+                            <div className="px-2 md:px-4 font-bold text-xl mb-2 flex items-center">
+                                <Skeleton
+                                    variant="text"
+                                    width={150}
+                                    height={24}
+                                />
+                            </div>
+                            <p className="px-2 md:px-4 text-gray-700 lg:text-base text-sm">
+                                <Skeleton
+                                    variant="text"
+                                    width="100%"
+                                    height={80}
+                                />
+                            </p>
+                            <div
+                                className={`w-full h-auto md:px-4 md:rounded-lg mt-4 mb-2 `}
+                            >
+                                <Skeleton
+                                    variant="rectangular"
+                                    width="100%"
+                                    height={300}
+                                />
+                            </div>
+                        </div>
+                        <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
+                            <div className="space-x-2 flex justify-end mt-2">
+                                <Skeleton
+                                    variant="circle"
+                                    width={24}
+                                    height={24}
+                                />
+                                <button
+                                    onClick={handleOpen}
+                                    className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                >
+                                    <Skeleton
+                                        variant="circle"
+                                        width={24}
+                                        height={24}
+                                    />
+                                </button>
+                            </div>
+                            <div className="flex">
+                                <Skeleton
+                                    variant="circle"
+                                    width={40}
+                                    height={40}
+                                />
+                                <div>
+                                    <Skeleton
+                                        variant="text"
+                                        width={100}
+                                        height={20}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        {quantity && (
+                            <div
+                                className="px-6 pt-4 pb-2 flex items-center border-t-2"
+                                style={{
+                                    borderTopColor: '#1c274c',
+                                }}
+                            >
+                                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 mr-2 text-xs font-bold leading-none text-gray-700 bg-gray-200 rounded-full">
+                                    <Skeleton
+                                        variant="text"
+                                        width={20}
+                                        height={16}
+                                    />
+                                </span>
+                            </div>
                         )}
-                    </span>
-                </div>
-            )}
-            {/* comment input field */}
-            {commentSec && (
-                <div className="px-2 md:px-6 py-2">
-                    <div className="flex items-center justify-between">
-                        <input
-                            type="text"
-                            placeholder="Add a comment"
-                            className="w-full px-4 py-2 mr-2 text-sm text-gray-700 bg-gray-200 rounded-lg  focus:outline-none focus:bg-white focus:border-slate-900 focus:ring-0"
-                        />
-                        <button className="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none">
-                            Post
-                        </button>
                     </div>
+                ))
+            ) : (
+                <div className="w-full flex justify-center top-32 text-2xl font-bold text-gray-500">
+                    No Posts Available
                 </div>
             )}
 
@@ -353,7 +491,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     </Box>
                 </Box>
             </Modal>
-        </div>
+        </>
     )
 }
 

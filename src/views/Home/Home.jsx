@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Page from '../../layout/Page'
-import { PostCard, Loader } from '../../components'
+import { PostCard } from '../../components'
 import { getPosts } from '../../backend/posts'
 import { TopNav } from '../../components'
 
@@ -34,6 +34,8 @@ const Home = () => {
         })
     }
 
+    const filteredPosts = posts.filter((post) => post.type === categories)
+
     return (
         <Page>
             <div className="flex flex-col items-center gap-4">
@@ -46,26 +48,11 @@ const Home = () => {
                             />
                         </div>
                     )}
-                    {isLoading ? (
-                        <div className="flex justify-center items-center">
-                            <Loader width="200" height="200" />
-                        </div>
-                    ) : posts.length > 0 ? (
-                        posts.map((post) =>
-                            post.type === categories ? (
-                                <PostCard
-                                    key={post.id}
-                                    post={post}
-                                    comment={false}
-                                    loading={isLoading}
-                                />
-                            ) : null
-                        )
-                    ) : (
-                        <div className="w-full flex justify-center top-32 text-2xl font-bold text-gray-500">
-                            No Posts Available
-                        </div>
-                    )}
+                    <PostCard
+                        post={filteredPosts}
+                        comment={false}
+                        loading={isLoading}
+                    />
                 </div>
             </div>
         </Page>

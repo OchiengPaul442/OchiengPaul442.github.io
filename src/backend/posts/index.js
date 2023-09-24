@@ -62,3 +62,5 @@ export const getPosts = async () => {
     }
     return posts
 }
+
+// Function to like a post

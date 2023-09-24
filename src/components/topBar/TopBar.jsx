@@ -58,8 +58,6 @@ const TopBar = ({ onClick, value }) => {
     const handleOpen = () => setOpen(true)
     const handleCloseModal = () => setOpen(false)
 
-    console.log(value)
-
     return (
         <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             <div className="px-3 py-3 lg:px-5 lg:pl-3">
@@ -104,15 +102,20 @@ const TopBar = ({ onClick, value }) => {
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
                             {accessToken && (
-                                <button onClick={handleOpen} className="mx-3">
-                                    <Tooltip title="Add Post">
+                                <Tooltip title="Add New Post">
+                                    <button
+                                        type="button"
+                                        ref={null}
+                                        onClick={handleOpen}
+                                        className="mx-3"
+                                    >
                                         <AddIcon
                                             fill="orange"
                                             width="36"
                                             height="36"
                                         />
-                                    </Tooltip>
-                                </button>
+                                    </button>
+                                </Tooltip>
                             )}
 
                             <Avatar
@@ -130,24 +133,27 @@ const TopBar = ({ onClick, value }) => {
                                     'aria-labelledby': 'basic-button',
                                 }}
                             >
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <HomeIcon
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
-                                    </ListItemIcon>
-                                    <Link to="/">
-                                        <ListItemText
-                                            primary="Home"
-                                            className="text-sm"
-                                        />
-                                    </Link>
-                                </MenuItem>
-                                {accessToken && (
-                                    <>
-                                        <MenuItem onClick={handleClose}>
+                                {[
+                                    <MenuItem onClick={handleClose} key="home">
+                                        <ListItemIcon>
+                                            <HomeIcon
+                                                fill="none"
+                                                width="24"
+                                                height="24"
+                                            />
+                                        </ListItemIcon>
+                                        <Link to="/">
+                                            <ListItemText
+                                                primary="Home"
+                                                className="text-sm"
+                                            />
+                                        </Link>
+                                    </MenuItem>,
+                                    accessToken && (
+                                        <MenuItem
+                                            onClick={handleClose}
+                                            key="settings"
+                                        >
                                             <ListItemIcon>
                                                 <Settings
                                                     fill="none"
@@ -162,7 +168,12 @@ const TopBar = ({ onClick, value }) => {
                                                 />
                                             </Link>
                                         </MenuItem>
-                                        <MenuItem onClick={handleLogout}>
+                                    ),
+                                    accessToken && (
+                                        <MenuItem
+                                            onClick={handleLogout}
+                                            key="logout"
+                                        >
                                             <ListItemIcon>
                                                 <Logout
                                                     fill="none"
@@ -177,8 +188,8 @@ const TopBar = ({ onClick, value }) => {
                                                 />
                                             </Link>
                                         </MenuItem>
-                                    </>
-                                )}
+                                    ),
+                                ].filter(Boolean)}
                             </Menu>
                         </div>
                     </div>

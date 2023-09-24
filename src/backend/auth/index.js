@@ -50,22 +50,3 @@ export const signInWithGoogle = async () => {
         alert(err.message)
     }
 }
-
-// Function to sign in user anonymously
-// export const signInAnonymously = async () => {
-//     try {
-//         const result = await anonymousUser
-//         const user = result.user
-
-//         return {
-//             success: true,
-//             message: 'Successfully signed in anonymously',
-//             user: {
-//                 uid: user.uid,
-//             },
-//         }
-//     } catch (err) {
-//         console.error(err)
-//         alert(err.message)
-//     }
-// }
