@@ -53,7 +53,6 @@ const Auth = () => {
                     type: 'SET_ACCESS_TOKEN',
                     payload: res.accessToken,
                 })
-                window.location.href = '/'
             } else {
                 alert(res.message)
             }
@@ -96,7 +95,7 @@ const Auth = () => {
                     </h1>
                     {/* <!-- login section --> */}
                     {formState === 'login' && (
-                        <form action="#" id="login">
+                        <form id="login">
                             <h4 className="text-xl font-semibold mb-6">
                                 Welcome Back
                             </h4>
@@ -158,7 +157,7 @@ const Auth = () => {
                             >
                                 Login
                             </Link>
-                            <button
+                            <Link
                                 onClick={handleSignWithGoogle}
                                 className="flex justify-center focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6 border border-blue-950 "
                             >
@@ -170,7 +169,7 @@ const Auth = () => {
                                 <span className="ml-2 font-normal">
                                     Login with Google
                                 </span>
-                            </button>
+                            </Link>
                             <div className="text-center mb-6">
                                 <a
                                     href="#"

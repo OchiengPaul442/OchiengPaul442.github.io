@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { TextField, Typography, Button, Modal, Box } from '@mui/material'
-import ImageUploader from 'react-images-upload'
 import { createPost } from '../../backend/posts'
 import { Loader } from '../icons/Icons'
 import { useDispatch, useSelector } from 'react-redux'
 import Alert from '@mui/material/Alert'
+import ImageUploader from '../fileUpload/ImageUploader'
 
 const style = {
     width: '800px',
@@ -45,7 +45,28 @@ const PostModal = ({ open, handleCloseModal }) => {
     }
 
     const onDrop = (pictureFiles) => {
-        setImages(pictureFiles)
+        setImages((prevImages) => {
+            // If both arrays are empty, return an empty array
+            if (!prevImages.length && !pictureFiles.length) {
+                return []
+            }
+
+            // If only one of the arrays is empty, return the other array
+            if (!prevImages.length) {
+                return [...pictureFiles]
+            }
+            if (!pictureFiles.length) {
+                return [...prevImages]
+            }
+
+            // Merge both arrays and filter out duplicates
+            const merged = [
+                ...prevImages.filter((img) => !pictureFiles.includes(img)),
+                ...pictureFiles,
+            ]
+
+            return merged
+        })
     }
 
     const handleOptionChange = (event) => {
@@ -106,6 +127,12 @@ const PostModal = ({ open, handleCloseModal }) => {
             },
         })
     }
+
+    console.log('tes', images)
+    console.log('tes', itemType)
+    console.log('tes', quantity)
+    console.log('tes', description)
+    console.log('tes', title)
 
     return (
         <Modal
@@ -180,30 +207,16 @@ const PostModal = ({ open, handleCloseModal }) => {
                         onChange={handleQuantityChange}
                         sx={{ mt: 2, mb: 2 }}
                     />
+
                     <ImageUploader
-                        withIcon={true}
-                        buttonText="Choose images"
-                        onChange={onDrop}
-                        imgExtension={[
-                            '.jpg',
-                            '.gif',
-                            '.png',
-                            '.jpeg',
-                            '.webp',
-                            '.jfif',
-                            '.svg',
-                            '.bmp',
-                        ]}
-                        fileContainerStyle={{
-                            backgroundColor: '#f5f5f5',
-                            boxShadow: 'none',
-                            borderRadius: '5px',
-                        }}
+                        onUpload={onDrop}
                         maxFileSize={5242880}
-                        withPreview={true}
-                        defaultImage={images}
-                        fileSizeError="file size is too big"
-                        label="Max file size: 5mb, accepted: jpg | gif | png | jpeg | webp | jfif | svg | bmp"
+                        acceptedFileTypes={[
+                            'image/jpeg',
+                            'image/png',
+                            'image/jpg',
+                        ]}
+                        style={{ width: '500px', height: '500px' }}
                     />
                 </Box>
                 {loading ? (

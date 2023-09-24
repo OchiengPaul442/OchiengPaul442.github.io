@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Page from '../../layout/Page'
-import { MessagePopup, PostCard, Loader } from '../../components'
+import { PostCard, Loader } from '../../components'
 import { getPosts } from '../../backend/posts'
 import { TopNav } from '../../components'
 
 const Home = () => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth.accessToken)
     const categories = useSelector((state) => state.categories.categories)
     const [isLoading, setIsLoading] = useState(true)
     const [posts, setPosts] = useState([])
@@ -69,7 +68,6 @@ const Home = () => {
                     )}
                 </div>
             </div>
-            {accessToken && <MessagePopup />}
         </Page>
     )
 }

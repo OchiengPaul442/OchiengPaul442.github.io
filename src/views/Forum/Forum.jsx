@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react'
 import Page from '../../layout/Page'
 
 import { getPosts } from '../../backend/posts'
-import { MessagePopup, PostCard, Loader } from '../../components'
-import { useSelector } from 'react-redux'
+import { PostCard, Loader } from '../../components'
 
 const Forum = () => {
-    const accessToken = useSelector((state) => state.auth.accessToken)
     const [isLoading, setIsLoading] = useState(true)
     const [posts, setPosts] = useState([])
 
@@ -49,7 +47,6 @@ const Forum = () => {
                     )}
                 </div>
             </div>
-            {accessToken && <MessagePopup />}
         </Page>
     )
 }

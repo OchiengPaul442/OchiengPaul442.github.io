@@ -1,5 +1,5 @@
 import { db, auth, googleProvider } from '../../config/firebase'
-import { signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithPopup } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 // Function to sign in with Google
