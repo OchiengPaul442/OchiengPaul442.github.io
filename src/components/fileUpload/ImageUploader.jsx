@@ -105,11 +105,11 @@ const ImageUploader = ({
     ))
 
     return (
-        <section className="container mx-auto p-6 font-mono">
+        <section className="container mx-auto p-4 font-mono">
             <div
                 {...getRootProps({
                     className:
-                        'dropzone w-full py-32 flex flex-col items-center bg-gray-200 border-dashed px-24 border-4 border-gray-300',
+                        'dropzone w-full py-32 flex flex-col items-center bg-gray-200 border-dashed px-24 border-4 border-gray-300 rounded-md',
                 })}
             >
                 <input {...getInputProps()} />

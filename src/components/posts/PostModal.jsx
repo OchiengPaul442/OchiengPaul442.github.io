@@ -1,9 +1,11 @@
 import React, { useState, useCallback } from 'react'
-import { TextField, Typography, Button, Modal, Box } from '@mui/material'
+import { Typography, Button, Modal, Box } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import Alert from '@mui/material/Alert'
 import { createPost } from '../../backend/posts'
 import { Loader } from '../icons/Icons'
 import { useDispatch, useSelector } from 'react-redux'
-import Alert from '@mui/material/Alert'
 import ImageUploader from '../fileUpload/ImageUploader'
 
 const style = {
@@ -125,10 +127,22 @@ const PostModal = ({ open, handleCloseModal }) => {
             aria-describedby="keep-mounted-modal-description"
         >
             <Box sx={style}>
-                <Typography variant="h6" component="h2">
-                    Add Item to
-                    <span className="text-blue-700"> Community Box</span>
-                </Typography>
+                <div className="flex justify-between py-4">
+                    <Typography variant="h6" component="h2">
+                        Add Item to
+                        <span className="text-blue-700"> Community Box</span>
+                    </Typography>
+                    <IconButton
+                        aria-label="delete"
+                        sx={{ color: 'red' }}
+                        onClick={() => {
+                            handleCloseModal()
+                            resetForm()
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </div>
                 {alert.show && (
                     <Alert
                         severity={alert.type}
@@ -139,56 +153,75 @@ const PostModal = ({ open, handleCloseModal }) => {
                     </Alert>
                 )}
                 <Box sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
-                    <TextField
-                        fullWidth
-                        label="Post Title"
-                        value={title}
-                        onChange={handleTitleChange}
-                        sx={{
-                            mt: 2,
-                        }}
-                    />
+                    <div className="mb-4">
+                        <label
+                            htmlFor="Post Title"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                            Post Title
+                        </label>
+                        <input
+                            type="text"
+                            id="Post Title"
+                            value={title}
+                            onChange={handleTitleChange}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        />
+                    </div>
 
-                    <TextField
-                        fullWidth
-                        label="Description"
-                        multiline
-                        rows={4}
-                        value={description}
-                        onChange={handleDescriptionChange}
-                        variant="outlined"
-                        sx={{
-                            mt: 2,
-                        }}
-                    />
+                    <div className="mb-4">
+                        <label
+                            htmlFor="Description"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                            Description
+                        </label>
+                        <textarea
+                            id="Description"
+                            rows="4"
+                            value={description}
+                            onChange={handleDescriptionChange}
+                            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Write your thoughts here..."
+                        ></textarea>
+                    </div>
 
-                    <TextField
-                        fullWidth
-                        id="Select Item Type"
-                        sx={{
-                            mt: 2,
-                        }}
-                        variant="outlined"
-                        select
-                        label="Select Item Type"
-                        SelectProps={{
-                            native: true,
-                        }}
-                        value={itemType}
-                        onChange={handleOptionChange}
-                    >
-                        <option value="free">Free</option>
-                        <option value="borrow">Borrow</option>
-                        <option value="wanted">Wanted</option>
-                    </TextField>
-                    <TextField
-                        fullWidth
-                        label="Quantity"
-                        type="number"
-                        value={quantity}
-                        onChange={handleQuantityChange}
-                        sx={{ mt: 2, mb: 2 }}
-                    />
+                    <div className="mb-4">
+                        <label
+                            htmlFor="Item Type"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                            Select Item Type
+                        </label>
+                        <select
+                            id="Item Type"
+                            value={itemType}
+                            onChange={handleOptionChange}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
+                            <option value="free">Free</option>
+                            <option value="borrow">Borrow</option>
+                            <option value="wanted">Wanted</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-4">
+                        <label
+                            htmlFor="Quantity"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                            Quantity
+                        </label>
+                        <input
+                            type="number"
+                            id="Quantity"
+                            value={quantity}
+                            onChange={handleQuantityChange}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder=""
+                            required
+                        />
+                    </div>
 
                     <ImageUploader
                         onUpload={onDrop}
