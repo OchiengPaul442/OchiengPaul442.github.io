@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { TextField, Typography, Button, Modal, Box } from '@mui/material'
 import { createPost } from '../../backend/posts'
 import { Loader } from '../icons/Icons'
@@ -44,30 +44,9 @@ const PostModal = ({ open, handleCloseModal }) => {
         setDescription(event.target.value)
     }
 
-    const onDrop = (pictureFiles) => {
-        setImages((prevImages) => {
-            // If both arrays are empty, return an empty array
-            if (!prevImages.length && !pictureFiles.length) {
-                return []
-            }
-
-            // If only one of the arrays is empty, return the other array
-            if (!prevImages.length) {
-                return [...pictureFiles]
-            }
-            if (!pictureFiles.length) {
-                return [...prevImages]
-            }
-
-            // Merge both arrays and filter out duplicates
-            const merged = [
-                ...prevImages.filter((img) => !pictureFiles.includes(img)),
-                ...pictureFiles,
-            ]
-
-            return merged
-        })
-    }
+    const onDrop = useCallback((files) => {
+        setImages(files)
+    }, [])
 
     const handleOptionChange = (event) => {
         setItemType(event.target.value)
@@ -138,7 +117,10 @@ const PostModal = ({ open, handleCloseModal }) => {
         <Modal
             keepMounted
             open={open}
-            onClose={handleCloseModal}
+            onClose={() => {
+                handleCloseModal()
+                resetForm()
+            }}
             aria-labelledby="keep-mounted-modal-title"
             aria-describedby="keep-mounted-modal-description"
         >

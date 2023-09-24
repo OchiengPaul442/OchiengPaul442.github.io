@@ -40,24 +40,21 @@ const ImageUploader = ({
             }
 
             setFiles((prevFiles) => {
-                const newFiles = acceptedFiles.filter(
-                    (file) => !prevFiles.some((pf) => pf.id === file.id)
+                const newFiles = acceptedFiles.map((file) =>
+                    Object.assign(file, {
+                        preview: URL.createObjectURL(file),
+                        id: uuidv4(),
+                    })
                 )
 
-                return [
-                    ...prevFiles,
-                    ...newFiles.map((file) =>
-                        Object.assign(file, {
-                            preview: URL.createObjectURL(file),
-                            id: uuidv4(),
-                        })
-                    ),
-                ]
-            })
+                const updatedFiles = [...prevFiles, ...newFiles]
 
-            if (onUpload) {
-                onUpload(acceptedFiles)
-            }
+                if (onUpload) {
+                    onUpload(updatedFiles)
+                }
+
+                return updatedFiles
+            })
         },
         [maxFileSize, onUpload, acceptedFileTypes]
     )
@@ -66,7 +63,9 @@ const ImageUploader = ({
         (id) => {
             setFiles((prevFiles) => {
                 const updatedFiles = prevFiles.filter((file) => file.id !== id)
-                onUpload(updatedFiles)
+                if (onUpload) {
+                    onUpload(updatedFiles)
+                }
                 return updatedFiles
             })
         },
