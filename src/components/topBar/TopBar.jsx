@@ -20,10 +20,12 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import PostModal from '../posts/PostModal'
 import TopNav from './TopNav'
+import { signInUserAnonymously } from '../../backend/auth'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth.accessToken)
+    const accessToken = useSelector((state) => state.auth.accessToken.token)
+    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
     const imageURL = useSelector((state) => state.auth.user.photoURL)
     const categories = useSelector((state) => state.categories.categories)
     const [anchorEl, setAnchorEl] = useState(null)
@@ -44,14 +46,47 @@ const TopBar = ({ onClick, value }) => {
         })
     }
 
-    const handleLogout = () => {
-        const logout = dispatch({
-            type: 'LOGOUT',
-        })
-        if (logout) {
-            window.location.href = '/'
-            localStorage.removeItem('persist:root')
+    const handleAnonymousLogin = async () => {
+        try {
+            const res = await signInUserAnonymously()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
+                })
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
         }
+    }
+
+    const handleLogout = async () => {
+        // Dispatch logout action
+        dispatch({ type: 'CLEAR_USER' })
+
+        // Remove token from local storage
+        localStorage.removeItem('persist:root')
+
+        // Handle anonymous login if necessary
+        await handleAnonymousLogin()
+
+        // Refresh the page to home page
+        window.location.href = '/'
     }
 
     const [open, setOpen] = useState(false)
@@ -101,7 +136,7 @@ const TopBar = ({ onClick, value }) => {
                     ) : null}
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            {accessToken && (
+                            {accessToken && !anonymous && (
                                 <Tooltip title="Add New Post">
                                     <button
                                         type="button"
@@ -149,7 +184,7 @@ const TopBar = ({ onClick, value }) => {
                                             />
                                         </Link>
                                     </MenuItem>,
-                                    accessToken && (
+                                    accessToken && !anonymous && (
                                         <MenuItem
                                             onClick={handleClose}
                                             key="settings"
@@ -169,7 +204,7 @@ const TopBar = ({ onClick, value }) => {
                                             </Link>
                                         </MenuItem>
                                     ),
-                                    accessToken && (
+                                    accessToken && !anonymous && (
                                         <MenuItem
                                             onClick={handleLogout}
                                             key="logout"

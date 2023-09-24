@@ -8,12 +8,14 @@ import TwitterIcon from '@mui/icons-material/Twitter'
 import InstagramIcon from '@mui/icons-material/Instagram'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
+import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import { useSelector } from 'react-redux'
 import { GoogleIcon } from '../../components'
 import { signInWithGoogle } from '../../backend/auth'
 import { useDispatch } from 'react-redux'
 import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
+import { Link } from 'react-router-dom'
 
 const style = {
     width: '800px',
@@ -65,7 +67,8 @@ const socialMedia = [
 
 const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth.accessToken)
+    const accessToken = useSelector((state) => state.auth.accessToken.token)
+    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
     const [commentSec, setCommentSec] = React.useState(false)
     const [open, setOpen] = useState(false)
     const [openLogin, setOpenLogin] = useState(false)
@@ -195,8 +198,8 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                 ) : (
                                     <button
                                         onClick={() => {
-                                            if (accessToken) {
-                                                // handleLike()
+                                            if (accessToken && !anonymous) {
+                                                return null
                                             } else {
                                                 setOpenLogin(true)
                                             }
@@ -214,7 +217,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                 {comment && (
                                     <button
                                         onClick={() => {
-                                            if (accessToken) {
+                                            if (accessToken && !anonymous) {
                                                 handleComment()
                                             } else {
                                                 setOpenLogin(true)
@@ -260,10 +263,11 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                         height={40}
                                     />
                                 ) : (
-                                    <img
-                                        className="w-8 h-8 rounded-full mr-4"
-                                        src={post.photoURL}
+                                    <Avatar
+                                        className="mr-4"
+                                        sx={{ width: 40, height: 40 }}
                                         alt="Avatar"
+                                        src={post.photoURL}
                                     />
                                 )}
                                 <div>
@@ -480,14 +484,12 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             />
                             <span className="ml-2">Login with Google</span>
                         </button>
-                        <button
-                            onClick={() => {
-                                return null
-                            }}
+                        <Link
+                            to={'/auth'}
                             className="px-4 py-2 flex justify-center w-full font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
                         >
                             Login with Email and Password
-                        </button>
+                        </Link>
                     </Box>
                 </Box>
             </Modal>

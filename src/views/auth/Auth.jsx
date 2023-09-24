@@ -6,13 +6,198 @@ import Forgotpwd from '../../assets/images/forgotpwd.svg'
 import { Link } from 'react-router-dom'
 import { signInWithGoogle } from '../../backend/auth/index.js'
 import { useDispatch } from 'react-redux'
-import { GoogleIcon } from '../../components'
+import { GoogleIcon, Loader } from '../../components'
+import { Button, Alert } from '@mui/material'
+import {
+    registerWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signInUserAnonymously,
+} from '../../backend/auth/index.js'
 
 const Auth = () => {
     const dispatch = useDispatch()
     const [formState, setFormState] = useState('login')
+    const [loading, setLoading] = useState({
+        login: false,
+        signup: false,
+        forgotpwd: false,
+    })
+
+    const [disabled, setDisabled] = useState(true)
+    const [displayName, setDisplayName] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState({
+        message: '',
+        show: false,
+        type: 'error',
+        form: '',
+    })
+
+    const clearForm = () => {
+        setDisplayName('')
+        setEmail('')
+        setPassword('')
+    }
+
+    const handleAnonymousLogin = async () => {
+        try {
+            setLoading({ ...loading, anonymous: true })
+            const res = await signInUserAnonymously()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
+                })
+
+                // navigate to home page
+                window.location.href = '/'
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading({ ...loading, anonymous: false })
+        }
+    }
+
+    const handleForgotPassword = async () => {
+        try {
+            if (email === '') {
+                setError({
+                    ...error,
+                    show: true,
+                    message: 'Email is required',
+                    type: 'error',
+                    form: 'forgotpwd',
+                })
+                return
+            }
+
+            null
+        } catch {
+            null
+        } finally {
+            null
+        }
+    }
+
+    const handleLogin = async () => {
+        try {
+            if (email === '' || password === '') {
+                setError({
+                    ...error,
+                    show: true,
+                    message: 'Email and Password are required',
+                    type: 'error',
+                    form: 'login',
+                })
+                return
+            }
+
+            setLoading({ ...loading, login: true })
+            const res = await signInWithEmailAndPassword(email, password)
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
+                })
+
+                clearForm()
+
+                // navigate to home page
+                window.location.href = '/'
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading({ ...loading, login: false })
+        }
+    }
+
+    const handleRegistration = async () => {
+        try {
+            if (displayName === '' || email === '' || password === '') {
+                setError({
+                    ...error,
+                    show: true,
+                    message: 'All fields are required',
+                    type: 'error',
+                    form: 'signup',
+                })
+                return
+            }
+
+            setLoading({ ...loading, signup: true })
+            const res = await registerWithEmailAndPassword(
+                displayName,
+                email,
+                password
+            )
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
+                })
+
+                clearForm()
+
+                // navigate to home page
+                window.location.href = '/'
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading({ ...loading, signup: false })
+        }
+    }
 
     const handleSignupClick = () => {
+        clearForm()
         setFormState('signup')
         document.getElementById('color1').classList.add('change1')
         document.getElementById('color2').classList.add('change2')
@@ -21,6 +206,7 @@ const Auth = () => {
     }
 
     const handleSigninClick = () => {
+        clearForm()
         setFormState('login')
         document.getElementById('color1').classList.remove('change1')
         document.getElementById('color2').classList.remove('change2')
@@ -29,6 +215,7 @@ const Auth = () => {
     }
 
     const handleForgotPasswordClick = () => {
+        clearForm()
         setFormState('forgotpwd')
         document.getElementById('color1').classList.add('change1')
         document.getElementById('color2').classList.add('change2')
@@ -51,8 +238,14 @@ const Auth = () => {
                 })
                 dispatch({
                     type: 'SET_ACCESS_TOKEN',
-                    payload: res.accessToken,
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
                 })
+
+                // navigate to home page
+                window.location.href = '/'
             } else {
                 alert(res.message)
             }
@@ -71,7 +264,10 @@ const Auth = () => {
             <div
                 style={{
                     width: 'fit-content',
-                    padding: '0.5rem 1rem',
+                    paddingBottom: '10px',
+                    paddingTop: '15px',
+                    paddingLeft: '20px',
+                    paddingRight: '10px',
                     backgroundColor: 'orange',
                     borderRadius: '0.5rem',
                     position: 'absolute',
@@ -81,9 +277,13 @@ const Auth = () => {
                 }}
                 className="shadow-md"
             >
-                <Link to={'/'} className="text-white">
-                    Visit Community
-                </Link>
+                <button onClick={handleAnonymousLogin} className="text-white">
+                    {loading.anonymous ? (
+                        <Loader width={200} height={200} />
+                    ) : (
+                        'Visit Community'
+                    )}
+                </button>
             </div>
             <div className="auth_card" id="authCard">
                 <div
@@ -96,6 +296,22 @@ const Auth = () => {
                     {/* <!-- login section --> */}
                     {formState === 'login' && (
                         <form id="login">
+                            {error.show && error.form === 'login' && (
+                                <Alert
+                                    severity={error.type}
+                                    sx={{ marginBottom: '1rem' }}
+                                    onClose={() =>
+                                        setError({
+                                            ...error,
+                                            show: false,
+                                        })
+                                    }
+                                    open={error.show}
+                                >
+                                    {error.message}
+                                </Alert>
+                            )}
+
                             <h4 className="text-xl font-semibold mb-6">
                                 Welcome Back
                             </h4>
@@ -118,7 +334,9 @@ const Auth = () => {
                                 </div>
                                 <input
                                     type="text"
-                                    id=""
+                                    id="username/Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="Username / Email"
                                 />
@@ -142,21 +360,31 @@ const Auth = () => {
                                 </div>
                                 <input
                                     type="password"
-                                    id=""
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="Password"
                                 />
                             </div>
 
-                            {/* <!-- link to open the home page --> */}
-                            <Link
-                                to={'/'}
-                                type="submit"
-                                id="submit_btn"
-                                className="text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6"
+                            <Button
+                                sx={{
+                                    backgroundColor: '#1c274c',
+                                    marginBottom: '1rem',
+                                }}
+                                onClick={handleLogin}
+                                variant="contained"
+                                className="text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
                             >
-                                Login
-                            </Link>
+                                {loading.login ? (
+                                    <Loader width={200} height={200} />
+                                ) : (
+                                    'Login'
+                                )}
+                            </Button>
                             <Link
                                 onClick={handleSignWithGoogle}
                                 className="flex justify-center focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6 border border-blue-950 "
@@ -198,7 +426,23 @@ const Auth = () => {
                     )}
                     {/* <!-- signup section --> */}
                     {formState === 'signup' && (
-                        <form action="#" id="signup">
+                        <form id="signup">
+                            {error.show && error.form === 'signup' && (
+                                <Alert
+                                    severity={error.type}
+                                    sx={{ marginBottom: '1rem' }}
+                                    onClose={() =>
+                                        setError({
+                                            ...error,
+                                            show: false,
+                                        })
+                                    }
+                                    open={error.show}
+                                >
+                                    {error.message}
+                                </Alert>
+                            )}
+
                             <h4 className="text-xl font-semibold mb-6">
                                 SignUp to continue
                             </h4>
@@ -221,7 +465,11 @@ const Auth = () => {
                                 </div>
                                 <input
                                     type="text"
-                                    id=""
+                                    id="username"
+                                    value={displayName}
+                                    onChange={(e) =>
+                                        setDisplayName(e.target.value)
+                                    }
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="Bonnie Green"
                                 />
@@ -244,8 +492,10 @@ const Auth = () => {
                                     </svg>
                                 </div>
                                 <input
-                                    type="text"
-                                    id=""
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="storm@gmail.com"
                                 />
@@ -269,7 +519,11 @@ const Auth = () => {
                                 </div>
                                 <input
                                     type="password"
-                                    id=""
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="Password"
                                 />
@@ -278,9 +532,11 @@ const Auth = () => {
                                 <div className="flex items-center mb-4">
                                     <input
                                         id="checkbox-1"
+                                        name="checkbox-1"
+                                        onChange={() => setDisabled(!disabled)}
                                         aria-describedby="checkbox-1"
                                         type="checkbox"
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 "
+                                        className="w-4 h-4 text-blue-800 bg-gray-100 rounded border-gray-300 focus:ring-blue-700 "
                                     />
                                     <label
                                         htmlFor="checkbox-1"
@@ -296,14 +552,23 @@ const Auth = () => {
                                     </label>
                                 </div>
                             </div>
-                            <Link
-                                to={'/'}
-                                type="submit"
-                                id="submit_btn"
+                            <Button
+                                sx={{
+                                    backgroundColor: disabled
+                                        ? 'gray'
+                                        : '#1c274c',
+                                }}
+                                onClick={handleRegistration}
+                                disabled={disabled}
+                                variant="contained"
                                 className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
                             >
-                                SignUp
-                            </Link>
+                                {loading.login ? (
+                                    <Loader width={200} height={200} />
+                                ) : (
+                                    'SignUp'
+                                )}
+                            </Button>
                             <div className="extra_on_mobile text-center">
                                 <small>
                                     Already have an acount?{' '}
@@ -322,6 +587,22 @@ const Auth = () => {
                     {/* <!-- forgot password section --> */}
                     {formState === 'forgotpwd' && (
                         <form action="#" id="forgotpwd">
+                            {error.show && error.form === 'forgotpwd' && (
+                                <Alert
+                                    severity={error.type}
+                                    sx={{ marginBottom: '1rem' }}
+                                    onClose={() =>
+                                        setError({
+                                            ...error,
+                                            show: false,
+                                        })
+                                    }
+                                    open={error.show}
+                                >
+                                    {error.message}
+                                </Alert>
+                            )}
+
                             <h4 className="text-xl font-semibold mb-4">
                                 Password Rest
                             </h4>
@@ -346,15 +627,17 @@ const Auth = () => {
                                     </svg>
                                 </div>
                                 <input
-                                    type="text"
-                                    id=""
+                                    type="email"
+                                    id="Recoveryemail"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="storm@gmail.com"
                                 />
                             </div>
 
                             <button
-                                type="submit"
+                                onClick={handleForgotPassword}
                                 id="submit_btn_fwd"
                                 className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
                             >

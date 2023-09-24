@@ -1,5 +1,8 @@
 const initialAuthState = {
-    accessToken: null,
+    accessToken: {
+        token: null,
+        anonymous: true,
+    },
     user: {
         uid: null,
         displayName: null,
@@ -13,7 +16,10 @@ const authReducer = (state = initialAuthState, action) => {
         case 'SET_ACCESS_TOKEN':
             return {
                 ...state,
-                accessToken: action.payload,
+                accessToken: {
+                    token: action.payload.token,
+                    anonymous: action.payload.anonymous,
+                },
             }
         case 'SET_USER':
             return {
@@ -28,7 +34,13 @@ const authReducer = (state = initialAuthState, action) => {
         case 'CLEAR_USER':
             return {
                 ...state,
-                user: null,
+                user: {
+                    uid: 'N/A',
+                    displayName: 'N/A',
+                    email: 'N/A',
+                    photoURL: 'N/A',
+                },
+                accessToken: 'N/A',
             }
         default:
             return state

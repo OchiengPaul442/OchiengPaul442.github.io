@@ -14,7 +14,8 @@ import {
 import { useSelector } from 'react-redux'
 
 const SideBar = ({ show, setShowSideBar }) => {
-    const accessToken = useSelector((state) => state.auth.accessToken)
+    const accessToken = useSelector((state) => state.auth.accessToken.token)
+    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
     const [showRegister, setShowRegister] = useState(false)
     const isMobileView = useMediaQuery({ query: '(max-width: 960px)' })
 
@@ -50,7 +51,12 @@ const SideBar = ({ show, setShowSideBar }) => {
             }}
             aria-label="Sidebar"
         >
-            <Box>
+            <Box
+                sx={{
+                    width: 'auto',
+                    height: '100%',
+                }}
+            >
                 <div className="h-full px-3 py-4 overflow-y-auto justify-between flex flex-col">
                     <div className=" px-3 pb-4 mt-14 overflow-y-auto bg-white dark:bg-gray-800">
                         <List component="nav" className="space-y-2 font-medium">
@@ -90,7 +96,7 @@ const SideBar = ({ show, setShowSideBar }) => {
                                     </span>
                                 </NavLink>
                             </li>
-                            {accessToken && (
+                            {!anonymous && accessToken && (
                                 <>
                                     <li>
                                         <NavLink
@@ -113,7 +119,7 @@ const SideBar = ({ show, setShowSideBar }) => {
                                     </li>
                                 </>
                             )}
-                            {!accessToken && (
+                            {anonymous && accessToken && (
                                 <li>
                                     <Link
                                         to="/auth"
@@ -132,7 +138,7 @@ const SideBar = ({ show, setShowSideBar }) => {
                             )}
                         </List>
                     </div>
-                    {!accessToken && !showRegister && (
+                    {anonymous && !showRegister && (
                         <div className="p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900">
                             <div className="flex items-center mb-3">
                                 <SignInIcon
