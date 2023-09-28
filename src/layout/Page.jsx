@@ -1,15 +1,43 @@
 import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { checkIfUserHasPhoneNumber } from '../backend/auth'
+import UpdateDetails from '../components/upDateDetails/UpdateDetails'
 const TopBar = React.lazy(() => import('../components/topBar/TopBar'))
 const SideBar = React.lazy(() => import('../components/sideBar/SideBar'))
 
 const Page = ({ children, title }) => {
     const [showSideBar, setShowSideBar] = useState(true)
+    const uid = useSelector((state) => state.auth.user.uid)
+    const token = useSelector((state) => state.auth.accessToken.token)
+    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
+    const [updateDetailsModal, setUpdateDetailsModal] = useState(false)
 
     useEffect(() => {
-        if (window.innerWidth < 640) {
-            setShowSideBar(!showSideBar)
+        if (uid && token && !anonymous) {
+            setTimeout(async () => {
+                const res = await checkIfUserHasPhoneNumber(uid)
+                if (!res.hasPhoneNumber) {
+                    setUpdateDetailsModal(true)
+                } else {
+                    setUpdateDetailsModal(false)
+                }
+            }, 10000)
         }
-    }, [window.innerWidth])
+    }, [uid, token, anonymous])
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 640) {
+                setShowSideBar(!showSideBar)
+            }
+        }
+
+        window.addEventListener('resize', handleResize)
+
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [])
 
     return (
         <>
@@ -34,6 +62,12 @@ const Page = ({ children, title }) => {
                     {children}
                 </div>
             </div>
+            {!anonymous && token && (
+                <UpdateDetails
+                    open={updateDetailsModal}
+                    handleClose={() => setUpdateDetailsModal(false)}
+                />
+            )}
         </>
     )
 }

@@ -1,4 +1,4 @@
-import { db, auth, googleProvider, getAuth } from '../../config/firebase'
+import { db, auth, googleProvider } from '../../config/firebase'
 import { signInWithPopup, signInAnonymously } from 'firebase/auth'
 import {
     doc,
@@ -8,35 +8,28 @@ import {
     query,
     where,
     setDoc,
-    getFirestore,
+    onSnapshot,
 } from 'firebase/firestore'
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword as signIn,
+    sendPasswordResetEmail,
 } from 'firebase/auth'
 
-// Function to Sign In Anonymously
 export const signInUserAnonymously = async () => {
     try {
         const result = await signInAnonymously(auth)
         const user = result.user
 
-        // Prepare the user data
-        const userData = {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-        }
-
-        // Create or update the document with the user data
-        const userRef = doc(db, 'users', user.uid)
-        await setDoc(userRef, userData, { merge: true })
-
         return {
             success: true,
             message: 'Successfully signed in anonymously',
-            user: userData,
+            user: {
+                uid: user.uid,
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+            },
             accessToken: user.accessToken,
             anonymous: true,
         }
@@ -160,14 +153,12 @@ export const signInWithGoogle = async () => {
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
+            phoneNumber: user.phoneNumber,
         }
 
         if (!userDoc.exists()) {
             // If the user doesn't exist, create a new document with their data
             await setDoc(userRef, userData)
-        } else {
-            // If the user exists, update the existing document with their data
-            await setDoc(userRef, userData, { merge: true })
         }
 
         return {
@@ -182,6 +173,172 @@ export const signInWithGoogle = async () => {
         return {
             success: false,
             message: err.message,
+        }
+    }
+}
+
+// Function to check if the signedin user has a phone number set in the database
+export const checkIfUserHasPhoneNumber = async (uid) => {
+    try {
+        const userRef = doc(db, 'users', uid)
+        const userDoc = await getDoc(userRef)
+
+        // Check if the user document exists
+        if (!userDoc.exists()) {
+            return {
+                success: false,
+                message: 'User does not exist',
+            }
+        }
+
+        // Check if the user has a phone number
+        const userData = userDoc.data()
+        // and check if phone number is snot null
+        if (userData.phoneNumber && userData.phoneNumber !== '') {
+            return {
+                success: true,
+                hasPhoneNumber: true,
+            }
+        } else {
+            return {
+                success: true,
+                hasPhoneNumber: false,
+            }
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            message: err.message,
+        }
+    }
+}
+
+// Function to fetch the user's details
+export const getUserDetails = (uid, callback) => {
+    try {
+        const userRef = doc(db, 'users', uid)
+
+        // Listen for real-time updates
+        const unsubscribe = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+                // Return the user data
+                callback({
+                    success: true,
+                    message: 'Successfully fetched user details',
+                    user: doc.data(),
+                })
+            } else {
+                callback({
+                    success: false,
+                    message: 'User does not exist',
+                })
+            }
+        })
+
+        // Return the unsubscribe function to stop listening for updates
+        return unsubscribe
+    } catch (err) {
+        console.error(err)
+        return () => {}
+    }
+}
+
+// Function to update the user's details
+export const updateUserDetails = async (uid, details) => {
+    try {
+        const userRef = doc(db, 'users', uid)
+        await setDoc(userRef, details, { merge: true })
+
+        return {
+            success: true,
+            message: 'Successfully updated user details',
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            message: err.message,
+        }
+    }
+}
+
+// Function to reset the user's password
+export const resetPassword = async (email) => {
+    try {
+        // check if the user exists
+        const usersRef = collection(db, 'users')
+        const q = query(usersRef, where('email', '==', email))
+        const querySnapshot = await getDocs(q)
+        if (querySnapshot.empty) {
+            return {
+                success: false,
+                message: 'User Email does not exist',
+            }
+        }
+
+        return sendPasswordResetEmail(auth, email)
+            .then(() => {
+                return {
+                    success: true,
+                    message: 'Password reset email sent successfully',
+                }
+            })
+            .catch((error) => {
+                console.error('Error sending password reset email:', error)
+                return {
+                    success: false,
+                    message: 'Error sending password reset email',
+                }
+            })
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            message: 'Error sending password reset email',
+        }
+    }
+}
+
+// Function to change the user's password
+export const changePassword = async (email, oldPassword, newPassword) => {
+    try {
+        // check if the user exists
+        const usersRef = collection(db, 'users')
+        const q = query(usersRef, where('email', '==', email))
+        const querySnapshot = await getDocs(q)
+        if (querySnapshot.empty) {
+            return {
+                success: false,
+                message: 'User Email does not exist',
+            }
+        }
+
+        // sign in the user with the old password
+        const result = await signIn(auth, email, oldPassword)
+        const user = result.user
+
+        // change the password
+        await user
+            .updatePassword(newPassword)
+            .then(() => {
+                return {
+                    success: true,
+                    message: 'Password changed successfully',
+                }
+            })
+            .catch((error) => {
+                console.error('Error changing password:', error)
+                return {
+                    success: false,
+                    message: 'Error changing password',
+                }
+            })
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            message: 'Error changing password',
         }
     }
 }

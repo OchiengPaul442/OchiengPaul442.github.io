@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import { ShareIcon, CommentIcon, LikeIcon } from '../icons/Icons'
@@ -10,14 +10,15 @@ import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
 import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { GoogleIcon } from '../../components'
-import { signInWithGoogle } from '../../backend/auth'
-import { useDispatch } from 'react-redux'
 import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
 import { Link } from 'react-router-dom'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
+import useGoogleSignIn from '../GoogleSignin/index'
+import { likePost, commentOnPost } from '../../backend/posts'
+import { getUserDetails } from '../../backend/auth'
 
 const style = {
     width: '800px',
@@ -69,46 +70,20 @@ const socialMedia = [
 
 const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const dispatch = useDispatch()
+    const userId = useSelector((state) => state.auth.accessToken.uid)
     const accessToken = useSelector((state) => state.auth.accessToken.token)
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
-    const [commentSec, setCommentSec] = React.useState(false)
+    const [like, setLike] = useState(false)
+    const [commentSec, setCommentSec] = useState(null)
+    const [commentText, setCommentText] = useState('')
     const [open, setOpen] = useState(false)
     const [openLogin, setOpenLogin] = useState(false)
     const handleOpen = () => setOpen(true)
     const handleClose = () => setOpen(false)
+    const { handleSignWithGoogle } = useGoogleSignIn()
 
-    const handleComment = () => {
-        setCommentSec(!commentSec)
-    }
-
-    const handleSignWithGoogle = async () => {
-        try {
-            const res = await signInWithGoogle()
-            if (res.success === true) {
-                dispatch({
-                    type: 'SET_USER',
-                    payload: {
-                        displayName: res.user.displayName,
-                        email: res.user.email,
-                        photoURL: res.user.photoURL,
-                        uid: res.user.uid,
-                    },
-                })
-                dispatch({
-                    type: 'SET_ACCESS_TOKEN',
-                    payload: {
-                        token: res.accessToken,
-                        anonymous: res.anonymous,
-                    },
-                })
-
-                setOpenLogin(false)
-            } else {
-                alert(res.message)
-            }
-        } catch (error) {
-            console.log(error)
-        }
+    const handleComment = (postId) => {
+        setCommentSec(commentSec === postId ? null : postId)
     }
 
     const renderImage = (image, index) => {
@@ -133,6 +108,36 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
             </div>
         )
     }
+
+    const handleLike = async (postId, userId) => {
+        setLike(!like)
+        await likePost(postId, userId)
+    }
+
+    const handleCommentOnPost = async (postId, userId, comment) => {
+        if (comment.length === 0) {
+            return
+        }
+        await commentOnPost(postId, userId, comment)
+
+        setCommentText('')
+    }
+
+    // Add displayName and photoURL to the comment object
+    post?.forEach((post) => {
+        post?.comments?.forEach((comment) => {
+            // Pass userId to getUserDetails function
+            getUserDetails(comment?.userId, (response) => {
+                if (response.success) {
+                    // Add displayName and photoURL to the comment object
+                    comment.displayName = response.user.displayName
+                    comment.photoURL = response.user.photoURL
+                } else {
+                    console.log(response.message)
+                }
+            })
+        })
+    })
 
     return (
         <>
@@ -205,12 +210,16 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                     <button
                                         onClick={() => {
                                             if (accessToken && !anonymous) {
-                                                return null
+                                                handleLike(post.id, userId)
                                             } else {
                                                 setOpenLogin(true)
                                             }
                                         }}
-                                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                        className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${
+                                            post?.likes?.includes(userId)
+                                                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                                                : 'text-gray-700 bg-gray-200 hover:bg-gray-400 '
+                                        }`}
                                     >
                                         <LikeIcon
                                             fill="none"
@@ -224,7 +233,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                     <button
                                         onClick={() => {
                                             if (accessToken && !anonymous) {
-                                                handleComment()
+                                                handleComment(post.id)
                                             } else {
                                                 setOpenLogin(true)
                                             }
@@ -318,17 +327,81 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             </div>
                         )}
                         {/* comment input field */}
-                        {commentSec && (
-                            <div className="px-2 md:px-6 py-2">
-                                <div className="flex items-center justify-between">
-                                    <input
-                                        type="text"
-                                        placeholder="Add a comment"
-                                        className="w-full px-4 py-2 mr-2 text-sm text-gray-700 bg-gray-200 rounded-lg  focus:outline-none focus:bg-white focus:border-slate-900 focus:ring-0"
-                                    />
-                                    <button className="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none">
-                                        Post
-                                    </button>
+                        {commentSec === post.id && (
+                            <div>
+                                {/* display comments */}
+                                <div className="bg-blue-100 rounded-lg mx-2 p-2">
+                                    {post?.comments?.length > 0 ? (
+                                        post.comments.map((comment) => (
+                                            <div
+                                                key={comment.id}
+                                                className="flex items-start space-x-3 mt-3"
+                                            >
+                                                <Avatar
+                                                    className="w-10 h-10 rounded-full"
+                                                    alt="Avatar"
+                                                    src={comment.photoURL}
+                                                />
+                                                <div className="flex flex-col">
+                                                    <div className="flex items-center space-x-2">
+                                                        <h4 className="font-bold text-sm">
+                                                            {
+                                                                comment.displayName
+                                                            }
+                                                        </h4>
+                                                        <p className="text-gray-500 text-xs">
+                                                            {comment.createdAt
+                                                                .toDate()
+                                                                .toDateString(
+                                                                    'en-US',
+                                                                    {
+                                                                        weekday:
+                                                                            'long',
+                                                                        year: 'numeric',
+                                                                        month: 'short',
+                                                                        day: 'numeric',
+                                                                    }
+                                                                )}
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-gray-700 text-sm">
+                                                        {comment.comment}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="w-full flex justify-center text-xl font-bold text-gray-500">
+                                            No Comments Available
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* comment input field */}
+                                <div className="px-2 md:px-6 py-2">
+                                    <div className="flex items-center justify-between">
+                                        <input
+                                            type="text"
+                                            value={commentText}
+                                            onChange={(e) =>
+                                                setCommentText(e.target.value)
+                                            }
+                                            placeholder="Add a comment"
+                                            className="w-full px-4 py-2 mr-2 text-sm text-gray-700 bg-gray-200 rounded-lg  focus:outline-none focus:bg-white focus:border-slate-900 focus:ring-0"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                handleCommentOnPost(
+                                                    post.id,
+                                                    userId,
+                                                    commentText
+                                                )
+                                            }}
+                                            className="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+                                        >
+                                            Post
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -499,9 +572,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                         className="space-y-2"
                     >
                         <button
-                            onClick={() => {
-                                handleSignWithGoogle()
-                            }}
+                            onClick={handleSignWithGoogle}
                             className="px-4 py-2 flex justify-center w-full font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
                         >
                             <GoogleIcon

@@ -26,40 +26,40 @@ const style = {
 const PostModal = ({ open, handleCloseModal }) => {
     const dispatch = useDispatch()
     const userId = useSelector((state) => state.auth.user.uid)
-    const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
-    const [itemType, setItemType] = useState('free')
-    const [images, setImages] = useState([])
     const [loading, setLoading] = useState(false)
-    const [quantity, setQuantity] = useState(0)
+    const [images, setImages] = useState([])
+    const [state, setState] = useState({
+        title: '',
+        description: '',
+        itemType: 'free',
+        quantity: 0,
+    })
+
     const [alert, setAlert] = useState({
         show: false,
         message: '',
         type: 'success',
     })
 
-    const handleTitleChange = (event) => {
-        setTitle(event.target.value)
-    }
-
-    const handleDescriptionChange = (event) => {
-        setDescription(event.target.value)
+    const handleChange = (event) => {
+        setState({
+            ...state,
+            [event.target.name]: event.target.value,
+        })
     }
 
     const onDrop = useCallback((files) => {
         setImages(files)
     }, [])
 
-    const handleOptionChange = (event) => {
-        setItemType(event.target.value)
-    }
-
-    const handleQuantityChange = (event) => {
-        setQuantity(event.target.value)
-    }
-
     const handleSubmit = async () => {
-        if (!title || !description || !itemType || !images.length) {
+        if (
+            !state.title ||
+            !state.description ||
+            !state.itemType ||
+            !state.quantity ||
+            images.length === 0
+        ) {
             setAlert({
                 show: true,
                 message: 'Please fill all the fields',
@@ -69,44 +69,37 @@ const PostModal = ({ open, handleCloseModal }) => {
         }
 
         const post = {
+            ...state,
             userId,
-            title,
-            description,
-            itemType,
+            title: state.title,
+            description: state.description,
+            itemType: state.itemType,
             images,
-            quantity,
+            quantity: state.quantity,
         }
 
         try {
             setLoading(true)
             await createPost(post)
+
             resetForm()
+            setImages([])
             handleCloseModal()
-            showAlert('Post created successfully', 'success')
         } catch (error) {
             console.log(error)
-            showAlert(error.message, 'error')
         } finally {
             setLoading(false)
         }
     }
 
     const resetForm = () => {
-        setTitle('')
-        setDescription('')
-        setItemType('free')
-        setImages([])
-    }
-
-    const showAlert = (message, type) => {
-        dispatch({
-            type: 'SET_ALERT',
-            payload: {
-                show: true,
-                message,
-                type,
-            },
+        setState({
+            title: '',
+            description: '',
+            itemType: 'free',
+            quantity: 0,
         })
+        setImages([])
     }
 
     return (
@@ -157,9 +150,10 @@ const PostModal = ({ open, handleCloseModal }) => {
                         <input
                             type="text"
                             id="Post Title"
-                            value={title}
-                            onChange={handleTitleChange}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            name="title"
+                            value={state.title}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2.5"
                         />
                     </div>
 
@@ -173,9 +167,10 @@ const PostModal = ({ open, handleCloseModal }) => {
                         <textarea
                             id="Description"
                             rows="4"
-                            value={description}
-                            onChange={handleDescriptionChange}
-                            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            name="description"
+                            value={state.description}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2.5 "
                             placeholder="Write your thoughts here..."
                         ></textarea>
                     </div>
@@ -189,9 +184,10 @@ const PostModal = ({ open, handleCloseModal }) => {
                         </label>
                         <select
                             id="Item Type"
-                            value={itemType}
-                            onChange={handleOptionChange}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            name="itemType"
+                            value={state.itemType}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2.5 "
                         >
                             <option value="free">Free</option>
                             <option value="borrow">Borrow</option>
@@ -209,9 +205,10 @@ const PostModal = ({ open, handleCloseModal }) => {
                         <input
                             type="number"
                             id="Quantity"
-                            value={quantity}
-                            onChange={handleQuantityChange}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            name="quantity"
+                            value={state.quantity}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2.5 "
                             placeholder=""
                             required
                         />

@@ -1,27 +1,23 @@
 {
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended"
-  ],
-  "plugins": [
-    "react"
-  ],
-  "parser": "@babel/eslint-parser",
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "requireConfigFile": false,
-    "ecmaFeatures": {
-      "jsx": true
+    "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "plugins": ["react"],
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "requireConfigFile": false,
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "env": {
+        "es6": true,
+        "browser": true,
+        "node": true
+    },
+    "rules": {
+        "no-console": 0,
+        "no-unused-vars": 1,
+        "react/prop-types": 0
     }
-  },
-  "env": {
-    "browser": true,
-    "node": true
-  },
-  "rules": {
-    "no-console": 0,
-    "no-unused-vars": 1,
-    "react/prop-types": 0
-  }
 }

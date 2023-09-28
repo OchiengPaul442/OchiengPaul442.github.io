@@ -4,7 +4,7 @@ import Signup from '../../assets/images/signup.svg'
 import Login from '../../assets/images/login.svg'
 import Forgotpwd from '../../assets/images/forgotpwd.svg'
 import { Link } from 'react-router-dom'
-import { signInWithGoogle } from '../../backend/auth/index.js'
+import useGoogleSignIn from '../../components/GoogleSignin'
 import { useDispatch } from 'react-redux'
 import { GoogleIcon, Loader } from '../../components'
 import { Button, Alert } from '@mui/material'
@@ -12,6 +12,7 @@ import {
     registerWithEmailAndPassword,
     signInWithEmailAndPassword,
     signInUserAnonymously,
+    resetPassword,
 } from '../../backend/auth/index.js'
 
 const Auth = () => {
@@ -34,10 +35,17 @@ const Auth = () => {
         form: '',
     })
 
+    const { handleSignWithGoogle } = useGoogleSignIn()
+
     const clearForm = () => {
         setDisplayName('')
         setEmail('')
         setPassword('')
+    }
+
+    const validateEmail = (email) => {
+        const re = /\S+@\S+\.\S+/
+        return re.test(email)
     }
 
     const handleAnonymousLogin = async () => {
@@ -75,53 +83,57 @@ const Auth = () => {
         }
     }
 
+    const setErrorState = (message, type, form) => {
+        setError({
+            ...error,
+            show: true,
+            message,
+            type,
+            form: form,
+        })
+    }
+
     const handleForgotPassword = async () => {
         try {
+            // check if email is empty and validate email
             if (email === '') {
-                setError({
-                    ...error,
-                    show: true,
-                    message: 'Email is required',
-                    type: 'error',
-                    form: 'forgotpwd',
-                })
+                setErrorState('Email is required', 'error')
+                return
+            } else if (!validateEmail(email)) {
+                setErrorState('Invalid Email', 'error')
                 return
             }
 
-            null
+            setLoading({ ...loading, forgotpwd: true })
+
+            const res = await resetPassword(email)
+
+            if (res.success === true) {
+                setErrorState(res.message, 'success', 'forgotpwd')
+            } else {
+                setErrorState(res.message, 'error', 'forgotpwd')
+            }
         } catch {
-            null
+            setErrorState(
+                'We are unable to process your request at this time. Please try again later.',
+                'error',
+                'forgotpwd'
+            )
         } finally {
-            null
+            setLoading({ ...loading, forgotpwd: false })
         }
     }
 
     const handleLogin = async () => {
         try {
             if (email === '' || password === '') {
-                setError({
-                    ...error,
-                    show: true,
-                    message: 'Email and Password are required',
-                    type: 'error',
-                    form: 'login',
-                })
+                setErrorState('All fields are required', 'error', 'login')
                 return
             }
 
             setLoading({ ...loading, login: true })
             const res = await signInWithEmailAndPassword(email, password)
             if (res.success === true) {
-                dispatch({
-                    type: 'SET_USER',
-                    payload: {
-                        displayName: res.user.displayName,
-                        email: res.user.email,
-                        photoURL: res.user.photoURL,
-                        uid: res.user.uid,
-                    },
-                })
-
                 dispatch({
                     type: 'SET_ACCESS_TOKEN',
                     payload: {
@@ -135,10 +147,14 @@ const Auth = () => {
                 // navigate to home page
                 window.location.href = '/'
             } else {
-                alert(res.message)
+                setErrorState('Invalid Credentials', 'error', 'login')
             }
         } catch (error) {
-            console.log(error)
+            setErrorState(
+                'We are unable to process your request at this time. Please try again later.',
+                'error',
+                'login'
+            )
         } finally {
             setLoading({ ...loading, login: false })
         }
@@ -147,13 +163,7 @@ const Auth = () => {
     const handleRegistration = async () => {
         try {
             if (displayName === '' || email === '' || password === '') {
-                setError({
-                    ...error,
-                    show: true,
-                    message: 'All fields are required',
-                    type: 'error',
-                    form: 'signup',
-                })
+                setErrorState('All fields are required', 'error', 'signup')
                 return
             }
 
@@ -165,16 +175,6 @@ const Auth = () => {
             )
             if (res.success === true) {
                 dispatch({
-                    type: 'SET_USER',
-                    payload: {
-                        displayName: res.user.displayName,
-                        email: res.user.email,
-                        photoURL: res.user.photoURL,
-                        uid: res.user.uid,
-                    },
-                })
-
-                dispatch({
                     type: 'SET_ACCESS_TOKEN',
                     payload: {
                         token: res.accessToken,
@@ -187,10 +187,14 @@ const Auth = () => {
                 // navigate to home page
                 window.location.href = '/'
             } else {
-                alert(res.message)
+                setErrorState('Email already exists', 'error', 'signup')
             }
         } catch (error) {
-            console.log(error)
+            setErrorState(
+                'We are unable to process your request at this time. Please try again later.',
+                'error',
+                'signup'
+            )
         } finally {
             setLoading({ ...loading, signup: false })
         }
@@ -221,37 +225,6 @@ const Auth = () => {
         document.getElementById('color2').classList.add('change2')
         document.getElementById('othersec').classList.add('change3')
         document.getElementById('formcard').classList.add('change4')
-    }
-
-    const handleSignWithGoogle = async () => {
-        try {
-            const res = await signInWithGoogle()
-            if (res.success === true) {
-                dispatch({
-                    type: 'SET_USER',
-                    payload: {
-                        displayName: res.user.displayName,
-                        email: res.user.email,
-                        photoURL: res.user.photoURL,
-                        uid: res.user.uid,
-                    },
-                })
-                dispatch({
-                    type: 'SET_ACCESS_TOKEN',
-                    payload: {
-                        token: res.accessToken,
-                        anonymous: res.anonymous,
-                    },
-                })
-
-                // navigate to home page
-                window.location.href = '/'
-            } else {
-                alert(res.message)
-            }
-        } catch (error) {
-            console.log(error)
-        }
     }
 
     return (
@@ -563,7 +536,7 @@ const Auth = () => {
                                 variant="contained"
                                 className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
                             >
-                                {loading.login ? (
+                                {loading.signup ? (
                                     <Loader width={200} height={200} />
                                 ) : (
                                     'SignUp'
@@ -586,7 +559,7 @@ const Auth = () => {
                     )}
                     {/* <!-- forgot password section --> */}
                     {formState === 'forgotpwd' && (
-                        <form action="#" id="forgotpwd">
+                        <form id="forgotpwd">
                             {error.show && error.form === 'forgotpwd' && (
                                 <Alert
                                     severity={error.type}
@@ -606,9 +579,6 @@ const Auth = () => {
                             <h4 className="text-xl font-semibold mb-4">
                                 Password Rest
                             </h4>
-                            <h6 className="text-sm mb-6">
-                                A rest email will be sent to your email address!
-                            </h6>
                             <div className="relative mb-6">
                                 <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                                     <svg
@@ -639,9 +609,13 @@ const Auth = () => {
                             <button
                                 onClick={handleForgotPassword}
                                 id="submit_btn_fwd"
-                                className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
+                                className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center flex justify-center items-center"
                             >
-                                Reset Password
+                                {loading.forgotpwd ? (
+                                    <Loader width={200} height={200} />
+                                ) : (
+                                    ' Reset Password'
+                                )}
                             </button>
                             <div className="extra_on_mobile text-center">
                                 <small>

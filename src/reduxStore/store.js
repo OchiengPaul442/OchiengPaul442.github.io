@@ -3,6 +3,8 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import authReducer from './auth'
 import categoriesReducer from './categories'
+import postsSlice from './fetchPosts'
+import actionReducer from './actions'
 
 const persistConfig = {
     key: 'root',
@@ -12,6 +14,8 @@ const persistConfig = {
 const rootReducer = combineReducers({
     categories: categoriesReducer,
     auth: authReducer,
+    posts: postsSlice,
+    actionReducer: actionReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
