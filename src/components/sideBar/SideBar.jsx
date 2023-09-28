@@ -1,8 +1,15 @@
-import React, { useState, Fragment } from 'react'
-import { Drawer, List } from '@mui/material'
+import React, { useState, useEffect, useRef } from 'react'
+import {
+    Drawer,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+} from '@mui/material'
 import Box from '@mui/material/Box'
 import { useMediaQuery } from 'react-responsive'
 import { Link, NavLink } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import {
     HomeIcon,
     ForumIcon,
@@ -11,17 +18,47 @@ import {
     Settings,
     CloseIcon,
 } from '../icons/Icons'
-import { useSelector } from 'react-redux'
 
 const SideBar = ({ show, setShowSideBar }) => {
     const accessToken = useSelector((state) => state.auth.accessToken.token)
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
     const [showRegister, setShowRegister] = useState(false)
     const isMobileView = useMediaQuery({ query: '(max-width: 960px)' })
+    const sidebarRef = useRef(null)
 
     const showRegisterBox = () => {
         setShowRegister(true)
     }
+
+    const handleCloseSidebar = () => {
+        setShowSideBar(false)
+    }
+
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            if (
+                isMobileView &&
+                show &&
+                sidebarRef.current &&
+                !sidebarRef.current.contains(e.target)
+            ) {
+                handleCloseSidebar()
+            }
+        }
+
+        document.addEventListener('mousedown', handleOutsideClick)
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick)
+        }
+    }, [isMobileView, show])
+
+    useEffect(() => {
+        if (isMobileView && show) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
+        }
+    }, [isMobileView, show])
 
     return (
         <Drawer
@@ -29,7 +66,7 @@ const SideBar = ({ show, setShowSideBar }) => {
             open={isMobileView ? show : true}
             variant="persistent"
             onClose={() => setShowSideBar(false)}
-            className="fixed top-0 z-40 h-screen pt-20 transition-transform  bg-white border-r border-gray-200  dark:bg-gray-800 dark:border-gray-700"
+            className="fixed top-0 z-40 h-screen pt-20 transition-transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700"
             ModalProps={{
                 keepMounted: true,
             }}
@@ -52,111 +89,97 @@ const SideBar = ({ show, setShowSideBar }) => {
             aria-label="Sidebar"
         >
             <Box
+                ref={sidebarRef}
                 sx={{
                     width: 'auto',
                     height: '100%',
                 }}
             >
                 <div className="h-full px-3 py-4 overflow-y-auto justify-between flex flex-col">
-                    <div className=" px-3 pb-4 mt-14 overflow-y-auto bg-white dark:bg-gray-800">
+                    <div className="px-3 pb-4 mt-14 overflow-y-auto bg-white dark:bg-gray-800">
                         <List component="nav" className="space-y-2 font-medium">
-                            <li>
-                                <NavLink
-                                    to="/"
-                                    className={({ isActive }) =>
-                                        isActive
-                                            ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
-                                            : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
-                                    }
-                                >
+                            <ListItemButton
+                                component={NavLink}
+                                to="/"
+                                activeClassName="active"
+                                className="flex items-center p-2 rounded-lg group hover:bg-blue-100"
+                            >
+                                <ListItemIcon>
                                     <HomeIcon
                                         fill="none"
                                         width="24"
                                         height="24"
                                     />
-                                    <span className="ml-3">Home</span>
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/forum"
-                                    className={({ isActive }) =>
-                                        isActive
-                                            ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
-                                            : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
-                                    }
-                                >
+                                </ListItemIcon>
+                                <ListItemText primary="Home" />
+                            </ListItemButton>
+                            <ListItemButton
+                                component={NavLink}
+                                to="/forum"
+                                activeClassName="active"
+                                className="flex items-center p-2 rounded-lg group"
+                            >
+                                <ListItemIcon>
                                     <ForumIcon
                                         fill="none"
                                         width="24"
                                         height="24"
                                     />
-                                    <span className="flex-1 ml-3 whitespace-nowrap">
-                                        Forum
-                                    </span>
-                                </NavLink>
-                            </li>
+                                </ListItemIcon>
+                                <ListItemText primary="Forum" />
+                            </ListItemButton>
                             {!anonymous && accessToken && (
-                                <>
-                                    <li>
-                                        <NavLink
-                                            to="/settings"
-                                            className={({ isActive }) =>
-                                                isActive
-                                                    ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
-                                                    : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
-                                            }
-                                        >
-                                            <Settings
-                                                fill="none"
-                                                width="24"
-                                                height="24"
-                                            />
-                                            <span className="flex-1 ml-3 whitespace-nowrap">
-                                                Settings
-                                            </span>
-                                        </NavLink>
-                                    </li>
-                                </>
+                                <ListItemButton
+                                    component={NavLink}
+                                    to="/settings"
+                                    activeClassName="active"
+                                    className="flex items-center p-2 rounded-lg group"
+                                >
+                                    <ListItemIcon>
+                                        <Settings
+                                            fill="none"
+                                            width="24"
+                                            height="24"
+                                        />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Settings" />
+                                </ListItemButton>
                             )}
                             {anonymous && accessToken && (
-                                <li>
-                                    <Link
-                                        to="/auth"
-                                        className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                                    >
+                                <ListItemButton
+                                    component={Link}
+                                    to="/auth"
+                                    className="flex items-center p-2 rounded-lg group"
+                                >
+                                    <ListItemIcon>
                                         <LoginIcon
                                             fill="none"
                                             width="24"
                                             height="24"
                                         />
-                                        <span className="flex-1 ml-3 whitespace-nowrap">
-                                            Login
-                                        </span>
-                                    </Link>
-                                </li>
+                                    </ListItemIcon>
+                                    <ListItemText primary="Login" />
+                                </ListItemButton>
                             )}
                         </List>
                     </div>
                     {anonymous && !showRegister && (
                         <div className="p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900">
                             <div className="flex items-center mb-3">
-                                <SignInIcon
-                                    fill="none"
-                                    width="24"
-                                    height="24"
-                                />
+                                <ListItemIcon>
+                                    <SignInIcon
+                                        fill="none"
+                                        width="24"
+                                        height="24"
+                                    />
+                                </ListItemIcon>
                                 <button
                                     onClick={showRegisterBox}
                                     type="button"
                                     className="ml-auto -mx-1.5 -my-1.5 bg-blue-50 inline-flex justify-center items-center text-blue-900 rounded-lg focus:ring-2 focus:ring-blue-400 p-1 hover:bg-blue-200 h-6 w-6 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800"
                                 >
                                     <span className="sr-only">Close</span>
-                                    <CloseIcon
-                                        fill="#1c274c"
-                                        width="40"
-                                        height="40"
-                                    />
+                                    <CloseIcon />
                                 </button>
                             </div>
                             <p className="mb-3 text-sm text-blue-800 dark:text-blue-400">

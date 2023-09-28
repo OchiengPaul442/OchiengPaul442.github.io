@@ -170,41 +170,27 @@ const Settings = () => {
 
     const handlePwdChange = async (e) => {
         e.preventDefault()
-        // Validate fields before submitting
         const isValid = !Object.values(errors).some(Boolean)
-        // If no errors, submit the form
         if (isValid) {
             setLoading({ ...loading, pwd: true })
-            const pwdData = {
-                oldPassword: state.oldPassword,
-                newPassword: state.newPassword,
-            }
             try {
-                await changePassword(
-                    email,
-                    pwdData.oldPassword,
-                    pwdData.newPassword
+                const response = await changePassword(
+                    state.oldPassword,
+                    state.newPassword
                 )
-                    .then(() => {
-                        setLoading({ ...loading, pwd: false })
-                        clearPwdChange()
-                    })
-                    .catch((err) => {
-                        setLoading({ ...loading, pwd: false })
-                        setErrors({
-                            general: err.message,
-                            type: 'error',
-                            form: 'pwd',
-                        })
-                    })
+                if (response?.success) {
+                    clearPwdChange()
+                } else {
+                    throw new Error(response?.message)
+                }
             } catch (err) {
-                console.log(err)
-                setLoading({ ...loading, pwd: false })
                 setErrors({
-                    general: err.message,
+                    general: err?.message,
                     type: 'error',
                     form: 'pwd',
                 })
+            } finally {
+                setLoading({ ...loading, pwd: false })
             }
         }
     }

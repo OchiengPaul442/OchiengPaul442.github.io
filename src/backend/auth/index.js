@@ -14,6 +14,9 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword as signIn,
     sendPasswordResetEmail,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    updatePassword,
 } from 'firebase/auth'
 
 export const signInUserAnonymously = async () => {
@@ -300,31 +303,34 @@ export const resetPassword = async (email) => {
     }
 }
 
-// Function to change the user's password
-export const changePassword = async (email, oldPassword, newPassword) => {
+// Function to help user change password (takes in current oldpassword for confirmation, password and new password)
+export const changePassword = async (oldPassword, newPassword) => {
     try {
-        // check if the user exists
-        const usersRef = collection(db, 'users')
-        const q = query(usersRef, where('email', '==', email))
-        const querySnapshot = await getDocs(q)
-        if (querySnapshot.empty) {
-            return {
-                success: false,
-                message: 'User Email does not exist',
-            }
-        }
+        const user = auth.currentUser
+        const credential = EmailAuthProvider.credential(user.email, oldPassword)
 
-        // sign in the user with the old password
-        const result = await signIn(auth, email, oldPassword)
-        const user = result.user
-
-        // change the password
-        await user
-            .updatePassword(newPassword)
+        // Reauthenticate the user with their current password
+        await reauthenticateWithCredential(user, credential)
             .then(() => {
                 return {
                     success: true,
-                    message: 'Password changed successfully',
+                    message: 'Successfully reauthenticated user',
+                }
+            })
+            .catch((error) => {
+                console.error('Error reauthenticating user:', error)
+                return {
+                    success: false,
+                    message: 'Error reauthenticating user',
+                }
+            })
+
+        // Update the user's password
+        await updatePassword(user, newPassword)
+            .then(() => {
+                return {
+                    success: true,
+                    message: 'Successfully changed password',
                 }
             })
             .catch((error) => {
@@ -338,7 +344,7 @@ export const changePassword = async (email, oldPassword, newPassword) => {
         console.error(err)
         return {
             success: false,
-            message: 'Error changing password',
+            message: 'Error changing password, please try again',
         }
     }
 }

@@ -137,6 +137,7 @@ const Auth = () => {
                 dispatch({
                     type: 'SET_ACCESS_TOKEN',
                     payload: {
+                        uid: res.user.uid,
                         token: res.accessToken,
                         anonymous: res.anonymous,
                     },
@@ -177,6 +178,7 @@ const Auth = () => {
                 dispatch({
                     type: 'SET_ACCESS_TOKEN',
                     payload: {
+                        uid: res.user.uid,
                         token: res.accessToken,
                         anonymous: res.anonymous,
                     },
