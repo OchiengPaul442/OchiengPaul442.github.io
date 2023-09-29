@@ -6,8 +6,11 @@ import { updateUserDetails, changePassword } from '../../backend/auth'
 import Alert from '@mui/material/Alert'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import { Avatar } from '@mui/material'
+import { uploadProfilePicture } from '../../backend/auth'
 
 const Settings = () => {
+    const photoURL = useSelector((state) => state.auth.user.photoURL)
     const userId = useSelector((state) => state.auth.user.uid)
     const displayName = useSelector((state) => state.auth.user.displayName)
     const email = useSelector((state) => state.auth.user.email)
@@ -33,6 +36,7 @@ const Settings = () => {
         pwd: false,
         delete: false,
         update: false,
+        upload: false,
     })
 
     const [errors, setErrors] = useState({})
@@ -174,15 +178,13 @@ const Settings = () => {
         if (isValid) {
             setLoading({ ...loading, pwd: true })
             try {
-                const response = await changePassword(
-                    state.oldPassword,
-                    state.newPassword
-                )
-                if (response?.success) {
-                    clearPwdChange()
-                } else {
-                    throw new Error(response?.message)
-                }
+                await changePassword(state.oldPassword, state.newPassword)
+                clearPwdChange()
+                setErrors({
+                    general: 'Password changed successfully',
+                    type: 'success',
+                    form: 'pwd',
+                })
             } catch (err) {
                 setErrors({
                     general: err?.message,
@@ -195,8 +197,118 @@ const Settings = () => {
         }
     }
 
+    // State for random banner color and avatar image upload
+    const [randomBannerColor, setRandomBannerColor] = useState(getRandomColor())
+    const [avatarImage, setAvatarImage] = useState(null)
+
+    // Function to generate a random color for the banner
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF'
+        let color = '#'
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)]
+        }
+        return color
+    }
+
+    // Function to handle avatar image upload
+    const handleAvatarUpload = async (event) => {
+        const file = event.target.files[0]
+        if (!file) return
+
+        setAvatarImage(file)
+        setLoading((prevLoading) => ({ ...prevLoading, upload: true }))
+
+        try {
+            // Upload the image to the server
+            await uploadProfilePicture(userId, file)
+            setErrors({
+                general: 'Profile picture updated successfully',
+                type: 'success',
+                form: 'upload',
+            })
+        } catch (err) {
+            setErrors({
+                general: err.message,
+                type: 'error',
+                form: 'upload',
+            })
+        } finally {
+            setLoading((prevLoading) => ({ ...prevLoading, upload: false }))
+            // clear the input file
+            event.target.value = ''
+            setAvatarImage(null)
+        }
+    }
+
+    console.log(avatarImage)
     return (
         <Page title="Account Settings">
+            {/* alert image upload */}
+            {errors.general && errors.form === 'upload' && (
+                <Alert
+                    className="mb-4"
+                    severity={errors.type}
+                    onClose={() => setErrors({ ...errors, general: '' })}
+                    sx={{ mt: 2 }}
+                >
+                    {errors.general}
+                </Alert>
+            )}
+
+            {/* Banner */}
+            <div className="relative mb-4">
+                {/* Banner with random background color */}
+                <div
+                    className="h-40 relative cursor-pointer rounded-md overflow-hidden"
+                    style={{
+                        backgroundColor: randomBannerColor, // Use random color
+                    }}
+                    onClick={() => {
+                        // Trigger the input file click when the user clicks on the banner
+                        document.getElementById('avatar-upload').click()
+                    }}
+                >
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black opacity-40"></div>
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity hover:opacity-100 w-full h-full">
+                        <p className="text-white text-xl font-semibold">
+                            Upload Profile Avatar
+                        </p>
+                    </div>
+                    {loading.upload && (
+                        <div className="w-full h-full flex justify-center items-center">
+                            <Loader width={250} height={250} />
+                        </div>
+                    )}
+                    {/* Profile details */}
+                    <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                        <div className="flex items-center space-x-4">
+                            <label className="flex-shrink-0">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    id="avatar-upload"
+                                    className="sr-only"
+                                    onChange={handleAvatarUpload}
+                                />
+                                <Avatar
+                                    alt="User avatar"
+                                    src={photoURL}
+                                    className="w-16 h-16 rounded-full ring-2 ring-white"
+                                />
+                            </label>
+                            <div>
+                                <h1 className="text-2xl font-semibold">
+                                    {state.displayName}
+                                </h1>
+                                <p className="text-lg">{/* Job Title */}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {/* grid with two columns responsive also */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:px-4">
                 <div className="col-span-1">
@@ -397,7 +509,7 @@ const Settings = () => {
                                     value={state.oldPassword}
                                     onChange={handleChange}
                                     className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 ${
-                                        errors.newPassword
+                                        errors.oldpassword
                                             ? 'border-red-500'
                                             : ''
                                     }`}
@@ -409,15 +521,15 @@ const Settings = () => {
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 cursor-pointer"
                                 >
                                     {showPassword['oldpassword'] ? (
-                                        <VisibilityOff />
-                                    ) : (
                                         <Visibility />
+                                    ) : (
+                                        <VisibilityOff />
                                     )}
                                 </div>
                             </div>
-                            {errors.newPassword && (
+                            {errors.oldpassword && (
                                 <p className="text-red-500 text-xs mt-1">
-                                    {errors.newPassword}
+                                    {errors.oldpassword}
                                 </p>
                             )}
                         </div>
@@ -453,9 +565,9 @@ const Settings = () => {
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 cursor-pointer"
                                 >
                                     {showPassword['newPassword'] ? (
-                                        <VisibilityOff />
-                                    ) : (
                                         <Visibility />
+                                    ) : (
+                                        <VisibilityOff />
                                     )}
                                 </div>
                             </div>
@@ -499,9 +611,9 @@ const Settings = () => {
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 cursor-pointer"
                                 >
                                     {showPassword['confirmPassword'] ? (
-                                        <VisibilityOff />
-                                    ) : (
                                         <Visibility />
+                                    ) : (
+                                        <VisibilityOff />
                                     )}
                                 </div>
                             </div>

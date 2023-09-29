@@ -10,7 +10,7 @@ import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
 import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { GoogleIcon } from '../../components'
 import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
 import { Link } from 'react-router-dom'
@@ -19,6 +19,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import useGoogleSignIn from '../GoogleSignin/index'
 import { likePost, commentOnPost } from '../../backend/posts'
 import { getUserDetails } from '../../backend/auth'
+import CallIcon from '@mui/icons-material/Call'
+import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 
 const style = {
     width: '800px',
@@ -69,10 +71,10 @@ const socialMedia = [
 ]
 
 const Card = ({ post, comment = false, quantity = false, loading = false }) => {
-    const dispatch = useDispatch()
     const userId = useSelector((state) => state.auth.accessToken.uid)
     const accessToken = useSelector((state) => state.auth.accessToken.token)
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
+    const reload = useSelector((state) => state.actionReducer.reload)
     const [like, setLike] = useState(false)
     const [commentSec, setCommentSec] = useState(null)
     const [commentText, setCommentText] = useState('')
@@ -81,6 +83,8 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const handleOpen = () => setOpen(true)
     const handleClose = () => setOpen(false)
     const { handleSignWithGoogle } = useGoogleSignIn()
+
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
     const handleComment = (postId) => {
         setCommentSec(commentSec === postId ? null : postId)
@@ -139,6 +143,25 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
         })
     })
 
+    // Helper function to format number of likes
+    const formatLikes = (num) => {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M'
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K'
+        } else {
+            return num
+        }
+    }
+
+    useEffect(() => {
+        if (post?.likes?.includes(userId)) {
+            setLike(true)
+        } else {
+            setLike(false)
+        }
+    }, [post, userId, reload])
+
     return (
         <>
             {post.length > 0 ? (
@@ -147,7 +170,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                         key={post.id}
                         className="max-w-2xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
                     >
-                        <div className="py-4">
+                        <div className="pt-4">
                             <div className="px-2 md:px-4 font-bold text-xl mb-2 flex items-center">
                                 {loading ? (
                                     <Skeleton
@@ -197,63 +220,67 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                     </Carousel>
                                 )}
                             </div>
+                            <div className="flex justify-between items-center w-full px-4">
+                                <div className="flex items-center">
+                                    {loading ? (
+                                        <Skeleton
+                                            variant="circle"
+                                            width={40}
+                                            height={40}
+                                        />
+                                    ) : (
+                                        <Avatar
+                                            className="mr-4"
+                                            sx={{ width: 40, height: 40 }}
+                                            alt="Avatar"
+                                            src={post.photoURL}
+                                        />
+                                    )}
+                                    <div>
+                                        {loading ? (
+                                            <Skeleton
+                                                variant="text"
+                                                width={100}
+                                                height={20}
+                                            />
+                                        ) : (
+                                            <>
+                                                <h4>{post.displayName}</h4>
+                                                <p className="text-gray-400 text-sm">
+                                                    {post.createdAt
+                                                        .toDate()
+                                                        .toDateString()}
+                                                </p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="border border-gray-300 px-2 rounded-full">
+                                    <IconButton
+                                        aria-label="whatsapp"
+                                        rel="noreferrer"
+                                        target="_blank"
+                                        href={
+                                            isMobile
+                                                ? `whatsapp://send?phone=${post.phoneNumber}`
+                                                : `https://wa.me/${post.phoneNumber}`
+                                        }
+                                    >
+                                        <WhatsAppIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        aria-label="call"
+                                        href={`tel:${post.phoneNumber}`}
+                                    >
+                                        <CallIcon />
+                                    </IconButton>
+                                </div>
+                            </div>
                         </div>
-                        <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
-                            <div className="space-x-2 flex justify-end mt-2">
-                                {loading ? (
-                                    <Skeleton
-                                        variant="circle"
-                                        width={24}
-                                        height={24}
-                                    />
-                                ) : (
-                                    <button
-                                        onClick={() => {
-                                            if (accessToken && !anonymous) {
-                                                handleLike(post.id, userId)
-                                            } else {
-                                                setOpenLogin(true)
-                                            }
-                                        }}
-                                        className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${
-                                            post?.likes?.includes(userId)
-                                                ? 'bg-orange-500 text-white hover:bg-orange-600'
-                                                : 'text-gray-700 bg-gray-200 hover:bg-gray-400 '
-                                        }`}
-                                    >
-                                        <LikeIcon
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
-                                        <span className="ml-2">like</span>
-                                    </button>
-                                )}
-                                {comment && (
-                                    <button
-                                        onClick={() => {
-                                            if (accessToken && !anonymous) {
-                                                handleComment(post.id)
-                                            } else {
-                                                setOpenLogin(true)
-                                            }
-                                        }}
-                                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-                                    >
-                                        <CommentIcon
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                            className="mr-1"
-                                        />
 
-                                        <span className="ml-2">comment</span>
-                                    </button>
-                                )}
-                                <button
-                                    onClick={handleOpen}
-                                    className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-                                >
+                        <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
+                            <div className="overflow-x-auto">
+                                <div className="space-x-2 flex justify-end mt-2">
                                     {loading ? (
                                         <Skeleton
                                             variant="circle"
@@ -261,47 +288,94 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                             height={24}
                                         />
                                     ) : (
-                                        <ShareIcon
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
+                                        <button
+                                            onClick={() => {
+                                                if (accessToken && !anonymous) {
+                                                    handleLike(post.id, userId)
+                                                } else {
+                                                    setOpenLogin(true)
+                                                }
+                                            }}
+                                            className={`text-gray-700 bg-gray-200 hover:bg-gray-400 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold`}
+                                        >
+                                            <LikeIcon
+                                                fill2={
+                                                    post?.likes?.includes(
+                                                        userId
+                                                    )
+                                                        ? '#F87171'
+                                                        : ''
+                                                }
+                                                width="24"
+                                                height="24"
+                                            />
+                                            <span className="ml-2 ">
+                                                {post?.likes?.length > 0 && (
+                                                    <span className="text-green-700 mr-1">
+                                                        {formatLikes(
+                                                            post?.likes?.length
+                                                        )}
+                                                    </span>
+                                                )}
+                                                {post?.likes?.length > 1
+                                                    ? 'likes'
+                                                    : 'like'}
+                                            </span>
+                                        </button>
                                     )}
-                                    <span className="ml-2">share</span>
-                                </button>
-                            </div>
-                            <div className="flex">
-                                {loading ? (
-                                    <Skeleton
-                                        variant="circle"
-                                        width={40}
-                                        height={40}
-                                    />
-                                ) : (
-                                    <Avatar
-                                        className="mr-4"
-                                        sx={{ width: 40, height: 40 }}
-                                        alt="Avatar"
-                                        src={post.photoURL}
-                                    />
-                                )}
-                                <div>
-                                    {loading ? (
-                                        <Skeleton
-                                            variant="text"
-                                            width={100}
-                                            height={20}
-                                        />
-                                    ) : (
-                                        <>
-                                            <h4>{post.displayName}</h4>
-                                            <p className="text-gray-400 text-sm">
-                                                {post.createdAt
-                                                    .toDate()
-                                                    .toDateString()}
-                                            </p>
-                                        </>
+                                    {comment && (
+                                        <button
+                                            onClick={() => {
+                                                if (accessToken && !anonymous) {
+                                                    handleComment(post.id)
+                                                } else {
+                                                    setOpenLogin(true)
+                                                }
+                                            }}
+                                            className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                        >
+                                            <CommentIcon
+                                                fill="none"
+                                                width="24"
+                                                height="24"
+                                                className="mr-1"
+                                            />
+
+                                            <span className="ml-2">
+                                                {post?.comments?.length > 0 && (
+                                                    <span className="mr-2">
+                                                        {formatLikes(
+                                                            post?.comments
+                                                                ?.length
+                                                        )}
+                                                    </span>
+                                                )}
+
+                                                {post?.comments?.length > 1
+                                                    ? 'comments'
+                                                    : 'comment'}
+                                            </span>
+                                        </button>
                                     )}
+                                    <button
+                                        onClick={handleOpen}
+                                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                    >
+                                        {loading ? (
+                                            <Skeleton
+                                                variant="circle"
+                                                width={24}
+                                                height={24}
+                                            />
+                                        ) : (
+                                            <ShareIcon
+                                                fill="none"
+                                                width="24"
+                                                height="24"
+                                            />
+                                        )}
+                                        <span className="ml-2">share</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>

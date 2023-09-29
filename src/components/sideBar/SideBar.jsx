@@ -23,7 +23,7 @@ const SideBar = ({ show, setShowSideBar }) => {
     const accessToken = useSelector((state) => state.auth.accessToken.token)
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
     const [showRegister, setShowRegister] = useState(false)
-    const isMobileView = useMediaQuery({ query: '(max-width: 960px)' })
+    const isMobileView = useMediaQuery({ maxWidth: 640 })
     const sidebarRef = useRef(null)
 
     const showRegisterBox = () => {
@@ -74,7 +74,7 @@ const SideBar = ({ show, setShowSideBar }) => {
                 '& .MuiDrawer-paper': {
                     top: '0',
                     left: '0',
-                    width: '280px',
+                    width: isMobileView ? '240px' : '260px',
                     maxWidth: '100%',
                     height: '100%',
                     maxHeight: '100%',
@@ -98,11 +98,13 @@ const SideBar = ({ show, setShowSideBar }) => {
                 <div className="h-full px-3 py-4 overflow-y-auto justify-between flex flex-col">
                     <div className="px-3 pb-4 mt-14 overflow-y-auto bg-white dark:bg-gray-800">
                         <List component="nav" className="space-y-2 font-medium">
-                            <ListItemButton
-                                component={NavLink}
+                            <NavLink
                                 to="/"
-                                activeClassName="active"
-                                className="flex items-center p-2 rounded-lg group hover:bg-blue-100"
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
+                                        : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+                                }
                             >
                                 <ListItemIcon>
                                     <HomeIcon
@@ -112,12 +114,15 @@ const SideBar = ({ show, setShowSideBar }) => {
                                     />
                                 </ListItemIcon>
                                 <ListItemText primary="Home" />
-                            </ListItemButton>
-                            <ListItemButton
-                                component={NavLink}
+                            </NavLink>
+
+                            <NavLink
                                 to="/forum"
-                                activeClassName="active"
-                                className="flex items-center p-2 rounded-lg group"
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
+                                        : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+                                }
                             >
                                 <ListItemIcon>
                                     <ForumIcon
@@ -127,13 +132,15 @@ const SideBar = ({ show, setShowSideBar }) => {
                                     />
                                 </ListItemIcon>
                                 <ListItemText primary="Forum" />
-                            </ListItemButton>
+                            </NavLink>
                             {!anonymous && accessToken && (
-                                <ListItemButton
-                                    component={NavLink}
+                                <NavLink
                                     to="/settings"
-                                    activeClassName="active"
-                                    className="flex items-center p-2 rounded-lg group"
+                                    className={({ isActive }) =>
+                                        isActive
+                                            ? 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group bg-blue-100 dark:bg-blue-900'
+                                            : 'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+                                    }
                                 >
                                     <ListItemIcon>
                                         <Settings
@@ -143,13 +150,12 @@ const SideBar = ({ show, setShowSideBar }) => {
                                         />
                                     </ListItemIcon>
                                     <ListItemText primary="Settings" />
-                                </ListItemButton>
+                                </NavLink>
                             )}
                             {anonymous && accessToken && (
-                                <ListItemButton
-                                    component={Link}
+                                <Link
                                     to="/auth"
-                                    className="flex items-center p-2 rounded-lg group"
+                                    className="flex items-center p-2 rounded-lg group hover:bg-blue-100"
                                 >
                                     <ListItemIcon>
                                         <LoginIcon
@@ -159,10 +165,11 @@ const SideBar = ({ show, setShowSideBar }) => {
                                         />
                                     </ListItemIcon>
                                     <ListItemText primary="Login" />
-                                </ListItemButton>
+                                </Link>
                             )}
                         </List>
                     </div>
+
                     {anonymous && !showRegister && (
                         <div className="p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900">
                             <div className="flex items-center mb-3">

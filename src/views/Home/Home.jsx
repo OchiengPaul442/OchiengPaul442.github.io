@@ -73,6 +73,7 @@ const Home = () => {
                         post={filteredPosts}
                         comment={false}
                         loading={isLoading}
+                        quantity={true}
                     />
                 </div>
             </div>

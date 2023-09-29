@@ -1,4 +1,3 @@
-import './App.css'
 import React, { Suspense, useEffect } from 'react'
 import { Loader } from './components'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'

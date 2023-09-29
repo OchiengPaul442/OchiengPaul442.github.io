@@ -18,6 +18,7 @@ import {
     reauthenticateWithCredential,
     updatePassword,
 } from 'firebase/auth'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 export const signInUserAnonymously = async () => {
     try {
@@ -345,6 +346,69 @@ export const changePassword = async (oldPassword, newPassword) => {
         return {
             success: false,
             message: 'Error changing password, please try again',
+        }
+    }
+}
+
+// Function to upload the user's profile picture
+export const uploadProfilePicture = async (uid, file) => {
+    try {
+        // Check if file is not empty
+        if (!file) {
+            return {
+                success: false,
+                message: 'No file selected, please select a file',
+            }
+        }
+
+        // Check if file size is acceptable (less than 4MB)
+        const fileSize = file.size / 1024 / 1024 // in MB
+        if (fileSize > 4) {
+            return {
+                success: false,
+                message:
+                    'File size is too large, please select a file less than 4MB',
+            }
+        }
+
+        // Check if file type is acceptable (jpg, jpeg, png, gif, bmp)
+        const fileType = file.type
+        const acceptedFileTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/bmp',
+            'image/webp',
+        ]
+        if (!acceptedFileTypes.includes(fileType)) {
+            return {
+                success: false,
+                message:
+                    'File type is not accepted, please select a jpg, png, gif, bmp or webp file',
+            }
+        }
+
+        const storage = getStorage()
+        const storageRef = ref(storage, `users/${uid}/profilePicture`)
+        await uploadBytes(storageRef, file)
+
+        // Get the download URL
+        const downloadURL = await getDownloadURL(storageRef)
+
+        // Update the user's profile picture
+        const userRef = doc(db, 'users', uid)
+        await setDoc(userRef, { photoURL: downloadURL }, { merge: true })
+
+        return {
+            success: true,
+            message: 'Successfully uploaded profile picture',
+            downloadURL: downloadURL,
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            message: 'Error uploading profile picture, please try again',
         }
     }
 }
