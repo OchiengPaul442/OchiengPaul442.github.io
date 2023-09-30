@@ -10,6 +10,7 @@ import {
     arrayUnion,
     arrayRemove,
     onSnapshot,
+    Timestamp,
 } from 'firebase/firestore'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
@@ -137,7 +138,13 @@ export const likePost = async (postId, userId) => {
 }
 
 // Function to comment on a post
-export const commentOnPost = async (postId, userId, comment) => {
+export const commentOnPost = async (
+    postId,
+    userId,
+    displayName,
+    photoURL,
+    comment
+) => {
     try {
         const postRef = doc(db, 'posts', postId)
 
@@ -158,13 +165,15 @@ export const commentOnPost = async (postId, userId, comment) => {
         }
 
         // Add comment to the post
-        comments.push({
+        const newComment = {
             userId,
+            displayName,
+            photoURL,
             comment,
-            createdAt: new Date(),
-        })
+            createdAt: Timestamp.fromDate(new Date()),
+        }
 
-        await updateDoc(postRef, { comments })
+        await updateDoc(postRef, { comments: arrayUnion(newComment) })
             .then(() => {
                 return {
                     success: true,

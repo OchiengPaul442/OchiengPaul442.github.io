@@ -219,32 +219,29 @@ export const checkIfUserHasPhoneNumber = async (uid) => {
 }
 
 // Function to fetch the user's details
-export const getUserDetails = (uid, callback) => {
+export const getUserDetails = async (uid) => {
     try {
         const userRef = doc(db, 'users', uid)
+        const docSnap = await getDoc(userRef)
 
-        // Listen for real-time updates
-        const unsubscribe = onSnapshot(userRef, (doc) => {
-            if (doc.exists()) {
-                // Return the user data
-                callback({
-                    success: true,
-                    message: 'Successfully fetched user details',
-                    user: doc.data(),
-                })
-            } else {
-                callback({
-                    success: false,
-                    message: 'User does not exist',
-                })
+        if (docSnap.exists()) {
+            return {
+                success: true,
+                message: 'Successfully fetched user details',
+                user: docSnap.data(),
             }
-        })
-
-        // Return the unsubscribe function to stop listening for updates
-        return unsubscribe
+        } else {
+            return {
+                success: false,
+                message: 'User does not exist',
+            }
+        }
     } catch (err) {
         console.error(err)
-        return () => {}
+        return {
+            success: false,
+            message: 'Error fetching user details',
+        }
     }
 }
 

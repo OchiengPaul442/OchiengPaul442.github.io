@@ -21,21 +21,21 @@ const App = () => {
     const uid = useSelector((state) => state.auth.accessToken.uid)
 
     useEffect(() => {
-        // Check if accessToken and anonymous are set
-        if (accessToken && !anonymous && uid) {
-            // Use the getUserDetails function with a callback
-            const unsubscribe = getUserDetails(uid, ({ success, user }) => {
-                if (success) {
+        const fetchUserDetails = async () => {
+            if (accessToken && !anonymous && uid) {
+                const response = await getUserDetails(uid)
+
+                if (response.success) {
                     dispatch({
                         type: 'SET_USER',
                         payload: {
-                            displayName: user.displayName,
-                            email: user.email,
-                            photoURL: user.photoURL,
-                            uid: user.uid,
-                            country: user.country,
-                            location: user.location,
-                            phoneNumber: user.phoneNumber,
+                            displayName: response.user.displayName,
+                            email: response.user.email,
+                            photoURL: response.user.photoURL,
+                            uid: response.user.uid,
+                            country: response.user.country,
+                            location: response.user.location,
+                            phoneNumber: response.user.phoneNumber,
                         },
                     })
                 } else {
@@ -52,11 +52,10 @@ const App = () => {
                         },
                     })
                 }
-            })
-
-            // Cleanup function to stop listening for updates
-            return () => unsubscribe()
+            }
         }
+
+        fetchUserDetails()
     }, [dispatch, accessToken, anonymous, uid])
 
     return (

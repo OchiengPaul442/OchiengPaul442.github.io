@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import { ShareIcon, CommentIcon, LikeIcon } from '../icons/Icons'
@@ -17,11 +17,11 @@ import { Link } from 'react-router-dom'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
 import useGoogleSignIn from '../GoogleSignin/index'
-import { getUserDetails } from '../../backend/auth'
 import CallIcon from '@mui/icons-material/Call'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import { likePost, commentOnPost, getPosts } from '../../backend/posts'
 import { Slide, Snackbar, Alert } from '@mui/material'
+import { Timestamp } from 'firebase/firestore'
 
 const style = {
     width: '800px',
@@ -75,8 +75,8 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const userId = useSelector((state) => state.auth.accessToken.uid)
     const accessToken = useSelector((state) => state.auth.accessToken.token)
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
-    const [commentSec, setCommentSec] = useState(null)
-    const [commentText, setCommentText] = useState('')
+    const displayName = useSelector((state) => state.auth.user.displayName)
+    const photoURL = useSelector((state) => state.auth.user.photoURL)
     const [open, setOpen] = useState(false)
     const [openLogin, setOpenLogin] = useState(false)
     const handleOpen = () => setOpen(true)
@@ -85,7 +85,6 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-    // Initialize local state for each post
     const [likeCount, setLikeCount] = useState({})
     const [likeStatus, setLikeStatus] = useState({})
     const [error, setError] = useState({
@@ -94,10 +93,13 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
         open: false,
     })
 
+    const [posts, setPosts] = useState([])
     useEffect(() => {
-        // Define the update callback
+        setPosts(post)
+    }, [post])
+
+    useEffect(() => {
         const updateCallback = (posts) => {
-            // Update the like count and like status based on the latest data
             const newLikeCount = {}
             const newLikeStatus = {}
             posts.forEach((post) => {
@@ -111,7 +113,6 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
             setLikeStatus(newLikeStatus)
         }
 
-        // Call getPosts with the update callback
         try {
             getPosts(updateCallback)
         } catch (err) {
@@ -121,54 +122,53 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 open: true,
             })
         }
-    }, []) // Empty dependency array means this effect runs once on mount
+    }, [])
 
-    const handleLike = async (postId, userId) => {
-        if (!accessToken || anonymous) {
-            setOpenLogin(true) // Show login modal if user is not authenticated
-            return
-        }
+    const handleLike = useCallback(
+        async (postId, userId) => {
+            if (!accessToken || anonymous) {
+                setOpenLogin(true)
+                return
+            }
 
-        try {
-            // Simultaneously update local state and send like request to the server
-            if (likeStatus[postId]) {
-                // If already liked, perform unlike action
-                setLikeStatus({
-                    ...likeStatus,
-                    [postId]: false,
-                })
-                setLikeCount({
-                    ...likeCount,
-                    [postId]: likeCount[postId] - 1,
-                })
-                await likePost(postId, userId)
-            } else {
-                // If not liked, perform like action
-                setLikeStatus({
-                    ...likeStatus,
-                    [postId]: true,
-                })
-                setLikeCount({
-                    ...likeCount,
-                    [postId]: (likeCount[postId] || 0) + 1,
-                })
-                await likePost(postId, userId)
+            try {
+                if (likeStatus[postId]) {
+                    setLikeStatus((currentLikeStatus) => ({
+                        ...currentLikeStatus,
+                        [postId]: false,
+                    }))
+                    setLikeCount((currentLikeCount) => ({
+                        ...currentLikeCount,
+                        [postId]: currentLikeCount[postId] - 1,
+                    }))
+                    await likePost(postId, userId)
+                } else {
+                    setLikeStatus((currentLikeStatus) => ({
+                        ...currentLikeStatus,
+                        [postId]: true,
+                    }))
+                    setLikeCount((currentLikeCount) => ({
+                        ...currentLikeCount,
+                        [postId]: (currentLikeCount[postId] || 0) + 1,
+                    }))
+                    await likePost(postId, userId)
+                    setError({
+                        status: 'success',
+                        error: 'Post liked successfully',
+                        open: true,
+                    })
+                }
+            } catch (error) {
+                console.error('Error while liking/unliking post:', error)
                 setError({
-                    status: 'success',
-                    error: 'Post liked successfully',
+                    status: 'error',
+                    error: error.message,
                     open: true,
                 })
             }
-        } catch (error) {
-            // Handle any errors or issues with the like/unliking request
-            console.error('Error while liking/unliking post:', error)
-            setError({
-                status: 'error',
-                error: error.message,
-                open: true,
-            })
-        }
-    }
+        },
+        [likeStatus, likeCount, accessToken, anonymous]
+    )
 
     useEffect(() => {
         if (error.open) {
@@ -194,10 +194,6 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
         }
     }
 
-    const handleComment = (postId) => {
-        setCommentSec(commentSec === postId ? null : postId)
-    }
-
     const renderImage = (image, index) => {
         const imgSrc = image ? image : ImagePlaceholder
         return (
@@ -221,35 +217,97 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
         )
     }
 
-    const handleCommentOnPost = async (postId, userId, comment) => {
-        if (comment.length === 0) {
-            return
+    const [commentSec, setCommentSec] = useState(null)
+    const [commentText, setCommentText] = useState('')
+    const [comments, setComments] = useState([])
+
+    const handleComment = useCallback(
+        (postId) => {
+            setCommentSec(commentSec === postId ? null : postId)
+        },
+        [commentSec]
+    )
+
+    const handleCommentOnPost = useCallback(
+        async (postId, userId, comment) => {
+            if (comment.trim().length === 0) {
+                return
+            }
+
+            const newComment = {
+                id: comments.length + 1,
+                displayName,
+                photoURL,
+                comment,
+                createdAt: Timestamp.now(),
+            }
+
+            setComments((currentComments) => [...currentComments, newComment])
+            setCommentText('')
+
+            setPosts((currentPosts) =>
+                currentPosts.map((post) =>
+                    post.id === postId
+                        ? {
+                              ...post,
+                              comments: [...(post.comments || []), newComment],
+                          }
+                        : post
+                )
+            )
+
+            try {
+                await commentOnPost(
+                    postId,
+                    userId,
+                    displayName,
+                    photoURL,
+                    comment
+                )
+                setError({
+                    status: 'success',
+                    error: 'Comment added successfully',
+                    open: true,
+                })
+            } catch (error) {
+                console.error('Error while commenting on post:', error)
+                setError({
+                    status: 'error',
+                    error: error.message,
+                    open: true,
+                })
+            }
+        },
+        [comments, displayName, photoURL]
+    )
+
+    const parseAndFormatDate = useCallback((dateInput) => {
+        let date
+
+        if (dateInput && typeof dateInput?.toDate === 'function') {
+            date = dateInput.toDate()
+        } else if (typeof dateInput === 'string') {
+            date = new Date(dateInput)
+        } else {
+            return 'Invalid Date'
         }
-        await commentOnPost(postId, userId, comment)
 
-        setCommentText('')
-    }
+        if (isNaN(date?.getTime())) {
+            return dateInput
+        }
 
-    // Add displayName and photoURL to the comment object
-    post?.forEach((post) => {
-        post?.comments?.forEach((comment) => {
-            // Pass userId to getUserDetails function
-            getUserDetails(comment?.userId, (response) => {
-                if (response.success) {
-                    // Add displayName and photoURL to the comment object
-                    comment.displayName = response.user.displayName
-                    comment.photoURL = response.user.photoURL
-                } else {
-                    console.log(response.message)
-                }
-            })
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
         })
-    })
+    }, [])
 
     return (
         <>
-            {post.length > 0 ? (
-                post.map((post) => (
+            {posts.length > 0 ? (
+                posts.map((post) => (
                     <div
                         key={post.id}
                         className="max-w-2xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
@@ -350,7 +408,9 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                 : `https://wa.me/${post.phoneNumber}`
                                         }
                                     >
-                                        <WhatsAppIcon />
+                                        <WhatsAppIcon
+                                            sx={{ color: '#25D366' }}
+                                        />
                                     </IconButton>
                                     <IconButton
                                         aria-label="call"
@@ -480,56 +540,55 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                         )}
                         {/* comment input field */}
                         {commentSec === post.id && (
-                            <div>
-                                {/* display comments */}
-                                <div className="bg-blue-100 rounded-lg mx-2 p-2">
-                                    {post?.comments?.length > 0 ? (
-                                        post.comments.map((comment) => (
-                                            <div
-                                                key={comment.id}
-                                                className="flex items-start space-x-3 mt-3"
-                                            >
-                                                <Avatar
-                                                    className="w-10 h-10 rounded-full"
-                                                    alt="Avatar"
-                                                    src={comment.photoURL}
-                                                />
-                                                <div className="flex flex-col">
-                                                    <div className="flex items-center space-x-2">
-                                                        <h4 className="font-bold text-sm">
-                                                            {
-                                                                comment.displayName
+                            <div className="bg-blue-100 rounded-lg mx-2 p-2 mb-2">
+                                {/* Display comments */}
+                                {commentSec === post.id && (
+                                    <div>
+                                        {post?.comments?.length > 0 ? (
+                                            post?.comments?.map((comment) => (
+                                                <div
+                                                    key={comment.id}
+                                                    className="flex items-start space-x-3 mt-3"
+                                                >
+                                                    <>
+                                                        <Avatar
+                                                            className="w-10 h-10 rounded-full"
+                                                            alt="Avatar"
+                                                            src={
+                                                                comment.photoURL
                                                             }
-                                                        </h4>
-                                                        <p className="text-gray-500 text-xs">
-                                                            {comment.createdAt
-                                                                .toDate()
-                                                                .toDateString(
-                                                                    'en-US',
+                                                        />
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center space-x-2">
+                                                                <h4 className="font-bold text-sm">
                                                                     {
-                                                                        weekday:
-                                                                            'long',
-                                                                        year: 'numeric',
-                                                                        month: 'short',
-                                                                        day: 'numeric',
+                                                                        comment.displayName
                                                                     }
-                                                                )}
-                                                        </p>
-                                                    </div>
-                                                    <p className="text-gray-700 text-sm">
-                                                        {comment.comment}
-                                                    </p>
+                                                                </h4>
+                                                                <p className="text-gray-500 text-xs">
+                                                                    {parseAndFormatDate(
+                                                                        comment.createdAt
+                                                                    )}
+                                                                </p>
+                                                            </div>
+                                                            <p className="text-gray-700 text-sm">
+                                                                {
+                                                                    comment.comment
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </>
                                                 </div>
+                                            ))
+                                        ) : (
+                                            <div className="w-full flex justify-center text-xl font-bold text-gray-500">
+                                                No Comments Available
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="w-full flex justify-center text-xl font-bold text-gray-500">
-                                            No Comments Available
-                                        </div>
-                                    )}
-                                </div>
+                                        )}
+                                    </div>
+                                )}
 
-                                {/* comment input field */}
+                                {/* Comment input field */}
                                 <div className="px-2 md:px-6 py-2">
                                     <div className="flex items-center justify-between">
                                         <input
