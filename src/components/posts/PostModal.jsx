@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Typography, Button, Modal, Box } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 import ImageUploader from '../fileUpload/ImageUploader'
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import Webcam from 'react-webcam'
+import { Slide, Snackbar } from '@mui/material'
 
 const style = {
     width: '800px',
@@ -34,6 +35,11 @@ const PostModal = ({ open, handleCloseModal }) => {
         itemType: 'free',
         quantity: 0,
     })
+    const [error, setError] = useState({
+        open: false,
+        error: '',
+        status: '',
+    })
 
     const [alert, setAlert] = useState({
         show: false,
@@ -44,12 +50,29 @@ const PostModal = ({ open, handleCloseModal }) => {
     const [cameraOpen, setCameraOpen] = useState(false) // Track if the camera is open
     const webcamRef = useRef(null)
 
+    const handleClose = () => {
+        setError({ open: false })
+    }
+
     const handleChange = (event) => {
         setState({
             ...state,
             [event.target.name]: event.target.value,
         })
     }
+
+    useEffect(() => {
+        if (error.open) {
+            const timer = setTimeout(() => {
+                setError((prevState) => ({
+                    ...prevState,
+                    open: false,
+                }))
+            }, 2500)
+
+            return () => clearTimeout(timer)
+        }
+    }, [error])
 
     const onDrop = useCallback((files) => {
         // Append the uploaded images to the existing images
@@ -88,11 +111,20 @@ const PostModal = ({ open, handleCloseModal }) => {
         try {
             setLoading(true)
             await createPost(post)
-
             resetForm()
             handleCloseModal()
+            setError({
+                open: true,
+                error: 'Item added successfully',
+                status: 'success',
+            })
         } catch (error) {
             console.log(error)
+            setError({
+                open: true,
+                error: 'Something went wrong',
+                status: 'error',
+            })
         } finally {
             setLoading(false)
         }
@@ -356,6 +388,21 @@ const PostModal = ({ open, handleCloseModal }) => {
                     )}
                 </Box>
             </Modal>
+            <Snackbar
+                open={error.open}
+                autoHideDuration={6000}
+                onClose={() => setError({ open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                TransitionComponent={Slide}
+            >
+                <Alert
+                    onClose={handleClose}
+                    severity={error.status}
+                    style={{ backgroundColor: '#1c274c', color: 'white' }}
+                >
+                    {error.error}
+                </Alert>
+            </Snackbar>
         </>
     )
 }

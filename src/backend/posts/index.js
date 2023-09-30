@@ -42,11 +42,15 @@ export const createPost = async (data) => {
         await addDoc(collection(db, 'posts'), newPost).then(() => {
             return {
                 success: true,
-                message: 'Post created successfully',
+                message: 'Item Added Successfully',
             }
         })
     } catch (error) {
         console.error('Error creating post: ', error)
+        return {
+            success: false,
+            message: 'Something went wrong',
+        }
     }
 }
 
