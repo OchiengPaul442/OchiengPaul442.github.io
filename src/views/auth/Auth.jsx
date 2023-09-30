@@ -22,6 +22,7 @@ const Auth = () => {
         login: false,
         signup: false,
         forgotpwd: false,
+        anonymous: false,
     })
 
     const [disabled, setDisabled] = useState(true)

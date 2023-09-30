@@ -17,10 +17,11 @@ import { Link } from 'react-router-dom'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
 import useGoogleSignIn from '../GoogleSignin/index'
-import { likePost, commentOnPost } from '../../backend/posts'
 import { getUserDetails } from '../../backend/auth'
 import CallIcon from '@mui/icons-material/Call'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
+import { likePost, commentOnPost, getPosts } from '../../backend/posts'
+import { Slide, Snackbar, Alert } from '@mui/material'
 
 const style = {
     width: '800px',
@@ -74,8 +75,6 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const userId = useSelector((state) => state.auth.accessToken.uid)
     const accessToken = useSelector((state) => state.auth.accessToken.token)
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
-    const reload = useSelector((state) => state.actionReducer.reload)
-    const [like, setLike] = useState(false)
     const [commentSec, setCommentSec] = useState(null)
     const [commentText, setCommentText] = useState('')
     const [open, setOpen] = useState(false)
@@ -85,6 +84,115 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const { handleSignWithGoogle } = useGoogleSignIn()
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+    // Initialize local state for each post
+    const [likeCount, setLikeCount] = useState({})
+    const [likeStatus, setLikeStatus] = useState({})
+    const [error, setError] = useState({
+        status: null,
+        error: null,
+        open: false,
+    })
+
+    useEffect(() => {
+        // Define the update callback
+        const updateCallback = (posts) => {
+            // Update the like count and like status based on the latest data
+            const newLikeCount = {}
+            const newLikeStatus = {}
+            posts.forEach((post) => {
+                newLikeCount[post.id] = post.likes ? post.likes.length : 0
+                newLikeStatus[post.id] = post.likes
+                    ? post.likes.includes(userId)
+                    : false
+            })
+
+            setLikeCount(newLikeCount)
+            setLikeStatus(newLikeStatus)
+        }
+
+        // Call getPosts with the update callback
+        try {
+            getPosts(updateCallback)
+        } catch (err) {
+            setError({
+                status: 'error',
+                error: err.message,
+                open: true,
+            })
+        }
+    }, []) // Empty dependency array means this effect runs once on mount
+
+    const handleLike = async (postId, userId) => {
+        if (!accessToken || anonymous) {
+            setOpenLogin(true) // Show login modal if user is not authenticated
+            return
+        }
+
+        try {
+            // Simultaneously update local state and send like request to the server
+            if (likeStatus[postId]) {
+                // If already liked, perform unlike action
+                setLikeStatus({
+                    ...likeStatus,
+                    [postId]: false,
+                })
+                setLikeCount({
+                    ...likeCount,
+                    [postId]: likeCount[postId] - 1,
+                })
+                await likePost(postId, userId)
+            } else {
+                // If not liked, perform like action
+                setLikeStatus({
+                    ...likeStatus,
+                    [postId]: true,
+                })
+                setLikeCount({
+                    ...likeCount,
+                    [postId]: (likeCount[postId] || 0) + 1,
+                })
+                await likePost(postId, userId)
+                setError({
+                    status: 'success',
+                    error: 'Post liked successfully',
+                    open: true,
+                })
+            }
+        } catch (error) {
+            // Handle any errors or issues with the like/unliking request
+            console.error('Error while liking/unliking post:', error)
+            setError({
+                status: 'error',
+                error: error.message,
+                open: true,
+            })
+        }
+    }
+
+    useEffect(() => {
+        if (error.open) {
+            const timer = setTimeout(() => {
+                setError((prevState) => ({
+                    ...prevState,
+                    open: false,
+                }))
+            }, 2500)
+
+            return () => clearTimeout(timer)
+        }
+    }, [error])
+
+    // Helper function to format number of likes
+    const formatLikes = (num) => {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M'
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K'
+        } else {
+            return num
+        }
+    }
 
     const handleComment = (postId) => {
         setCommentSec(commentSec === postId ? null : postId)
@@ -113,11 +221,6 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
         )
     }
 
-    const handleLike = async (postId, userId) => {
-        setLike(!like)
-        await likePost(postId, userId)
-    }
-
     const handleCommentOnPost = async (postId, userId, comment) => {
         if (comment.length === 0) {
             return
@@ -142,25 +245,6 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
             })
         })
     })
-
-    // Helper function to format number of likes
-    const formatLikes = (num) => {
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M'
-        } else if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K'
-        } else {
-            return num
-        }
-    }
-
-    useEffect(() => {
-        if (post?.likes?.includes(userId)) {
-            setLike(true)
-        } else {
-            setLike(false)
-        }
-    }, [post, userId, reload])
 
     return (
         <>
@@ -290,19 +374,13 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                     ) : (
                                         <button
                                             onClick={() => {
-                                                if (accessToken && !anonymous) {
-                                                    handleLike(post.id, userId)
-                                                } else {
-                                                    setOpenLogin(true)
-                                                }
+                                                handleLike(post.id, userId)
                                             }}
                                             className={`text-gray-700 bg-gray-200 hover:bg-gray-400 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold`}
                                         >
                                             <LikeIcon
                                                 fill2={
-                                                    post?.likes?.includes(
-                                                        userId
-                                                    )
+                                                    likeStatus[post.id]
                                                         ? '#F87171'
                                                         : ''
                                                 }
@@ -310,14 +388,14 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                 height="24"
                                             />
                                             <span className="ml-2 ">
-                                                {post?.likes?.length > 0 && (
+                                                {likeCount[post.id] > 0 && (
                                                     <span className="text-green-700 mr-1">
                                                         {formatLikes(
-                                                            post?.likes?.length
+                                                            likeCount[post.id]
                                                         )}
                                                     </span>
                                                 )}
-                                                {post?.likes?.length > 1
+                                                {likeCount[post.id] > 1
                                                     ? 'likes'
                                                     : 'like'}
                                             </span>
@@ -568,6 +646,21 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     No Posts Available
                 </div>
             )}
+            <Snackbar
+                open={error.open}
+                autoHideDuration={6000}
+                onClose={() => setError({ open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                TransitionComponent={Slide}
+            >
+                <Alert
+                    onClose={handleClose}
+                    severity={error.status}
+                    style={{ backgroundColor: '#1c274c', color: 'white' }}
+                >
+                    {error.error}
+                </Alert>
+            </Snackbar>
 
             <Modal
                 keepMounted

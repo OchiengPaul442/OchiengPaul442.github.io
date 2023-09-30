@@ -15,6 +15,7 @@ import {
     Settings,
     Logout,
     CloseIcon,
+    LoginIcon,
 } from '../icons/Icons'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -201,6 +202,23 @@ const TopBar = ({ onClick, value }) => {
                                                     primary="Settings"
                                                     className="text-sm"
                                                 />
+                                            </Link>
+                                        </MenuItem>
+                                    ),
+                                    anonymous && accessToken && (
+                                        <MenuItem key="login">
+                                            <Link
+                                                to="/auth"
+                                                className="flex items-center p-2 rounded-lg group hover:bg-blue-100"
+                                            >
+                                                <ListItemIcon>
+                                                    <LoginIcon
+                                                        fill="none"
+                                                        width="24"
+                                                        height="24"
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Login" />
                                             </Link>
                                         </MenuItem>
                                     ),

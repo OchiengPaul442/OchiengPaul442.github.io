@@ -76,6 +76,22 @@ export const getPosts = (updateCallback) => {
     }
 }
 
+// Function to get a single post
+export const getPost = async (postId) => {
+    try {
+        const postRef = doc(db, 'posts', postId)
+        const docSnap = await getDoc(postRef)
+        if (docSnap.exists()) {
+            const post = docSnap.data()
+            return { ...post, id: docSnap.id }
+        } else {
+            console.error('No such document!')
+        }
+    } catch (error) {
+        console.error('Error getting post: ', error)
+    }
+}
+
 // Function to like and unlike a post
 export const likePost = async (postId, userId) => {
     try {
@@ -105,12 +121,14 @@ export const likePost = async (postId, userId) => {
             return {
                 success: false,
                 message: 'Post unliked successfully',
+                likes: likes.filter((id) => id !== userId), // Return the updated likes
             }
         } else {
             await updateDoc(postRef, { likes: arrayUnion(userId) })
             return {
                 success: true,
                 message: 'Post liked successfully',
+                likes: [...likes, userId], // Return the updated likes
             }
         }
     } catch (error) {

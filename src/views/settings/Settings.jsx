@@ -60,13 +60,19 @@ const Settings = () => {
             if (!re.test(value)) {
                 return 'Phone number is invalid'
             }
-        } else if (name === 'password') {
+        } else if (
+            name === 'newPassword' ||
+            name === 'oldPassword' ||
+            name === 'confirmPassword'
+        ) {
             if (value.length < 6) {
                 return 'Password must be at least 6 characters'
             }
-        } else if (name === 'confirmPassword') {
-            if (value !== state.newPassword) {
-                return 'Passwords do not match'
+
+            if (name === 'confirmPassword') {
+                if (value !== state.newPassword) {
+                    return 'Passwords do not match'
+                }
             }
         }
         return ''
@@ -241,7 +247,6 @@ const Settings = () => {
         }
     }
 
-    console.log(avatarImage)
     return (
         <Page title="Account Settings">
             {/* alert image upload */}
@@ -301,7 +306,7 @@ const Settings = () => {
                             </label>
                             <div>
                                 <h1 className="text-2xl font-semibold">
-                                    {state.displayName}
+                                    {displayName}
                                 </h1>
                                 <p className="text-lg">{/* Job Title */}</p>
                             </div>

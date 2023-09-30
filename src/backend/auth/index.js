@@ -308,41 +308,36 @@ export const resetPassword = async (email) => {
 export const changePassword = async (oldPassword, newPassword) => {
     try {
         const user = auth.currentUser
+
+        // Check if the old password matches the one in the database
         const credential = EmailAuthProvider.credential(user.email, oldPassword)
 
-        // Reauthenticate the user with their current password
-        await reauthenticateWithCredential(user, credential)
-            .then(() => {
-                return {
-                    success: true,
-                    message: 'Successfully reauthenticated user',
+        return reauthenticateWithCredential(user, credential)
+            .then(async () => {
+                // Update the user's password
+                try {
+                    await updatePassword(user, newPassword)
+                    return {
+                        success: true,
+                        message: 'Successfully changed password',
+                    }
+                } catch (error) {
+                    console.error('Error changing password:', error)
+                    return {
+                        success: false,
+                        message: 'Error changing password',
+                    }
                 }
             })
             .catch((error) => {
                 console.error('Error reauthenticating user:', error)
                 return {
                     success: false,
-                    message: 'Error reauthenticating user',
+                    message: 'Old password is incorrect',
                 }
             })
-
-        // Update the user's password
-        await updatePassword(user, newPassword)
-            .then(() => {
-                return {
-                    success: true,
-                    message: 'Successfully changed password',
-                }
-            })
-            .catch((error) => {
-                console.error('Error changing password:', error)
-                return {
-                    success: false,
-                    message: 'Error changing password',
-                }
-            })
-    } catch (err) {
-        console.error(err)
+    } catch (error) {
+        console.error('Error changing password:', error)
         return {
             success: false,
             message: 'Error changing password, please try again',

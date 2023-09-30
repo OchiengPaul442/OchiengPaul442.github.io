@@ -5,7 +5,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import Alert from '@mui/material/Alert'
 import { createPost } from '../../backend/posts'
 import { Loader } from '../icons/Icons'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import ImageUploader from '../fileUpload/ImageUploader'
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import Webcam from 'react-webcam'
@@ -26,7 +26,6 @@ const style = {
 }
 
 const PostModal = ({ open, handleCloseModal }) => {
-    const dispatch = useDispatch()
     const userId = useSelector((state) => state.auth.user.uid)
     const [loading, setLoading] = useState(false)
     const [state, setState] = useState({
@@ -144,8 +143,6 @@ const PostModal = ({ open, handleCloseModal }) => {
         setImages(updatedImages)
         setPreviewImages(updatedPreviewImages)
     }
-
-    console.log(images)
 
     return (
         <>
