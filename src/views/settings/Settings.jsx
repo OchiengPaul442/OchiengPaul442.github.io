@@ -185,12 +185,30 @@ const Settings = () => {
             setLoading({ ...loading, pwd: true })
             try {
                 await changePassword(state.oldPassword, state.newPassword)
+                    .then((res) => {
+                        if (res.success === true) {
+                            setErrors({
+                                general: res.message,
+                                type: 'success',
+                                form: 'pwd',
+                            })
+                        } else {
+                            setErrors({
+                                general: res.message,
+                                type: 'error',
+                                form: 'pwd',
+                            })
+                        }
+                    })
+                    .catch((err) => {
+                        setErrors({
+                            general: err.message,
+                            type: 'error',
+                            form: 'pwd',
+                        })
+                    })
+
                 clearPwdChange()
-                setErrors({
-                    general: 'Password changed successfully',
-                    type: 'success',
-                    form: 'pwd',
-                })
             } catch (err) {
                 setErrors({
                     general: err?.message,

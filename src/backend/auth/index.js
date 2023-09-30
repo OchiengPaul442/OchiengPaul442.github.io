@@ -8,7 +8,6 @@ import {
     query,
     where,
     setDoc,
-    onSnapshot,
 } from 'firebase/firestore'
 import {
     createUserWithEmailAndPassword,
@@ -301,40 +300,50 @@ export const resetPassword = async (email) => {
     }
 }
 
-// Function to help user change password (takes in current oldpassword for confirmation, password and new password)
 export const changePassword = async (oldPassword, newPassword) => {
     try {
         const user = auth.currentUser
 
+        if (!user) {
+            return {
+                success: false,
+                message: 'User is not authenticated',
+            }
+        }
+
         // Check if the old password matches the one in the database
         const credential = EmailAuthProvider.credential(user.email, oldPassword)
 
-        return reauthenticateWithCredential(user, credential)
-            .then(async () => {
-                // Update the user's password
-                try {
-                    await updatePassword(user, newPassword)
-                    return {
-                        success: true,
-                        message: 'Successfully changed password',
-                    }
-                } catch (error) {
-                    console.error('Error changing password:', error)
-                    return {
-                        success: false,
-                        message: 'Error changing password',
-                    }
-                }
-            })
-            .catch((error) => {
-                console.error('Error reauthenticating user:', error)
-                return {
-                    success: false,
-                    message: 'Old password is incorrect',
-                }
-            })
+        try {
+            await reauthenticateWithCredential(user, credential)
+        } catch (reauthError) {
+            // Handle reauthentication error
+            console.error('Error during reauthentication:', reauthError)
+            return {
+                success: false,
+                message: 'Old password is incorrect',
+            }
+        }
+
+        // If reauthentication is successful, update the user's password
+        try {
+            await updatePassword(user, newPassword)
+            return {
+                success: true,
+                message: 'Successfully changed password',
+            }
+        } catch (updatePasswordError) {
+            // Handle password update error
+            console.error('Error updating password:', updatePasswordError)
+            return {
+                success: false,
+                message:
+                    'Error changing password, please try again' +
+                    updatePasswordError,
+            }
+        }
     } catch (error) {
-        console.error('Error changing password:', error)
+        console.error('General error changing password:', error)
         return {
             success: false,
             message: 'Error changing password, please try again',

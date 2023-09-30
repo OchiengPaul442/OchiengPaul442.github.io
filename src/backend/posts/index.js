@@ -1,7 +1,6 @@
 import { db } from '../../config/firebase'
 import {
     collection,
-    getDocs,
     addDoc,
     getDoc,
     doc as firestoreDoc,

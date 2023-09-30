@@ -114,6 +114,8 @@ const Auth = () => {
             } else {
                 setErrorState(res.message, 'error', 'forgotpwd')
             }
+
+            setEmail('')
         } catch {
             setErrorState(
                 'We are unable to process your request at this time. Please try again later.',
@@ -608,18 +610,21 @@ const Auth = () => {
                                     placeholder="storm@gmail.com"
                                 />
                             </div>
-
-                            <button
+                            <Button
+                                sx={{
+                                    backgroundColor: '#1c274c',
+                                    marginBottom: '1rem',
+                                }}
                                 onClick={handleForgotPassword}
-                                id="submit_btn_fwd"
-                                className="text-white mb-6 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center flex justify-center items-center"
+                                variant="contained"
+                                className="text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
                             >
                                 {loading.forgotpwd ? (
                                     <Loader width={200} height={200} />
                                 ) : (
                                     ' Reset Password'
                                 )}
-                            </button>
+                            </Button>
                             <div className="extra_on_mobile text-center">
                                 <small>
                                     Dont have an acount?{' '}
