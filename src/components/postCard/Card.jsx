@@ -306,7 +306,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
 
     return (
         <>
-            {posts.length > 0 ? (
+            {post.length > 0 ? (
                 posts.map((post) => (
                     <div
                         key={post.id}

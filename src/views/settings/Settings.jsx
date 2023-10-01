@@ -8,6 +8,7 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { Avatar } from '@mui/material'
 import { uploadProfilePicture } from '../../backend/auth'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 
 const Settings = () => {
     const photoURL = useSelector((state) => state.auth.user.photoURL)
@@ -305,6 +306,10 @@ const Settings = () => {
                             <Loader width={250} height={250} />
                         </div>
                     )}
+                    {/* Edit button */}
+                    <span className="absolute top-0 right-0 m-4 bg-white p-2 rounded-full">
+                        <AutoFixHighIcon />
+                    </span>
                     {/* Profile details */}
                     <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                         <div className="flex items-center space-x-4">

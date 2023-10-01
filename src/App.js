@@ -1,8 +1,11 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Loader } from './components'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { getUserDetails } from './backend/auth'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
+import Slide from '@mui/material/Slide'
 
 const loadComponent = (component) => {
     return React.lazy(() => import(`./views/${component}`))
@@ -20,12 +23,30 @@ const App = () => {
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
     const uid = useSelector((state) => state.auth.accessToken.uid)
 
+    const [status, setStatus] = useState(navigator.onLine)
+    const [open, setOpen] = useState(false)
+
     useEffect(() => {
+        function changeStatus() {
+            setStatus(navigator.onLine)
+            setOpen(true)
+        }
+        window.addEventListener('online', changeStatus)
+        window.addEventListener('offline', changeStatus)
+        return () => {
+            window.removeEventListener('online', changeStatus)
+            window.removeEventListener('offline', changeStatus)
+        }
+    }, [])
+
+    useEffect(() => {
+        let isCancelled = false
+
         const fetchUserDetails = async () => {
-            if (accessToken && !anonymous && uid) {
+            if (accessToken && !anonymous && uid && status) {
                 const response = await getUserDetails(uid)
 
-                if (response.success) {
+                if (!isCancelled && response.success) {
                     dispatch({
                         type: 'SET_USER',
                         payload: {
@@ -38,7 +59,7 @@ const App = () => {
                             phoneNumber: response.user.phoneNumber,
                         },
                     })
-                } else {
+                } else if (!isCancelled) {
                     dispatch({
                         type: 'SET_USER',
                         payload: {
@@ -56,7 +77,11 @@ const App = () => {
         }
 
         fetchUserDetails()
-    }, [dispatch, accessToken, anonymous, uid])
+
+        return () => {
+            isCancelled = true
+        }
+    }, [dispatch, accessToken, anonymous, uid, status])
 
     return (
         <Router>
@@ -75,6 +100,20 @@ const App = () => {
                     <Route path="*" element={<Eror404 />} />
                 </Routes>
             </Suspense>
+            <Snackbar
+                open={open}
+                autoHideDuration={6000}
+                onClose={() => setOpen(false)}
+                TransitionComponent={Slide}
+                transitionDuration={{ enter: 500, exit: 500 }}
+            >
+                <Alert
+                    onClose={() => setOpen(false)}
+                    severity={status ? 'success' : 'error'}
+                >
+                    {status ? 'Online' : 'Offline'}
+                </Alert>
+            </Snackbar>
         </Router>
     )
 }

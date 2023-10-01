@@ -186,26 +186,18 @@ export const checkIfUserHasPhoneNumber = async (uid) => {
         const userRef = doc(db, 'users', uid)
         const userDoc = await getDoc(userRef)
 
-        // Check if the user document exists
-        if (!userDoc.exists()) {
-            return {
-                success: false,
-                message: 'User does not exist',
-            }
-        }
-
-        // Check if the user has a phone number
-        const userData = userDoc.data()
-        // and check if phone number is snot null
-        if (userData.phoneNumber && userData.phoneNumber !== '') {
+        // Check if the user document exists and has a phone number
+        if (userDoc.exists()) {
+            const userData = userDoc.data()
+            const hasPhoneNumber = Boolean(userData.phoneNumber)
             return {
                 success: true,
-                hasPhoneNumber: true,
+                hasPhoneNumber,
             }
         } else {
             return {
-                success: true,
-                hasPhoneNumber: false,
+                success: false,
+                message: 'User does not exist',
             }
         }
     } catch (err) {

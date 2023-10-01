@@ -14,15 +14,23 @@ const Page = ({ children, title }) => {
     const [updateDetailsModal, setUpdateDetailsModal] = useState(false)
 
     useEffect(() => {
-        if (uid && token && !anonymous) {
-            setTimeout(async () => {
+        let isCancelled = false
+
+        const fetchUserDetails = async () => {
+            if (uid && token && !anonymous) {
                 const res = await checkIfUserHasPhoneNumber(uid)
-                if (!res.hasPhoneNumber) {
+                if (!isCancelled && res && !res.hasPhoneNumber) {
                     setUpdateDetailsModal(true)
                 } else {
                     setUpdateDetailsModal(false)
                 }
-            }, 10000)
+            }
+        }
+
+        fetchUserDetails()
+
+        return () => {
+            isCancelled = true
         }
     }, [uid, token, anonymous])
 
