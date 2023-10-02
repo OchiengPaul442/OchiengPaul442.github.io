@@ -8,9 +8,9 @@ const SideBar = React.lazy(() => import('../components/sideBar/SideBar'))
 
 const Page = ({ children, title }) => {
     const [showSideBar, setShowSideBar] = useState(false)
-    const uid = useSelector((state) => state.auth.user.uid)
-    const token = useSelector((state) => state.auth.accessToken.token)
-    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
+    const uid = useSelector((state) => state.auth?.user?.uid)
+    const token = useSelector((state) => state.auth?.accessToken?.token)
+    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
     const [updateDetailsModal, setUpdateDetailsModal] = useState(false)
 
     useEffect(() => {

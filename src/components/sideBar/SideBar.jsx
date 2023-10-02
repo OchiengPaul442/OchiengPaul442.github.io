@@ -14,8 +14,8 @@ import {
 } from '../icons/Icons'
 
 const SideBar = ({ show, setShowSideBar }) => {
-    const accessToken = useSelector((state) => state.auth.accessToken.token)
-    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
+    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
+    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
     const [showRegister, setShowRegister] = useState(false)
     const isMobileView = useMediaQuery({ maxWidth: 640 })
     const sidebarRef = useRef(null)

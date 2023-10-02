@@ -72,11 +72,11 @@ const socialMedia = [
 ]
 
 const Card = ({ post, comment = false, quantity = false, loading = false }) => {
-    const userId = useSelector((state) => state.auth.accessToken.uid)
-    const accessToken = useSelector((state) => state.auth.accessToken.token)
-    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
-    const displayName = useSelector((state) => state.auth.user.displayName)
-    const photoURL = useSelector((state) => state.auth.user.photoURL)
+    const userId = useSelector((state) => state.auth?.accessToken?.uid)
+    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
+    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
+    const displayName = useSelector((state) => state.auth?.user?.displayName)
+    const photoURL = useSelector((state) => state.auth?.user?.photoURL)
     const [open, setOpen] = useState(false)
     const [openLogin, setOpenLogin] = useState(false)
     const handleOpen = () => setOpen(true)
