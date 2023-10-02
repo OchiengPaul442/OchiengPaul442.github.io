@@ -6,6 +6,7 @@ import { getUserDetails } from './backend/auth'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 import Slide from '@mui/material/Slide'
+import { signInUserAnonymously } from './backend/auth'
 
 const loadComponent = (component) => {
     return React.lazy(() => import(`./views/${component}`))
@@ -82,6 +83,41 @@ const App = () => {
             isCancelled = true
         }
     }, [dispatch, accessToken, anonymous, uid, status])
+
+    const handleAnonymousLogin = async () => {
+        try {
+            const res = await signInUserAnonymously()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
+                })
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        if (!accessToken && anonymous) {
+            handleAnonymousLogin()
+        }
+    }, [accessToken, anonymous])
 
     return (
         <Router>
