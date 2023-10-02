@@ -25,10 +25,10 @@ import { signInUserAnonymously } from '../../backend/auth'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth.accessToken.token)
-    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
-    const imageURL = useSelector((state) => state.auth.user.photoURL)
-    const categories = useSelector((state) => state.categories.categories)
+    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
+    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
+    const imageURL = useSelector((state) => state.auth?.user?.photoURL)
+    const categories = useSelector((state) => state?.categories?.categories)
     const [anchorEl, setAnchorEl] = useState(null)
 
     const handleClick = (event) => {
