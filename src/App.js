@@ -20,9 +20,10 @@ const Eror404 = loadComponent('404')
 
 const App = () => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth.accessToken.token)
+    const accessToken =
+        useSelector((state) => state.auth.accessToken.token) || null
     const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
-    const uid = useSelector((state) => state.auth.accessToken.uid)
+    const uid = useSelector((state) => state.auth.accessToken.uid) || null
 
     const [status, setStatus] = useState(navigator.onLine)
     const [open, setOpen] = useState(false)
