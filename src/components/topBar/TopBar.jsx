@@ -205,7 +205,7 @@ const TopBar = ({ onClick, value }) => {
                                             </Link>
                                         </MenuItem>
                                     ),
-                                    anonymous && accessToken && (
+                                    anonymous && (
                                         <MenuItem key="login">
                                             <Link
                                                 to="/auth"

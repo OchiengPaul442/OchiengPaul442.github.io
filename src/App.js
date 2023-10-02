@@ -19,8 +19,9 @@ const Eror404 = loadComponent('404')
 
 const App = () => {
     const dispatch = useDispatch()
-    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
-    const uid = useSelector((state) => state.auth.accessToken.uid || null)
+    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
+    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
+    const uid = useSelector((state) => state.auth?.accessToken?.uid)
 
     const [status, setStatus] = useState(navigator.onLine)
     const [open, setOpen] = useState(false)
@@ -42,7 +43,7 @@ const App = () => {
         let isCancelled = false
 
         const fetchUserDetails = async () => {
-            if (!anonymous && uid && status) {
+            if (accessToken && !anonymous && uid && status) {
                 const response = await getUserDetails(uid)
 
                 if (!isCancelled && response.success) {
@@ -80,7 +81,7 @@ const App = () => {
         return () => {
             isCancelled = true
         }
-    }, [dispatch, anonymous, uid, status])
+    }, [dispatch, accessToken, anonymous, uid, status])
 
     return (
         <Router>
