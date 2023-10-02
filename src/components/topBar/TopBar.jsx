@@ -15,15 +15,18 @@ import {
     Settings,
     Logout,
     CloseIcon,
+    LoginIcon,
 } from '../icons/Icons'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import PostModal from '../posts/PostModal'
 import TopNav from './TopNav'
+import { signInUserAnonymously } from '../../backend/auth'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth.accessToken)
+    const accessToken = useSelector((state) => state.auth.accessToken.token)
+    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
     const imageURL = useSelector((state) => state.auth.user.photoURL)
     const categories = useSelector((state) => state.categories.categories)
     const [anchorEl, setAnchorEl] = useState(null)
@@ -44,14 +47,47 @@ const TopBar = ({ onClick, value }) => {
         })
     }
 
-    const handleLogout = () => {
-        const logout = dispatch({
-            type: 'LOGOUT',
-        })
-        if (logout) {
-            window.location.href = '/'
-            localStorage.removeItem('persist:root')
+    const handleAnonymousLogin = async () => {
+        try {
+            const res = await signInUserAnonymously()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: {
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
+                })
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
         }
+    }
+
+    const handleLogout = async () => {
+        // Dispatch logout action
+        dispatch({ type: 'CLEAR_USER' })
+
+        // Remove token from local storage
+        localStorage.removeItem('persist:root')
+
+        // Handle anonymous login if necessary
+        await handleAnonymousLogin()
+
+        // Refresh the page to home page
+        window.location.href = '/'
     }
 
     const [open, setOpen] = useState(false)
@@ -101,16 +137,21 @@ const TopBar = ({ onClick, value }) => {
                     ) : null}
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            {accessToken && (
-                                <button onClick={handleOpen} className="mx-3">
-                                    <Tooltip title="Add Post">
+                            {accessToken && !anonymous && (
+                                <Tooltip title="Add New Post">
+                                    <button
+                                        type="button"
+                                        ref={null}
+                                        onClick={handleOpen}
+                                        className="mx-3"
+                                    >
                                         <AddIcon
                                             fill="orange"
                                             width="36"
                                             height="36"
                                         />
-                                    </Tooltip>
-                                </button>
+                                    </button>
+                                </Tooltip>
                             )}
 
                             <Avatar
@@ -128,24 +169,27 @@ const TopBar = ({ onClick, value }) => {
                                     'aria-labelledby': 'basic-button',
                                 }}
                             >
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <HomeIcon
-                                            fill="none"
-                                            width="24"
-                                            height="24"
-                                        />
-                                    </ListItemIcon>
-                                    <Link to="/">
-                                        <ListItemText
-                                            primary="Home"
-                                            className="text-sm"
-                                        />
-                                    </Link>
-                                </MenuItem>
-                                {accessToken && (
-                                    <>
-                                        <MenuItem onClick={handleClose}>
+                                {[
+                                    <MenuItem onClick={handleClose} key="home">
+                                        <ListItemIcon>
+                                            <HomeIcon
+                                                fill="none"
+                                                width="24"
+                                                height="24"
+                                            />
+                                        </ListItemIcon>
+                                        <Link to="/">
+                                            <ListItemText
+                                                primary="Home"
+                                                className="text-sm"
+                                            />
+                                        </Link>
+                                    </MenuItem>,
+                                    accessToken && !anonymous && (
+                                        <MenuItem
+                                            onClick={handleClose}
+                                            key="settings"
+                                        >
                                             <ListItemIcon>
                                                 <Settings
                                                     fill="none"
@@ -160,7 +204,29 @@ const TopBar = ({ onClick, value }) => {
                                                 />
                                             </Link>
                                         </MenuItem>
-                                        <MenuItem onClick={handleLogout}>
+                                    ),
+                                    anonymous && accessToken && (
+                                        <MenuItem key="login">
+                                            <Link
+                                                to="/auth"
+                                                className="flex items-center p-2 rounded-lg group hover:bg-blue-100"
+                                            >
+                                                <ListItemIcon>
+                                                    <LoginIcon
+                                                        fill="none"
+                                                        width="24"
+                                                        height="24"
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Login" />
+                                            </Link>
+                                        </MenuItem>
+                                    ),
+                                    accessToken && !anonymous && (
+                                        <MenuItem
+                                            onClick={handleLogout}
+                                            key="logout"
+                                        >
                                             <ListItemIcon>
                                                 <Logout
                                                     fill="none"
@@ -175,8 +241,8 @@ const TopBar = ({ onClick, value }) => {
                                                 />
                                             </Link>
                                         </MenuItem>
-                                    </>
-                                )}
+                                    ),
+                                ].filter(Boolean)}
                             </Menu>
                         </div>
                     </div>

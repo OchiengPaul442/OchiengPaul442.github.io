@@ -1,10 +1,17 @@
 const initialAuthState = {
-    accessToken: null,
+    accessToken: {
+        uid: null,
+        token: null,
+        anonymous: true,
+    },
     user: {
         uid: null,
         displayName: null,
         email: null,
         photoURL: null,
+        country: null,
+        location: null,
+        phoneNumber: null,
     },
 }
 
@@ -13,7 +20,11 @@ const authReducer = (state = initialAuthState, action) => {
         case 'SET_ACCESS_TOKEN':
             return {
                 ...state,
-                accessToken: action.payload,
+                accessToken: {
+                    uid: action.payload.uid,
+                    token: action.payload.token,
+                    anonymous: action.payload.anonymous,
+                },
             }
         case 'SET_USER':
             return {
@@ -23,12 +34,21 @@ const authReducer = (state = initialAuthState, action) => {
                     displayName: action.payload.displayName,
                     email: action.payload.email,
                     photoURL: action.payload.photoURL,
+                    country: action.payload.country,
+                    location: action.payload.location,
+                    phoneNumber: action.payload.phoneNumber,
                 },
             }
         case 'CLEAR_USER':
             return {
                 ...state,
-                user: null,
+                user: {
+                    uid: 'N/A',
+                    displayName: 'N/A',
+                    email: 'N/A',
+                    photoURL: 'N/A',
+                },
+                accessToken: 'N/A',
             }
         default:
             return state

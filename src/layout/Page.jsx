@@ -1,15 +1,52 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { checkIfUserHasPhoneNumber } from '../backend/auth'
+import UpdateDetails from '../components/upDateDetails/UpdateDetails'
+
 const TopBar = React.lazy(() => import('../components/topBar/TopBar'))
 const SideBar = React.lazy(() => import('../components/sideBar/SideBar'))
 
 const Page = ({ children, title }) => {
-    const [showSideBar, setShowSideBar] = React.useState(true)
+    const [showSideBar, setShowSideBar] = useState(false)
+    const uid = useSelector((state) => state.auth.user.uid)
+    const token = useSelector((state) => state.auth.accessToken.token)
+    const anonymous = useSelector((state) => state.auth.accessToken.anonymous)
+    const [updateDetailsModal, setUpdateDetailsModal] = useState(false)
 
-    React.useEffect(() => {
-        if (window.innerWidth < 640) {
-            setShowSideBar(!showSideBar)
+    useEffect(() => {
+        let isCancelled = false
+
+        const fetchUserDetails = async () => {
+            if (uid && token && !anonymous) {
+                const res = await checkIfUserHasPhoneNumber(uid)
+                if (!isCancelled && res && !res.hasPhoneNumber) {
+                    setUpdateDetailsModal(true)
+                } else {
+                    setUpdateDetailsModal(false)
+                }
+            }
         }
-    }, [window.innerWidth])
+
+        fetchUserDetails()
+
+        return () => {
+            isCancelled = true
+        }
+    }, [uid, token, anonymous])
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 640 && !showSideBar) {
+                setShowSideBar(true)
+            }
+        }
+
+        window.addEventListener('resize', handleResize)
+
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [showSideBar])
 
     return (
         <>
@@ -17,12 +54,8 @@ const Page = ({ children, title }) => {
                 onClick={() => setShowSideBar(!showSideBar)}
                 value={showSideBar}
             />
-            <SideBar show={showSideBar} />
-            <div
-                className={`${
-                    window.innerWidth < 764 ? 'p-2' : 'p-4'
-                } sm:ml-64`}
-            >
+            <SideBar show={showSideBar} setShowSideBar={setShowSideBar} />
+            <div className={`p-4 sm:ml-64`}>
                 <div className="mt-20 lg:mt-14 h-full lg:mx-6">
                     <div className="flex items-center justify-between mb-4">
                         {title && (
@@ -34,6 +67,12 @@ const Page = ({ children, title }) => {
                     {children}
                 </div>
             </div>
+            {!anonymous && token && (
+                <UpdateDetails
+                    open={updateDetailsModal}
+                    handleClose={() => setUpdateDetailsModal(false)}
+                />
+            )}
         </>
     )
 }
