@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Typography, Button, Modal, Box } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
@@ -7,9 +7,8 @@ import { createPost } from '../../backend/posts'
 import { Loader } from '../icons/Icons'
 import { useSelector } from 'react-redux'
 import ImageUploader from '../fileUpload/ImageUploader'
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
-import Webcam from 'react-webcam'
 import { Slide, Snackbar } from '@mui/material'
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 const style = {
     width: '800px',
@@ -27,6 +26,7 @@ const style = {
 }
 
 const PostModal = ({ open, handleCloseModal }) => {
+    const isMobileDevice = window.innerWidth < 1024
     const userId = useSelector((state) => state.auth.user.uid)
     const [loading, setLoading] = useState(false)
     const [state, setState] = useState({
@@ -46,9 +46,6 @@ const PostModal = ({ open, handleCloseModal }) => {
         message: '',
         type: 'success',
     })
-
-    const [cameraOpen, setCameraOpen] = useState(false) // Track if the camera is open
-    const webcamRef = useRef(null)
 
     const handleClose = () => {
         setError({ open: false })
@@ -141,28 +138,33 @@ const PostModal = ({ open, handleCloseModal }) => {
         setPreviewImages([])
     }
 
-    const captureImage = () => {
-        const imageSrc = webcamRef.current.getScreenshot()
-        if (imageSrc) {
-            const blob = dataURItoBlob(imageSrc)
-            const imageFile = new File([blob], 'webcam-image.png', {
-                type: 'image/png',
-            })
-            setImages([...images, imageFile])
-            setPreviewImages([...previewImages, imageSrc])
+    const handleCameraCapture = (event) => {
+        // Open the device's camera for capturing images
+        event.preventDefault()
+        const fileInput = document.createElement('input')
+        fileInput.type = 'file'
+        fileInput.accept = 'image/*'
+        fileInput.capture = 'camera' // Use the device's camera
+        fileInput.onchange = (e) => {
+            const selectedFile = e.target.files[0]
+            if (selectedFile) {
+                const reader = new FileReader()
+                reader.onload = (event) => {
+                    const imageSrc = event.target.result
+                    const imageFile = new File(
+                        [selectedFile],
+                        'camera-image.png',
+                        {
+                            type: selectedFile.type,
+                        }
+                    )
+                    setImages([...images, imageFile])
+                    setPreviewImages([...previewImages, imageSrc])
+                }
+                reader.readAsDataURL(selectedFile)
+            }
         }
-        setCameraOpen(false)
-    }
-
-    const dataURItoBlob = (dataURI) => {
-        const byteString = atob(dataURI.split(',')[1])
-        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
-        const ab = new ArrayBuffer(byteString.length)
-        const ia = new Uint8Array(ab)
-        for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i)
-        }
-        return new Blob([ab], { type: mimeString })
+        fileInput.click()
     }
 
     const removePreviewImage = (index) => {
@@ -192,8 +194,7 @@ const PostModal = ({ open, handleCloseModal }) => {
                     <div className="flex justify-between py-4">
                         <Typography variant="h6" component="h2">
                             Add Item to
-                            <span className="text-blue-700">
-                                {' '}
+                            <span className="text-blue-700 ml-2">
                                 Community Box
                             </span>
                         </Typography>
@@ -291,42 +292,15 @@ const PostModal = ({ open, handleCloseModal }) => {
                                 required
                             />
                         </div>
-
-                        <div className="flex justify-end mt-4">
-                            <IconButton
-                                aria-label="camera"
-                                sx={{ color: 'orange' }}
-                                onClick={() => setCameraOpen(true)}
-                            >
-                                <CameraAltIcon sx={{ fontSize: 40 }} />
-                            </IconButton>
-                        </div>
-
-                        {cameraOpen && (
-                            <div className="mb-4 flex flex-col items-center w-full">
-                                <div className="flex justify-center mt-4 w-full">
-                                    <IconButton
-                                        aria-label="delete"
-                                        sx={{ color: 'red' }}
-                                        onClick={() => setCameraOpen(false)}
-                                    >
-                                        <CloseIcon />
-                                    </IconButton>
-                                </div>
-                                <Webcam
-                                    audio={false}
-                                    ref={webcamRef}
-                                    screenshotFormat="image/jpeg"
-                                    className="mt-4"
-                                />
-                                <div className="flex justify-center mt-4">
-                                    <Button
-                                        variant="contained"
-                                        onClick={captureImage}
-                                    >
-                                        Capture Image
-                                    </Button>
-                                </div>
+                        {isMobileDevice && (
+                            <div className="flex justify-end mt-4">
+                                <IconButton
+                                    aria-label="camera"
+                                    sx={{ color: 'orange' }}
+                                    onClick={handleCameraCapture}
+                                >
+                                    <CameraAltIcon sx={{ fontSize: 30 }} />
+                                </IconButton>
                             </div>
                         )}
 

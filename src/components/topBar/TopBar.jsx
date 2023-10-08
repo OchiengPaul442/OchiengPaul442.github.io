@@ -8,7 +8,6 @@ import {
 } from '@mui/material'
 import Tooltip from '@mui/material/Tooltip'
 import {
-    CommunityIcon,
     AddIcon,
     HamBurgerIcon,
     HomeIcon,
@@ -22,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import PostModal from '../posts/PostModal'
 import TopNav from './TopNav'
 import { signInUserAnonymously } from '../../backend/auth'
+import CommunityLogo from '../../assets/icons/logo.png'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
@@ -119,7 +119,11 @@ const TopBar = ({ onClick, value }) => {
                             )}
                         </button>
                         <Link to="/" className="flex ml-2 md:mr-24">
-                            <CommunityIcon fill="none" width="40" height="40" />
+                            <img
+                                src={CommunityLogo}
+                                alt="Community Box"
+                                className="w-12 h-12 mt-2"
+                            />
                             {window.innerWidth > 768 && (
                                 <span className="self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white">
                                     Community Box
