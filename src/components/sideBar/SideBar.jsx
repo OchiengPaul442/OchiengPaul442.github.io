@@ -139,7 +139,7 @@ const SideBar = ({ show, setShowSideBar }) => {
                                     <ListItemText primary="Settings" />
                                 </NavLink>
                             )}
-                            {anonymous && (
+                            {anonymous && accessToken && (
                                 <Link
                                     to="/auth"
                                     className="flex items-center p-2 rounded-lg group hover:bg-blue-100"
