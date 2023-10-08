@@ -239,37 +239,13 @@ const Auth = () => {
                 <div id="color1"></div>
                 <div id="color2"></div>
             </div>
-            {/* Link to visit the community */}
-            <div
-                style={{
-                    width: 'fit-content',
-                    paddingBottom: '10px',
-                    paddingTop: '15px',
-                    paddingLeft: '20px',
-                    paddingRight: '10px',
-                    backgroundColor: 'orange',
-                    borderRadius: '0.5rem',
-                    position: 'absolute',
-                    top: '3.5rem',
-                    left: '50%',
-                    transform: 'translate(-50%, 0)',
-                }}
-                className="shadow-md"
-            >
-                <button onClick={handleAnonymousLogin} className="text-white">
-                    {loading.anonymous ? (
-                        <Loader width={200} height={200} />
-                    ) : (
-                        'Visit Community'
-                    )}
-                </button>
-            </div>
+
             <div className="auth_card" id="authCard">
                 <div
                     id="formcard"
                     className="form_card flex flex-col justify-center"
                 >
-                    <h1 className="text-2xl lg:text-4xl text-left font-bold relative mb-10">
+                    <h1 className="text-2xl lg:text-4xl text-left font-bold relative mb-5">
                         <img
                             src={CommunityLogo}
                             alt="logo"
@@ -370,6 +346,32 @@ const Auth = () => {
                                     'Login'
                                 )}
                             </Button>
+                            <button
+                                type="button"
+                                onClick={() => handleAnonymousLogin()}
+                                className="
+                                text-white
+                                focus:ring-4
+                                focus:outline-none
+                                focus:ring-orange-300
+                                font-medium
+                                rounded-lg
+                                text-sm
+                                w-full
+                                px-5
+                                py-2.5
+                                mb-3
+                                text-center
+                                bg-orange-900
+                                dark:bg-orange-800
+                                dark:hover:bg-orange-700
+                                hover:bg-orange-700
+                                hover:text-white
+                                dark:hover:text-white
+                            "
+                            >
+                                Visit Community
+                            </button>
                             <Link
                                 onClick={handleSignWithGoogle}
                                 className="flex justify-center focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center mb-6 border border-blue-950 "

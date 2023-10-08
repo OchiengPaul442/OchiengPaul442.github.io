@@ -12,7 +12,6 @@ import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import { useSelector } from 'react-redux'
 import { GoogleIcon, Carousel } from '../../components'
-// import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
 import { Link } from 'react-router-dom'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
@@ -213,7 +212,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     height: '500px',
                     maxHeight: '520px',
                     backgroundImage: `url(${CommunityLogo})`,
-                    backgroundSize: 'cover',
+                    backgroundSize: 'contain',
                     backgroundPosition: 'center',
                 }}
                 className="w-full h-full relative"
@@ -221,7 +220,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 <img
                     className="w-full h-full object-cover  absolute inset-0"
                     src={imgSrc}
-                    alt="post image"
+                    alt=""
                 />
             </div>
         )
