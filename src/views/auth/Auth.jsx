@@ -14,6 +14,7 @@ import {
     signInUserAnonymously,
     resetPassword,
 } from '../../backend/auth/index.js'
+import CommunityLogo from '../../assets/icons/logo.png'
 
 const Auth = () => {
     const dispatch = useDispatch()
@@ -268,9 +269,15 @@ const Auth = () => {
                     id="formcard"
                     className="form_card flex flex-col justify-center"
                 >
-                    <h1 className="text-2xl lg:text-4xl text-center font-bold relative mb-10">
+                    <h1 className="text-2xl lg:text-4xl text-left font-bold relative mb-10">
+                        <img
+                            src={CommunityLogo}
+                            alt="logo"
+                            className="w-12 h-12 lg:w-24 lg:h-24"
+                        />
                         Community Box
                     </h1>
+
                     {/* <!-- login section --> */}
                     {formState === 'login' && (
                         <form id="login">

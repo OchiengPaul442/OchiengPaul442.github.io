@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import { ShareIcon, CommentIcon, LikeIcon } from '../icons/Icons'
 import Skeleton from '@mui/material/Skeleton'
 import FacebookIcon from '@mui/icons-material/Facebook'
-import TwitterIcon from '@mui/icons-material/Twitter'
+import Xlogo from '../../assets/images/XNewLogo.png'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import InstagramIcon from '@mui/icons-material/Instagram'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
 import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import { useSelector } from 'react-redux'
-import { GoogleIcon } from '../../components'
-import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
+import { GoogleIcon, Carousel } from '../../components'
+// import ImagePlaceholder from '../../assets/images/imageplaceholder.png'
 import { Link } from 'react-router-dom'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
@@ -22,6 +22,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import { likePost, commentOnPost, getPosts } from '../../backend/posts'
 import { Slide, Snackbar, Alert } from '@mui/material'
 import { Timestamp } from 'firebase/firestore'
+import CommunityLogo from '../../assets/icons/logo.png'
 
 const style = {
     width: '800px',
@@ -60,14 +61,25 @@ const socialMedia = [
         url: 'https://www.facebook.com/sharer/sharer.php?u=',
     },
     {
-        name: 'Twitter',
-        icon: <TwitterIcon />,
+        name: 'X',
+        icon: (
+            <img
+                src={Xlogo}
+                alt="X"
+                style={{ width: '24px', height: '24px' }}
+            />
+        ),
         url: 'https://twitter.com/intent/tweet?url=',
     },
     {
         name: 'Instagram',
         icon: <InstagramIcon />,
         url: 'https://www.instagram.com/share?url=',
+    },
+    {
+        name: 'LinkedIn',
+        icon: <LinkedInIcon />,
+        url: 'https://www.linkedin.com/shareArticle?url=',
     },
 ]
 
@@ -131,27 +143,25 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 return
             }
 
+            const currentLikeStatus = likeStatus[postId]
+            const currentLikeCount = likeCount[postId] || 0
+
+            setLikeStatus((prevLikeStatus) => ({
+                ...prevLikeStatus,
+                [postId]: !currentLikeStatus,
+            }))
+
+            setLikeCount((prevLikeCount) => ({
+                ...prevLikeCount,
+                [postId]: currentLikeStatus
+                    ? currentLikeCount - 1
+                    : currentLikeCount + 1,
+            }))
+
             try {
-                if (likeStatus[postId]) {
-                    setLikeStatus((currentLikeStatus) => ({
-                        ...currentLikeStatus,
-                        [postId]: false,
-                    }))
-                    setLikeCount((currentLikeCount) => ({
-                        ...currentLikeCount,
-                        [postId]: currentLikeCount[postId] - 1,
-                    }))
-                    await likePost(postId, userId)
-                } else {
-                    setLikeStatus((currentLikeStatus) => ({
-                        ...currentLikeStatus,
-                        [postId]: true,
-                    }))
-                    setLikeCount((currentLikeCount) => ({
-                        ...currentLikeCount,
-                        [postId]: (currentLikeCount[postId] || 0) + 1,
-                    }))
-                    await likePost(postId, userId)
+                await likePost(postId, userId)
+
+                if (!currentLikeStatus) {
                     setError({
                         status: 'success',
                         error: 'Post liked successfully',
@@ -195,14 +205,14 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     }
 
     const renderImage = (image, index) => {
-        const imgSrc = image ? image : ImagePlaceholder
+        const imgSrc = image ? image : CommunityLogo
         return (
             <div
                 key={index}
                 style={{
                     height: '500px',
                     maxHeight: '520px',
-                    backgroundImage: `url(${ImagePlaceholder})`,
+                    backgroundImage: `url(${CommunityLogo})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
@@ -345,20 +355,10 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                         height={300}
                                     />
                                 ) : (
-                                    <Carousel
-                                        showThumbs={false}
-                                        showStatus={false}
-                                        showIndicators={false}
-                                        infiniteLoop
-                                        autoPlay
-                                        swipeable
-                                        emulateTouch
-                                        interval={5000}
-                                        transitionTime={500}
-                                    >
+                                    <Carousel>
                                         {post.images.length > 0
                                             ? post.images.map(renderImage)
-                                            : renderImage(ImagePlaceholder)}
+                                            : renderImage(CommunityLogo)}
                                     </Carousel>
                                 )}
                             </div>
@@ -433,10 +433,10 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                         />
                                     ) : (
                                         <button
-                                            onClick={() => {
+                                            onClick={() =>
                                                 handleLike(post.id, userId)
-                                            }}
-                                            className={`text-gray-700 bg-gray-200 hover:bg-gray-400 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold`}
+                                            }
+                                            className="text-gray-700 bg-gray-200 hover:bg-gray-400 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold"
                                         >
                                             <LikeIcon
                                                 fill2={

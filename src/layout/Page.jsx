@@ -34,20 +34,6 @@ const Page = ({ children, title }) => {
         }
     }, [uid, token, anonymous])
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 640 && !showSideBar) {
-                setShowSideBar(true)
-            }
-        }
-
-        window.addEventListener('resize', handleResize)
-
-        return () => {
-            window.removeEventListener('resize', handleResize)
-        }
-    }, [showSideBar])
-
     return (
         <>
             <TopBar

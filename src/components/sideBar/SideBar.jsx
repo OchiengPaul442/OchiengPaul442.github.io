@@ -24,10 +24,6 @@ const SideBar = ({ show, setShowSideBar }) => {
         setShowRegister(true)
     }
 
-    const handleCloseSidebar = () => {
-        setShowSideBar(false)
-    }
-
     useEffect(() => {
         const handleOutsideClick = (e) => {
             if (
@@ -36,30 +32,27 @@ const SideBar = ({ show, setShowSideBar }) => {
                 sidebarRef.current &&
                 !sidebarRef.current.contains(e.target)
             ) {
-                handleCloseSidebar()
+                setShowSideBar(false)
             }
+        }
+
+        if (isMobileView && show) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
         }
 
         document.addEventListener('mousedown', handleOutsideClick)
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick)
         }
-    }, [isMobileView, show])
-
-    useEffect(() => {
-        if (isMobileView && show) {
-            document.body.style.overflow = 'hidden'
-        } else {
-            document.body.style.overflow = 'unset'
-        }
-    }, [isMobileView, show])
+    }, [isMobileView, show, setShowSideBar])
 
     return (
         <Drawer
             anchor="left"
             open={isMobileView ? show : true}
             variant="persistent"
-            onClose={() => setShowSideBar(false)}
             className="fixed top-0 z-40 h-screen pt-20 transition-transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700"
             ModalProps={{
                 keepMounted: true,
@@ -90,7 +83,7 @@ const SideBar = ({ show, setShowSideBar }) => {
                 }}
             >
                 <div className="h-full px-3 py-4 overflow-y-auto justify-between flex flex-col">
-                    <div className="px-3 pb-4 mt-14 overflow-y-auto bg-white dark:bg-gray-800">
+                    <div className="px-3 pb-4 mt-16 overflow-y-auto bg-white dark:bg-gray-800">
                         <List component="nav" className="space-y-2 font-medium">
                             <NavLink
                                 to="/"
