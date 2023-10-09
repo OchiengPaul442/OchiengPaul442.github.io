@@ -7,6 +7,7 @@ import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 import Slide from '@mui/material/Slide'
 import { signInUserAnonymously } from './backend/auth'
+import { auth } from './config/firebase'
 
 const loadComponent = (component) => {
     return React.lazy(() => import(`./views/${component}`))
@@ -108,7 +109,13 @@ const App = () => {
             }
         }
 
-        handleAnonymousLogin()
+        // if (
+        //     auth?.currentUser?.isAnonymous === true ||
+        //     auth?.currentUser === null
+        // ) {
+        //     handleAnonymousLogin()
+        // }
+
         fetchUserDetails()
 
         return () => {
