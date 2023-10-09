@@ -77,6 +77,7 @@ const App = () => {
             }
         }
 
+        // handle anonymous login
         const handleAnonymousLogin = async () => {
             try {
                 const res = await signInUserAnonymously()
