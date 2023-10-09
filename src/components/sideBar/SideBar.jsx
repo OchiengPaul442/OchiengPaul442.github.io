@@ -74,8 +74,6 @@ const SideBar = ({ show, setShowSideBar }) => {
         },
     ]
 
-    console.log('anonymous', auth?.currentUser)
-
     return (
         <Drawer
             anchor="left"
