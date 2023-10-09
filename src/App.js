@@ -100,7 +100,6 @@ const App = () => {
                             anonymous: res.anonymous,
                         },
                     })
-                    console.log('Anonymous Login Successful', res)
                 } else {
                     alert(res.message)
                 }
