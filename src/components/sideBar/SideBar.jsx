@@ -3,7 +3,6 @@ import { Drawer, List, ListItemIcon, ListItemText } from '@mui/material'
 import Box from '@mui/material/Box'
 import { useMediaQuery } from 'react-responsive'
 import { Link, NavLink } from 'react-router-dom'
-import { useSelector } from 'react-redux'
 import {
     HomeIcon,
     ForumIcon,
@@ -16,8 +15,6 @@ import Skeleton from '@mui/material/Skeleton'
 import { auth } from '../../config/firebase'
 
 const SideBar = ({ show, setShowSideBar }) => {
-    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
-    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
     const [showRegister, setShowRegister] = useState(false)
     const isMobileView = useMediaQuery({ maxWidth: 640 })
     const sidebarRef = useRef(null)
