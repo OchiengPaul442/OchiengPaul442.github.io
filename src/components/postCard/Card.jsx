@@ -423,7 +423,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
 
                         <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
                             <div className="overflow-x-auto">
-                                <div className="space-x-2 flex justify-end mt-2">
+                                <div className="space-x-8 flex justify-end mt-2">
                                     {loading ? (
                                         <Skeleton
                                             variant="circle"
@@ -435,29 +435,24 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                             onClick={() =>
                                                 handleLike(post.id, userId)
                                             }
-                                            className="text-gray-700 bg-gray-200 hover:bg-gray-400 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold"
+                                            className="inline-flex items-center text-sm font-semibold"
                                         >
                                             <LikeIcon
                                                 fill2={
                                                     likeStatus[post.id]
-                                                        ? '#F87171'
+                                                        ? '#FFA500'
                                                         : ''
                                                 }
                                                 width="24"
                                                 height="24"
                                             />
-                                            <span className="ml-2 ">
-                                                {likeCount[post.id] > 0 && (
-                                                    <span className="text-green-700 mr-1">
-                                                        {formatLikes(
-                                                            likeCount[post.id]
-                                                        )}
-                                                    </span>
-                                                )}
-                                                {likeCount[post.id] > 1
-                                                    ? 'likes'
-                                                    : 'like'}
-                                            </span>
+                                            {likeCount[post.id] > 0 && (
+                                                <span className="text-orange-600 ml-2">
+                                                    {formatLikes(
+                                                        likeCount[post.id]
+                                                    )}
+                                                </span>
+                                            )}
                                         </button>
                                     )}
                                     {comment && (
@@ -469,34 +464,30 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                     setOpenLogin(true)
                                                 }
                                             }}
-                                            className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                            className="inline-flex items-center text-blue-400 hover:text-blue-500 text-sm font-semibold"
                                         >
                                             <CommentIcon
-                                                fill="none"
+                                                fill={
+                                                    post?.comments?.length > 0
+                                                        ? '#1DA1F2'
+                                                        : 'none'
+                                                }
                                                 width="24"
                                                 height="24"
                                                 className="mr-1"
                                             />
-
-                                            <span className="ml-2">
-                                                {post?.comments?.length > 0 && (
-                                                    <span className="mr-2">
-                                                        {formatLikes(
-                                                            post?.comments
-                                                                ?.length
-                                                        )}
-                                                    </span>
-                                                )}
-
-                                                {post?.comments?.length > 1
-                                                    ? 'comments'
-                                                    : 'comment'}
-                                            </span>
+                                            {post?.comments?.length > 0 && (
+                                                <span className="ml-2">
+                                                    {formatLikes(
+                                                        post?.comments?.length
+                                                    )}
+                                                </span>
+                                            )}
                                         </button>
                                     )}
                                     <button
                                         onClick={handleOpen}
-                                        className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+                                        className="inline-flex items-center text-blue-400 hover:text-blue-500 text-sm font-semibold"
                                     >
                                         {loading ? (
                                             <Skeleton
@@ -511,7 +502,6 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                 height="24"
                                             />
                                         )}
-                                        <span className="ml-2">share</span>
                                     </button>
                                 </div>
                             </div>

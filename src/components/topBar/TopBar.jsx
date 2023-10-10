@@ -22,6 +22,8 @@ import PostModal from '../posts/PostModal'
 import TopNav from './TopNav'
 import { signInUserAnonymously } from '../../backend/auth'
 import CommunityLogo from '../../assets/icons/logo.png'
+import { auth } from '../../config/firebase'
+import Skeleton from '@mui/material/Skeleton'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
@@ -141,7 +143,7 @@ const TopBar = ({ onClick, value }) => {
                     ) : null}
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            {accessToken && !anonymous && (
+                            {auth?.currentUser && accessToken && !anonymous && (
                                 <Tooltip title="Add New Post">
                                     <button
                                         type="button"
@@ -158,12 +160,23 @@ const TopBar = ({ onClick, value }) => {
                                 </Tooltip>
                             )}
 
-                            <Avatar
-                                onClick={handleClick}
-                                className="cursor-pointer"
-                                alt="Remy Sharp"
-                                src={imageURL}
-                            />
+                            {auth?.currentUser ? (
+                                <Avatar
+                                    onClick={handleClick}
+                                    className="cursor-pointer"
+                                    alt="Remy Sharp"
+                                    src={imageURL}
+                                />
+                            ) : (
+                                <Skeleton
+                                    variant="rectangular"
+                                    width={45}
+                                    sx={{
+                                        borderRadius: '100%',
+                                    }}
+                                    height={45}
+                                />
+                            )}
 
                             <Menu
                                 anchorEl={anchorEl}
