@@ -223,21 +223,18 @@ const TopBar = ({ onClick, value }) => {
                                         </MenuItem>
                                     ),
                                     anonymous && (
-                                        <MenuItem
-                                            key="login"
-                                            onClick={() =>
-                                                (window.location.href = '/auth')
-                                            }
-                                        >
-                                            <ListItemIcon>
-                                                <LoginIcon
-                                                    fill="none"
-                                                    width="24"
-                                                    height="24"
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText primary="Login" />
-                                        </MenuItem>
+                                        <Link to="/auth">
+                                            <MenuItem key="login">
+                                                <ListItemIcon>
+                                                    <LoginIcon
+                                                        fill="none"
+                                                        width="24"
+                                                        height="24"
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Login" />
+                                            </MenuItem>
+                                        </Link>
                                     ),
                                     accessToken && !anonymous && (
                                         <MenuItem
