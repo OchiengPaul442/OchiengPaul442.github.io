@@ -41,6 +41,37 @@ const App = () => {
         }
     }, [])
 
+    // handle anonymous login
+    const handleAnonymousLogin = async () => {
+        try {
+            const res = await signInUserAnonymously()
+            if (res.success === true) {
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        displayName: res.user.displayName,
+                        email: res.user.email,
+                        photoURL: res.user.photoURL,
+                        uid: res.user.uid,
+                    },
+                })
+
+                dispatch({
+                    type: 'SET_ACCESS_TOKEN',
+                    payload: {
+                        uid: res.user.uid,
+                        token: res.accessToken,
+                        anonymous: res.anonymous,
+                    },
+                })
+            } else {
+                alert(res.message)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         let isCancelled = false
 
@@ -78,43 +109,9 @@ const App = () => {
             }
         }
 
-        // handle anonymous login
-        const handleAnonymousLogin = async () => {
-            try {
-                const res = await signInUserAnonymously()
-                if (res.success === true) {
-                    dispatch({
-                        type: 'SET_USER',
-                        payload: {
-                            displayName: res.user.displayName,
-                            email: res.user.email,
-                            photoURL: res.user.photoURL,
-                            uid: res.user.uid,
-                        },
-                    })
-
-                    dispatch({
-                        type: 'SET_ACCESS_TOKEN',
-                        payload: {
-                            uid: res.user.uid,
-                            token: res.accessToken,
-                            anonymous: res.anonymous,
-                        },
-                    })
-                } else {
-                    alert(res.message)
-                }
-            } catch (error) {
-                console.log(error)
-            }
+        if (auth?.currentUser === null && !accessToken && anonymous) {
+            handleAnonymousLogin()
         }
-
-        // if (
-        //     auth?.currentUser?.isAnonymous === true ||
-        //     auth?.currentUser === null
-        // ) {
-        //     handleAnonymousLogin()
-        // }
 
         fetchUserDetails()
 
