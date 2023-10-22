@@ -41,11 +41,11 @@ const Page = ({ children, title }) => {
                 value={showSideBar}
             />
             <SideBar show={showSideBar} setShowSideBar={setShowSideBar} />
-            <div className={`p-4 sm:ml-64`}>
+            <div className={`sm:p-4 sm:ml-64`}>
                 <div className="mt-20 lg:mt-14 h-full lg:mx-6">
                     <div className="flex items-center justify-between mb-4">
                         {title && (
-                            <h1 className="text-lg lg:text-4xl font-bold text-gray-800 dark:text-white">
+                            <h1 className="text-lg lg:text-4xl font-bold text-gray-800 dark:text-white mt-2">
                                 {title}
                             </h1>
                         )}

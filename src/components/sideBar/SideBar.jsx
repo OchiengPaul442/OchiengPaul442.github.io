@@ -3,6 +3,7 @@ import { Drawer, List, ListItemIcon, ListItemText } from '@mui/material'
 import Box from '@mui/material/Box'
 import { useMediaQuery } from 'react-responsive'
 import { Link, NavLink } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import {
     HomeIcon,
     ForumIcon,
@@ -15,6 +16,7 @@ import Skeleton from '@mui/material/Skeleton'
 import { auth } from '../../config/firebase'
 
 const SideBar = ({ show, setShowSideBar }) => {
+    const loggedIn = useSelector((state) => state.auth?.loggedIn)
     const [showRegister, setShowRegister] = useState(false)
     const isMobileView = useMediaQuery({ maxWidth: 640 })
     const sidebarRef = useRef(null)
@@ -52,25 +54,25 @@ const SideBar = ({ show, setShowSideBar }) => {
             to: '/',
             icon: <HomeIcon fill="none" width="24" height="24" />,
             text: 'Home',
-            condition: auth?.currentUser,
+            condition: true,
         },
         {
             to: '/forum',
             icon: <ForumIcon fill="none" width="24" height="24" />,
             text: 'Forum',
-            condition: auth?.currentUser,
+            condition: true,
         },
         {
             to: '/settings',
             icon: <Settings fill="none" width="24" height="24" />,
             text: 'Settings',
-            condition: auth?.currentUser?.isAnonymous === false,
+            condition: loggedIn,
         },
         {
             to: '/auth',
             icon: <LoginIcon fill="none" width="24" height="24" />,
             text: 'Login',
-            condition: auth?.currentUser?.isAnonymous === true,
+            condition: !loggedIn,
         },
     ]
 
@@ -156,8 +158,8 @@ const SideBar = ({ show, setShowSideBar }) => {
                             height={200}
                         />
                     ) : (
-                        !showRegister &&
-                        auth?.currentUser?.isAnonymous && (
+                        !loggedIn &&
+                        !showRegister && (
                             <div className="p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900">
                                 <div className="flex items-center mb-3">
                                     <ListItemIcon>
