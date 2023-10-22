@@ -257,7 +257,7 @@ const Auth = () => {
     }
 
     return (
-        <>
+        <div>
             <div className="con_colors">
                 <div id="color1"></div>
                 <div id="color2"></div>
@@ -748,7 +748,7 @@ const Auth = () => {
                     )}
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

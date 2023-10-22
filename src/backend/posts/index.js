@@ -8,8 +8,11 @@ import {
     updateDoc,
     arrayUnion,
     arrayRemove,
-    onSnapshot,
     Timestamp,
+    query,
+    startAfter,
+    limit,
+    getDocs,
 } from 'firebase/firestore'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
@@ -55,26 +58,36 @@ export const createPost = async (data) => {
 }
 
 // Function to get all posts
-export const getPosts = (updateCallback) => {
+
+let lastDoc = null
+
+export const getPosts = async (updateCallback) => {
     try {
-        const unsubscribe = onSnapshot(
-            collection(db, 'posts'),
-            async (querySnapshot) => {
-                const postsWithUserDetails = []
-                for (let doc of querySnapshot.docs) {
-                    const post = { ...doc.data(), id: doc.id }
-                    // Fetch user details for the post
-                    const userDocRef = firestoreDoc(db, 'users', post.userId)
-                    const userDocSnap = await getDoc(userDocRef)
-                    if (userDocSnap.exists()) {
-                        const user = userDocSnap.data()
-                        postsWithUserDetails.push({ ...post, user })
-                    }
-                }
-                updateCallback(postsWithUserDetails)
+        let postsQuery = query(collection(db, 'posts'), limit(4))
+        if (lastDoc) {
+            postsQuery = query(
+                collection(db, 'posts'),
+                startAfter(lastDoc),
+                limit(4)
+            )
+        }
+
+        const querySnapshot = await getDocs(postsQuery)
+        const postsWithUserDetails = []
+
+        for (let doc of querySnapshot.docs) {
+            const post = { ...doc.data(), id: doc.id }
+            // Fetch user details for the post
+            const userDocRef = firestoreDoc(db, 'users', post.userId)
+            const userDocSnap = await getDoc(userDocRef)
+            if (userDocSnap.exists()) {
+                const user = userDocSnap.data()
+                postsWithUserDetails.push({ ...post, user })
             }
-        )
-        return unsubscribe
+        }
+
+        lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1]
+        updateCallback(postsWithUserDetails)
     } catch (error) {
         console.error('Error getting posts: ', error)
     }

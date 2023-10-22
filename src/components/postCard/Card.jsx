@@ -336,7 +336,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     }, [])
 
     return (
-        <>
+        <div>
             {post.length > 0 ? (
                 posts.map((post) => (
                     <div
@@ -407,14 +407,14 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                 height={20}
                                             />
                                         ) : (
-                                            <>
+                                            <div>
                                                 <h4>{post.displayName}</h4>
                                                 <p className="text-gray-400 text-sm">
                                                     {post.createdAt
                                                         .toDate()
                                                         .toDateString()}
                                                 </p>
-                                            </>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -561,7 +561,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                     key={comment.id}
                                                     className="flex items-start space-x-3 mt-3"
                                                 >
-                                                    <>
+                                                    <div>
                                                         <Avatar
                                                             className="w-10 h-10 rounded-full"
                                                             alt="Avatar"
@@ -588,7 +588,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                                 }
                                                             </p>
                                                         </div>
-                                                    </>
+                                                    </div>
                                                 </div>
                                             ))
                                         ) : (
@@ -749,7 +749,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     </Box>
                 </Box>
             </Modal>
-        </>
+        </div>
     )
 }
 

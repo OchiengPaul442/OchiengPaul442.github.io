@@ -179,7 +179,7 @@ const PostModal = ({ open, handleCloseModal }) => {
     }
 
     return (
-        <>
+        <div>
             <Modal
                 keepMounted
                 open={open}
@@ -377,7 +377,7 @@ const PostModal = ({ open, handleCloseModal }) => {
                     {error.error}
                 </Alert>
             </Snackbar>
-        </>
+        </div>
     )
 }
 

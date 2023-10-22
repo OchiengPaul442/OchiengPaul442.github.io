@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Page from '../../layout/Page'
 import { PostCard } from '../../components'
 import { getPosts } from '../../backend/posts'
 import { TopNav } from '../../components'
+import { Loader } from '../../components/icons/Icons'
 
 const Home = () => {
     const dispatch = useDispatch()
@@ -19,6 +20,10 @@ const Home = () => {
             payload: category,
         })
     }
+
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const [fetchedPosts, setFetchedPosts] = useState([])
+    const bottomBoundaryRef = useRef(null)
 
     useEffect(() => {
         setIsLoading(true)
@@ -42,18 +47,42 @@ const Home = () => {
                 post.phoneNumber = post.user.phoneNumber
             })
 
-            setPosts(resArray)
+            setFetchedPosts((prevPosts) => [...prevPosts, ...resArray]) // corrected here
             setIsLoading(false)
+            setIsLoadingMore(false)
         }
 
         // Call getPosts with the update callback
-        const unsubscribe = getPosts(updateCallback)
+        getPosts(updateCallback)
 
-        // Return cleanup function to stop listening to updates when component unmounts
+        // Intersection observer for infinite scrolling
+        const scrollObserver = new IntersectionObserver(
+            async (entries) => {
+                if (entries[0].isIntersecting) {
+                    setIsLoadingMore(true)
+                    await getPosts(updateCallback)
+                }
+            },
+            { threshold: 1 }
+        )
+
+        if (bottomBoundaryRef.current) {
+            scrollObserver.observe(bottomBoundaryRef.current)
+        }
+
         return () => {
-            unsubscribe()
+            if (bottomBoundaryRef.current) {
+                scrollObserver.unobserve(bottomBoundaryRef.current)
+            }
         }
     }, [reload])
+
+    useEffect(() => {
+        const uniquePosts = Array.from(
+            new Set(fetchedPosts.map((post) => post.id))
+        ).map((id) => fetchedPosts.find((post) => post.id === id))
+        setPosts(uniquePosts)
+    }, [fetchedPosts])
 
     const filteredPosts = posts.filter((post) => post.type === categories)
 
@@ -76,6 +105,12 @@ const Home = () => {
                         quantity={true}
                     />
                 </div>
+                <div ref={bottomBoundaryRef}></div>
+                {isLoadingMore && (
+                    <div className="w-full flex justify-center items-center p-6">
+                        <Loader width={65} height={65} />
+                    </div>
+                )}
             </div>
         </Page>
     )

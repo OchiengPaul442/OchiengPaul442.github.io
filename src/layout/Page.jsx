@@ -35,7 +35,7 @@ const Page = ({ children, title }) => {
     }, [uid, token, anonymous])
 
     return (
-        <>
+        <div>
             <TopBar
                 onClick={() => setShowSideBar(!showSideBar)}
                 value={showSideBar}
@@ -59,7 +59,7 @@ const Page = ({ children, title }) => {
                     handleClose={() => setUpdateDetailsModal(false)}
                 />
             )}
-        </>
+        </div>
     )
 }
 

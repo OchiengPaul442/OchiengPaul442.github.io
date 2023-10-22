@@ -120,7 +120,7 @@ const ImageUploader = ({
                             {images}
                         </ul>
                     ) : (
-                        <>
+                        <div>
                             <p className="lowercase text-sm text-gray-400 group-hover:text-purple-600 pt-1 tracking-wider">
                                 Drag & drop some files here, or click to select
                                 files
@@ -136,7 +136,7 @@ const ImageUploader = ({
                                 Max file size: {maxFileSize / 1024 / 1024} MB
                                 accepted:{acceptedFileTypes.join(', ')}
                             </p>
-                        </>
+                        </div>
                     )}
                     {uploadError && (
                         <p

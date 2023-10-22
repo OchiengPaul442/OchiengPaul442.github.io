@@ -148,7 +148,7 @@ const TopBar = ({ onClick, value }) => {
                                     style={{ borderRadius: '50%' }}
                                 />
                             ) : (
-                                <>
+                                <div>
                                     {loggedIn && (
                                         <Tooltip title="Add New Post">
                                             <button
@@ -171,7 +171,7 @@ const TopBar = ({ onClick, value }) => {
                                         alt="Remy Sharp"
                                         src={imageURL}
                                     />
-                                </>
+                                </div>
                             )}
 
                             <Menu
@@ -199,7 +199,7 @@ const TopBar = ({ onClick, value }) => {
                                         </Link>
                                     </MenuItem>,
                                     loggedIn && (
-                                        <>
+                                        <div>
                                             <MenuItem
                                                 onClick={handleClose}
                                                 key="settings"
@@ -236,7 +236,7 @@ const TopBar = ({ onClick, value }) => {
                                                     />
                                                 </Link>
                                             </MenuItem>
-                                        </>
+                                        </div>
                                     ),
                                     !loggedIn && (
                                         <Link to="/auth">
