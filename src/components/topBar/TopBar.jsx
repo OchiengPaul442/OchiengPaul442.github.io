@@ -88,11 +88,19 @@ const TopBar = ({ onClick, value }) => {
                             className="inline-flex items-center p-2 sm:hidden"
                         >
                             {!value ? (
-                                <HamBurgerIcon
-                                    fill="orange"
-                                    width="35"
-                                    height="35"
-                                />
+                                auth?.currentUser === null ? (
+                                    <Skeleton
+                                        width={40}
+                                        height={40}
+                                        variant="rectangular"
+                                    />
+                                ) : (
+                                    <HamBurgerIcon
+                                        fill="orange"
+                                        width="35"
+                                        height="35"
+                                    />
+                                )
                             ) : (
                                 <CloseIcon
                                     fill="orange"
@@ -114,14 +122,14 @@ const TopBar = ({ onClick, value }) => {
                                     alt="Community Box"
                                     className="w-12 h-12 mt-2"
                                 />
-                                {window.innerWidth > 768 && (
-                                    <span className="self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white">
-                                        Community Box
-                                    </span>
-                                )}
+
+                                <span className="hidden self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white lg:inline-flex">
+                                    Community Box
+                                </span>
                             </Link>
                         )}
                     </div>
+
                     {window.location.pathname === '/' ? (
                         auth?.currentUser === null ? (
                             <Skeleton
@@ -130,7 +138,7 @@ const TopBar = ({ onClick, value }) => {
                                 variant="rectangular"
                             />
                         ) : (
-                            <div className="hidden sm:inline-flex">
+                            <div className="hidden md:inline-flex lg:inline-flex">
                                 <TopNav
                                     handleCategory={handleCategory}
                                     categories={categories}
@@ -138,6 +146,7 @@ const TopBar = ({ onClick, value }) => {
                             </div>
                         )
                     ) : null}
+
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
                             {auth?.currentUser === null ? (
@@ -148,7 +157,7 @@ const TopBar = ({ onClick, value }) => {
                                     style={{ borderRadius: '50%' }}
                                 />
                             ) : (
-                                <div>
+                                <div className="flex items-center">
                                     {loggedIn && (
                                         <Tooltip title="Add New Post">
                                             <button

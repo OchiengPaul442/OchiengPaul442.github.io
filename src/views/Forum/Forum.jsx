@@ -6,7 +6,6 @@ import { useSelector } from 'react-redux'
 import { Loader } from '../../components/icons/Icons'
 
 const Forum = () => {
-    const [isLoading, setIsLoading] = useState(true)
     const reload = useSelector((state) => state.actionReducer.reload)
     const [posts, setPosts] = useState([])
 
@@ -15,8 +14,6 @@ const Forum = () => {
     const bottomBoundaryRef2 = useRef(null)
 
     useEffect(() => {
-        setIsLoading(true)
-
         // Define the update callback
         const updateCallback = (posts) => {
             // Convert user field in the array of posts to an object
@@ -37,7 +34,7 @@ const Forum = () => {
             })
 
             setFetchedPosts((prevPosts) => [...prevPosts, ...resArray]) // corrected here
-            setIsLoading(false)
+
             setIsLoadingMore(false)
         }
 
@@ -75,16 +72,16 @@ const Forum = () => {
 
     return (
         <Page>
-            <div className="max-w-3xl mx-auto">
-                <div className="col-span-2 md:col-span-2 gap-4 h-screen">
-                    <PostCard post={posts} comment={true} loading={isLoading} />
-                    <div ref={bottomBoundaryRef2}></div>
-                    {isLoadingMore && (
-                        <div className="w-full flex justify-center items-center p-6">
-                            <Loader width={65} height={65} />
-                        </div>
-                    )}
+            <div className="max-w-3xl mx-auto pb-2">
+                <div className="col-span-2 md:col-span-2 gap-4">
+                    <PostCard post={posts} comment={true} />
                 </div>
+                <div ref={bottomBoundaryRef2}></div>
+                {isLoadingMore && (
+                    <div className="w-full flex justify-center items-center  mb-2">
+                        <Loader width={65} height={65} />
+                    </div>
+                )}
             </div>
         </Page>
     )
