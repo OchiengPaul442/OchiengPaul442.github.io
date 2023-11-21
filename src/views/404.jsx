@@ -1,20 +1,20 @@
 import React from 'react'
-import { CommunityIcon } from '../components'
+// import { CommunityIcon } from '../components'
 import { Link } from 'react-router-dom'
 
 const Eror404 = () => {
     return (
-        <>
+        <div>
             <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                 <div className="px-3 py-3 lg:px-5 lg:pl-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center justify-start">
                             <Link to="/" className="flex ml-2 md:mr-24">
-                                <CommunityIcon
+                                {/* <CommunityIcon
                                     fill="none"
                                     width="40"
                                     height="40"
-                                />
+                                /> */}
                                 {window.innerWidth > 768 && (
                                     <span className="self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white">
                                         Community Box
@@ -45,7 +45,7 @@ const Eror404 = () => {
                     </Link>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

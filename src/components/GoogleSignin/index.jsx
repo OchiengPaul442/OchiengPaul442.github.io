@@ -1,9 +1,11 @@
 // useGoogleSignIn.js
 import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { signInWithGoogle } from '../../backend/auth'
 
 const useGoogleSignIn = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const handleSignWithGoogle = async () => {
         try {
@@ -18,8 +20,15 @@ const useGoogleSignIn = () => {
                     },
                 })
 
+                dispatch({
+                    type: 'SET_LOGGED_IN',
+                    payload: {
+                        loggedIn: true,
+                    },
+                })
+
                 // navigate to home page
-                window.location.href = '/'
+                navigate('/')
             } else {
                 alert(res.message)
             }

@@ -20,15 +20,14 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import PostModal from '../posts/PostModal'
 import TopNav from './TopNav'
-import { signInUserAnonymously } from '../../backend/auth'
 import CommunityLogo from '../../assets/icons/logo.png'
-import { auth } from '../../config/firebase'
+import { signOutUser } from '../../backend/auth'
 import Skeleton from '@mui/material/Skeleton'
+import { auth } from '../../config/firebase'
 
 const TopBar = ({ onClick, value }) => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
-    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
+    const loggedIn = useSelector((state) => state.auth?.loggedIn)
     const imageURL = useSelector((state) => state.auth?.user?.photoURL)
     const categories = useSelector((state) => state?.categories?.categories)
     const [anchorEl, setAnchorEl] = useState(null)
@@ -49,46 +48,28 @@ const TopBar = ({ onClick, value }) => {
         })
     }
 
-    const handleAnonymousLogin = async () => {
-        try {
-            const res = await signInUserAnonymously()
-            if (res.success === true) {
-                dispatch({
-                    type: 'SET_USER',
-                    payload: {
-                        displayName: res.user.displayName,
-                        email: res.user.email,
-                        photoURL: res.user.photoURL,
-                        uid: res.user.uid,
-                    },
-                })
-
-                dispatch({
-                    type: 'SET_ACCESS_TOKEN',
-                    payload: {
-                        token: res.accessToken,
-                        anonymous: res.anonymous,
-                    },
-                })
-            } else {
-                alert(res.message)
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
     const handleLogout = async () => {
-        // Dispatch logout action
+        try {
+            // Sign out user
+            await signOutUser()
+        } catch (error) {
+            console.error('Error signing out: ', error)
+            return
+        }
+
+        // Dispatch logout action to clear user data
         dispatch({ type: 'CLEAR_USER' })
 
         // Remove token from local storage
         localStorage.removeItem('persist:root')
 
-        // Handle anonymous login if necessary
-        await handleAnonymousLogin()
+        // Set logged in status to false
+        dispatch({
+            type: 'SET_LOGGED_IN',
+            payload: false,
+        })
 
-        // Refresh the page to home page
+        // Redirect to home page
         window.location.href = '/'
     }
 
@@ -107,11 +88,19 @@ const TopBar = ({ onClick, value }) => {
                             className="inline-flex items-center p-2 sm:hidden"
                         >
                             {!value ? (
-                                <HamBurgerIcon
-                                    fill="orange"
-                                    width="35"
-                                    height="35"
-                                />
+                                auth?.currentUser === null ? (
+                                    <Skeleton
+                                        width={40}
+                                        height={40}
+                                        variant="rectangular"
+                                    />
+                                ) : (
+                                    <HamBurgerIcon
+                                        fill="orange"
+                                        width="35"
+                                        height="35"
+                                    />
+                                )
                             ) : (
                                 <CloseIcon
                                     fill="orange"
@@ -120,62 +109,78 @@ const TopBar = ({ onClick, value }) => {
                                 />
                             )}
                         </button>
-                        <Link to="/" className="flex ml-2 md:mr-24">
-                            <img
-                                src={CommunityLogo}
-                                alt="Community Box"
-                                className="w-12 h-12 mt-2"
+                        {auth?.currentUser === null ? (
+                            <Skeleton
+                                width={200}
+                                height={40}
+                                variant="rectangular"
                             />
-                            {window.innerWidth > 768 && (
-                                <span className="self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white">
+                        ) : (
+                            <Link to="/" className="flex ml-2 md:mr-24">
+                                <img
+                                    src={CommunityLogo}
+                                    alt="Community Box"
+                                    className="w-12 h-12 mt-2"
+                                />
+
+                                <span className="hidden self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white lg:inline-flex">
                                     Community Box
                                 </span>
-                            )}
-                        </Link>
+                            </Link>
+                        )}
                     </div>
+
                     {window.location.pathname === '/' ? (
-                        <div className="hidden sm:inline-flex">
-                            <TopNav
-                                handleCategory={handleCategory}
-                                categories={categories}
+                        auth?.currentUser === null ? (
+                            <Skeleton
+                                width={200}
+                                height={40}
+                                variant="rectangular"
                             />
-                        </div>
+                        ) : (
+                            <div className="hidden md:inline-flex lg:inline-flex">
+                                <TopNav
+                                    handleCategory={handleCategory}
+                                    categories={categories}
+                                />
+                            </div>
+                        )
                     ) : null}
+
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            {auth?.currentUser && accessToken && !anonymous && (
-                                <Tooltip title="Add New Post">
-                                    <button
-                                        type="button"
-                                        ref={null}
-                                        onClick={handleOpen}
-                                        className="mx-3"
-                                    >
-                                        <AddIcon
-                                            fill="orange"
-                                            width="36"
-                                            height="36"
-                                        />
-                                    </button>
-                                </Tooltip>
-                            )}
-
-                            {auth?.currentUser ? (
-                                <Avatar
-                                    onClick={handleClick}
-                                    className="cursor-pointer"
-                                    alt="Remy Sharp"
-                                    src={imageURL}
+                            {auth?.currentUser === null ? (
+                                <Skeleton
+                                    width={40}
+                                    height={40}
+                                    variant="rectangular"
+                                    style={{ borderRadius: '50%' }}
                                 />
                             ) : (
-                                <Skeleton
-                                    variant="rectangular"
-                                    width={45}
-                                    sx={{
-                                        borderRadius: '100%',
-                                    }}
-                                    height={45}
-                                />
+                                <div className="flex items-center">
+                                    {loggedIn && (
+                                        <Tooltip title="Add New Post">
+                                            <button
+                                                type="button"
+                                                ref={null}
+                                                onClick={handleOpen}
+                                                className="mx-3"
+                                            >
+                                                <AddIcon
+                                                    fill="orange"
+                                                    width="36"
+                                                    height="36"
+                                                />
+                                            </button>
+                                        </Tooltip>
+                                    )}
+                                    <Avatar
+                                        onClick={handleClick}
+                                        className="cursor-pointer"
+                                        alt="Remy Sharp"
+                                        src={imageURL}
+                                    />
+                                </div>
                             )}
 
                             <Menu
@@ -202,27 +207,47 @@ const TopBar = ({ onClick, value }) => {
                                             />
                                         </Link>
                                     </MenuItem>,
-                                    accessToken && !anonymous && (
-                                        <MenuItem
-                                            onClick={handleClose}
-                                            key="settings"
-                                        >
-                                            <ListItemIcon>
-                                                <Settings
-                                                    fill="none"
-                                                    width="24"
-                                                    height="24"
-                                                />
-                                            </ListItemIcon>
-                                            <Link to="/settings">
-                                                <ListItemText
-                                                    primary="Settings"
-                                                    className="text-sm"
-                                                />
-                                            </Link>
-                                        </MenuItem>
+                                    loggedIn && (
+                                        <div>
+                                            <MenuItem
+                                                onClick={handleClose}
+                                                key="settings"
+                                            >
+                                                <ListItemIcon>
+                                                    <Settings
+                                                        fill="none"
+                                                        width="24"
+                                                        height="24"
+                                                    />
+                                                </ListItemIcon>
+                                                <Link to="/settings">
+                                                    <ListItemText
+                                                        primary="Settings"
+                                                        className="text-sm"
+                                                    />
+                                                </Link>
+                                            </MenuItem>
+                                            <MenuItem
+                                                onClick={handleLogout}
+                                                key="logout"
+                                            >
+                                                <ListItemIcon>
+                                                    <Logout
+                                                        fill="none"
+                                                        width="24"
+                                                        height="24"
+                                                    />
+                                                </ListItemIcon>
+                                                <Link>
+                                                    <ListItemText
+                                                        primary="Logout"
+                                                        className="text-sm"
+                                                    />
+                                                </Link>
+                                            </MenuItem>
+                                        </div>
                                     ),
-                                    anonymous && (
+                                    !loggedIn && (
                                         <Link to="/auth">
                                             <MenuItem key="login">
                                                 <ListItemIcon>
@@ -235,26 +260,6 @@ const TopBar = ({ onClick, value }) => {
                                                 <ListItemText primary="Login" />
                                             </MenuItem>
                                         </Link>
-                                    ),
-                                    accessToken && !anonymous && (
-                                        <MenuItem
-                                            onClick={handleLogout}
-                                            key="logout"
-                                        >
-                                            <ListItemIcon>
-                                                <Logout
-                                                    fill="none"
-                                                    width="24"
-                                                    height="24"
-                                                />
-                                            </ListItemIcon>
-                                            <Link>
-                                                <ListItemText
-                                                    primary="Logout"
-                                                    className="text-sm"
-                                                />
-                                            </Link>
-                                        </MenuItem>
                                     ),
                                 ].filter(Boolean)}
                             </Menu>

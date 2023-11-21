@@ -13,6 +13,7 @@ const initialAuthState = {
         location: null,
         phoneNumber: null,
     },
+    loggedIn: false,
 }
 
 const authReducer = (state = initialAuthState, action) => {
@@ -38,6 +39,11 @@ const authReducer = (state = initialAuthState, action) => {
                     location: action.payload.location,
                     phoneNumber: action.payload.phoneNumber,
                 },
+            }
+        case 'SET_LOGGED_IN':
+            return {
+                ...state,
+                loggedIn: action.payload,
             }
         case 'CLEAR_USER':
             return {

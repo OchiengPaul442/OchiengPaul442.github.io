@@ -1,27 +1,43 @@
+// React imports
 import React, { useState, useEffect, useCallback } from 'react'
-import 'react-responsive-carousel/lib/styles/carousel.min.css'
-import { ShareIcon, CommentIcon, LikeIcon } from '../icons/Icons'
+import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
+
+// Material UI imports
 import Skeleton from '@mui/material/Skeleton'
-import FacebookIcon from '@mui/icons-material/Facebook'
-import Xlogo from '../../assets/images/XNewLogo.png'
-import LinkedInIcon from '@mui/icons-material/LinkedIn'
-import InstagramIcon from '@mui/icons-material/Instagram'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
 import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
-import { useSelector } from 'react-redux'
-import { GoogleIcon, Carousel } from '../../components'
-import { Link } from 'react-router-dom'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
-import useGoogleSignIn from '../GoogleSignin/index'
 import CallIcon from '@mui/icons-material/Call'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
-import { likePost, commentOnPost, getPosts } from '../../backend/posts'
 import { Slide, Snackbar, Alert } from '@mui/material'
+
+// Material UI Icons
+import FacebookIcon from '@mui/icons-material/Facebook'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
+import InstagramIcon from '@mui/icons-material/Instagram'
+
+// Local imports
+import 'react-responsive-carousel/lib/styles/carousel.min.css'
+import { ShareIcon, CommentIcon, LikeIcon } from '../icons/Icons'
+import { GoogleIcon, Carousel } from '../../components'
+import useGoogleSignIn from '../GoogleSignin/index'
+
+// Backend imports
+import { likePost, commentOnPost, getPosts } from '../../backend/posts'
+
+// Firebase import
 import { Timestamp } from 'firebase/firestore'
+
+// Assets
+import Xlogo from '../../assets/images/XNewLogo.png'
 import CommunityLogo from '../../assets/icons/logo.png'
+import { CardSkeleton } from '../Skeletons'
+
+import { LazyLoadImage } from 'react-lazy-load-image-component'
 
 const style = {
     width: '800px',
@@ -60,7 +76,7 @@ const socialMedia = [
         url: 'https://www.facebook.com/sharer/sharer.php?u=',
     },
     {
-        name: 'X',
+        name: 'X(Twitter)',
         icon: (
             <img
                 src={Xlogo}
@@ -82,10 +98,9 @@ const socialMedia = [
     },
 ]
 
-const Card = ({ post, comment = false, quantity = false, loading = false }) => {
+const Card = ({ post, comment = false, quantity = false }) => {
+    const loggedIn = useSelector((state) => state.auth?.loggedIn)
     const userId = useSelector((state) => state.auth?.accessToken?.uid)
-    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
-    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
     const displayName = useSelector((state) => state.auth?.user?.displayName)
     const photoURL = useSelector((state) => state.auth?.user?.photoURL)
     const [open, setOpen] = useState(false)
@@ -93,6 +108,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     const handleOpen = () => setOpen(true)
     const handleClose = () => setOpen(false)
     const { handleSignWithGoogle } = useGoogleSignIn()
+    const [isLoading, setIsLoading] = useState(true)
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
@@ -105,8 +121,14 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     })
 
     const [posts, setPosts] = useState([])
+
     useEffect(() => {
+        setIsLoading(true)
         setPosts(post)
+
+        if (post.length > 0) {
+            setIsLoading(false)
+        }
     }, [post])
 
     useEffect(() => {
@@ -137,7 +159,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
 
     const handleLike = useCallback(
         async (postId, userId) => {
-            if (!accessToken || anonymous) {
+            if (!loggedIn) {
                 setOpenLogin(true)
                 return
             }
@@ -176,7 +198,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 })
             }
         },
-        [likeStatus, likeCount, accessToken, anonymous]
+        [likeStatus, likeCount, loggedIn]
     )
 
     useEffect(() => {
@@ -209,6 +231,10 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
             <div
                 key={index}
                 style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     height: '500px',
                     maxHeight: '520px',
                     backgroundImage: `url(${CommunityLogo})`,
@@ -217,10 +243,13 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                 }}
                 className="w-full h-full relative"
             >
-                <img
-                    className="w-full h-full object-cover  absolute inset-0"
-                    src={imgSrc}
+                <LazyLoadImage
+                    className="w-full h-full object-cover absolute inset-0"
                     alt=""
+                    height={'100%'}
+                    width={'100%'}
+                    src={imgSrc}
+                    // effect="blur"
                 />
             </div>
         )
@@ -314,8 +343,12 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
     }, [])
 
     return (
-        <>
-            {post.length > 0 ? (
+        <div>
+            {isLoading ? (
+                // Render the isLoading skeleton while data is isLoading
+                <CardSkeleton quantity={quantity} />
+            ) : posts.length > 0 ? (
+                // Render posts when there are posts available
                 posts.map((post) => (
                     <div
                         key={post.id}
@@ -323,7 +356,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     >
                         <div className="pt-4">
                             <div className="px-2 md:px-4 font-bold text-xl mb-2 flex items-center">
-                                {loading ? (
+                                {isLoading ? (
                                     <Skeleton
                                         variant="text"
                                         width={150}
@@ -334,7 +367,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                 )}
                             </div>
                             <p className="px-2 md:px-4 text-gray-700 lg:text-base text-sm">
-                                {loading ? (
+                                {isLoading ? (
                                     <Skeleton
                                         variant="text"
                                         width="100%"
@@ -347,7 +380,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             <div
                                 className={`w-full h-auto md:px-4 md:rounded-lg mt-4 mb-2 `}
                             >
-                                {loading ? (
+                                {isLoading ? (
                                     <Skeleton
                                         variant="rectangular"
                                         width="100%"
@@ -363,7 +396,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             </div>
                             <div className="flex justify-between items-center w-full px-4">
                                 <div className="flex items-center">
-                                    {loading ? (
+                                    {isLoading ? (
                                         <Skeleton
                                             variant="circle"
                                             width={40}
@@ -378,45 +411,55 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                         />
                                     )}
                                     <div>
-                                        {loading ? (
+                                        {isLoading ? (
                                             <Skeleton
                                                 variant="text"
                                                 width={100}
                                                 height={20}
                                             />
                                         ) : (
-                                            <>
+                                            <div>
                                                 <h4>{post.displayName}</h4>
                                                 <p className="text-gray-400 text-sm">
                                                     {post.createdAt
                                                         .toDate()
                                                         .toDateString()}
                                                 </p>
-                                            </>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
                                 <div className="border border-gray-300 px-2 rounded-full">
-                                    <IconButton
-                                        aria-label="whatsapp"
-                                        rel="noreferrer"
-                                        target="_blank"
-                                        href={
-                                            isMobile
-                                                ? `whatsapp://send?phone=${post.phoneNumber}`
-                                                : `https://wa.me/${post.phoneNumber}`
-                                        }
-                                    >
-                                        <WhatsAppIcon
-                                            sx={{ color: '#25D366' }}
+                                    {isLoading ? (
+                                        <Skeleton
+                                            variant="rectangular"
+                                            width={100}
+                                            height={40}
                                         />
-                                    </IconButton>
-                                    <IconButton
-                                        aria-label="call"
-                                        href={`tel:${post.phoneNumber}`}
-                                    >
-                                        <CallIcon />
-                                    </IconButton>
+                                    ) : (
+                                        <div>
+                                            <IconButton
+                                                aria-label="whatsapp"
+                                                rel="noreferrer"
+                                                target="_blank"
+                                                href={
+                                                    isMobile
+                                                        ? `whatsapp://send?phone=${post.phoneNumber}`
+                                                        : `https://wa.me/${post.phoneNumber}`
+                                                }
+                                            >
+                                                <WhatsAppIcon
+                                                    sx={{ color: '#25D366' }}
+                                                />
+                                            </IconButton>
+                                            <IconButton
+                                                aria-label="call"
+                                                href={`tel:${post.phoneNumber}`}
+                                            >
+                                                <CallIcon />
+                                            </IconButton>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -424,7 +467,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                         <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
                             <div className="overflow-x-auto">
                                 <div className="space-x-8 flex justify-end mt-2">
-                                    {loading ? (
+                                    {isLoading ? (
                                         <Skeleton
                                             variant="circle"
                                             width={24}
@@ -455,41 +498,50 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                             )}
                                         </button>
                                     )}
-                                    {comment && (
-                                        <button
-                                            onClick={() => {
-                                                if (accessToken && !anonymous) {
-                                                    handleComment(post.id)
-                                                } else {
-                                                    setOpenLogin(true)
-                                                }
-                                            }}
-                                            className="inline-flex items-center text-blue-400 hover:text-blue-500 text-sm font-semibold"
-                                        >
-                                            <CommentIcon
-                                                fill={
-                                                    post?.comments?.length > 0
-                                                        ? '#1DA1F2'
-                                                        : 'none'
-                                                }
-                                                width="24"
-                                                height="24"
-                                                className="mr-1"
+                                    {comment &&
+                                        (isLoading ? (
+                                            <Skeleton
+                                                variant="circle"
+                                                width={24}
+                                                height={24}
                                             />
-                                            {post?.comments?.length > 0 && (
-                                                <span className="ml-2">
-                                                    {formatLikes(
-                                                        post?.comments?.length
-                                                    )}
-                                                </span>
-                                            )}
-                                        </button>
-                                    )}
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    if (loggedIn) {
+                                                        handleComment(post.id)
+                                                    } else {
+                                                        setOpenLogin(true)
+                                                    }
+                                                }}
+                                                className="inline-flex items-center text-blue-400 hover:text-blue-500 text-sm font-semibold"
+                                            >
+                                                <CommentIcon
+                                                    fill={
+                                                        post?.comments?.length >
+                                                        0
+                                                            ? '#1DA1F2'
+                                                            : 'none'
+                                                    }
+                                                    width="24"
+                                                    height="24"
+                                                    className="mr-1"
+                                                />
+                                                {post?.comments?.length > 0 && (
+                                                    <span className="ml-2">
+                                                        {formatLikes(
+                                                            post?.comments
+                                                                ?.length
+                                                        )}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        ))}
                                     <button
                                         onClick={handleOpen}
                                         className="inline-flex items-center text-blue-400 hover:text-blue-500 text-sm font-semibold"
                                     >
-                                        {loading ? (
+                                        {isLoading ? (
                                             <Skeleton
                                                 variant="circle"
                                                 width={24}
@@ -515,7 +567,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                             >
                                 Quantity available:
                                 <span className="ml-2 inline-flex items-center justify-center px-2 py-1 mr-2 text-xs font-bold leading-none text-gray-700 bg-gray-200 rounded-full">
-                                    {loading ? (
+                                    {isLoading ? (
                                         <Skeleton
                                             variant="text"
                                             width={20}
@@ -539,7 +591,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                     key={comment.id}
                                                     className="flex items-start space-x-3 mt-3"
                                                 >
-                                                    <>
+                                                    <div>
                                                         <Avatar
                                                             className="w-10 h-10 rounded-full"
                                                             alt="Avatar"
@@ -566,7 +618,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                                                                 }
                                                             </p>
                                                         </div>
-                                                    </>
+                                                    </div>
                                                 </div>
                                             ))
                                         ) : (
@@ -607,89 +659,8 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                         )}
                     </div>
                 ))
-            ) : loading ? (
-                [...Array(5)].map((_, index) => (
-                    <div
-                        key={index}
-                        className="max-w-2xl mx-auto h-auto mb-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
-                    >
-                        <div className="py-4">
-                            <div className="px-2 md:px-4 font-bold text-xl mb-2 flex items-center">
-                                <Skeleton
-                                    variant="text"
-                                    width={150}
-                                    height={24}
-                                />
-                            </div>
-                            <p className="px-2 md:px-4 text-gray-700 lg:text-base text-sm">
-                                <Skeleton
-                                    variant="text"
-                                    width="100%"
-                                    height={80}
-                                />
-                            </p>
-                            <div
-                                className={`w-full h-auto md:px-4 md:rounded-lg mt-4 mb-2 `}
-                            >
-                                <Skeleton
-                                    variant="rectangular"
-                                    width="100%"
-                                    height={300}
-                                />
-                            </div>
-                        </div>
-                        <div className="px-2 md:px-6 pt-2 lg:flex lg:flex-row-reverse justify-between flex flex-col-reverse pb-2 w-full">
-                            <div className="space-x-2 flex justify-end mt-2">
-                                <Skeleton
-                                    variant="circle"
-                                    width={24}
-                                    height={24}
-                                />
-                                <button
-                                    onClick={handleOpen}
-                                    className="inline-flex hover:bg-gray-400 items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-                                >
-                                    <Skeleton
-                                        variant="circle"
-                                        width={24}
-                                        height={24}
-                                    />
-                                </button>
-                            </div>
-                            <div className="flex">
-                                <Skeleton
-                                    variant="circle"
-                                    width={40}
-                                    height={40}
-                                />
-                                <div>
-                                    <Skeleton
-                                        variant="text"
-                                        width={100}
-                                        height={20}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        {quantity && (
-                            <div
-                                className="px-6 pt-4 pb-2 flex items-center border-t-2"
-                                style={{
-                                    borderTopColor: '#1c274c',
-                                }}
-                            >
-                                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 mr-2 text-xs font-bold leading-none text-gray-700 bg-gray-200 rounded-full">
-                                    <Skeleton
-                                        variant="text"
-                                        width={20}
-                                        height={16}
-                                    />
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                ))
             ) : (
+                // Render "No Posts Available" when there are no posts
                 <div className="w-full flex justify-center top-32 text-2xl font-bold text-gray-500">
                     No Posts Available
                 </div>
@@ -807,7 +778,7 @@ const Card = ({ post, comment = false, quantity = false, loading = false }) => {
                     </Box>
                 </Box>
             </Modal>
-        </>
+        </div>
     )
 }
 

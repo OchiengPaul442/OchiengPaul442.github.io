@@ -7,7 +7,6 @@ import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 import Slide from '@mui/material/Slide'
 import { signInUserAnonymously } from './backend/auth'
-import { auth } from './config/firebase'
 
 const loadComponent = (component) => {
     return React.lazy(() => import(`./views/${component}`))
@@ -21,8 +20,7 @@ const Eror404 = loadComponent('404')
 
 const App = () => {
     const dispatch = useDispatch()
-    const accessToken = useSelector((state) => state.auth?.accessToken?.token)
-    const anonymous = useSelector((state) => state.auth?.accessToken?.anonymous)
+    const loggedIn = useSelector((state) => state.auth?.loggedIn)
     const uid = useSelector((state) => state.auth?.accessToken?.uid)
 
     const [status, setStatus] = useState(navigator.onLine)
@@ -76,7 +74,7 @@ const App = () => {
         let isCancelled = false
 
         const fetchUserDetails = async () => {
-            if (accessToken && !anonymous && uid && status) {
+            if (loggedIn && uid && status) {
                 const response = await getUserDetails(uid)
 
                 if (!isCancelled && response.success) {
@@ -109,7 +107,7 @@ const App = () => {
             }
         }
 
-        if (auth?.currentUser === null && !accessToken && anonymous) {
+        if (!loggedIn) {
             handleAnonymousLogin()
         }
 
@@ -118,7 +116,7 @@ const App = () => {
         return () => {
             isCancelled = true
         }
-    }, [dispatch, accessToken, anonymous, uid, status])
+    }, [dispatch, loggedIn, uid, status])
 
     return (
         <Router>

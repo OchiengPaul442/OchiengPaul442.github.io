@@ -45,14 +45,32 @@ export const signInUserAnonymously = async () => {
     }
 }
 
+// Function to log out the user
+export const signOutUser = async () => {
+    try {
+        await auth.signOut()
+        return {
+            success: true,
+            message: 'Successfully signed out',
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            message: err.message,
+        }
+    }
+}
+
 // Function to Sign In with Email/Username and Password
 export const signInWithEmailAndPassword = async (usernameOrEmail, password) => {
     try {
-        let email = usernameOrEmail
+        // Convert inputs to lowercase
+        let email = usernameOrEmail.toLowerCase()
 
         // If the input is not an email, treat it as a username and look up the corresponding email
-        if (!usernameOrEmail.includes('@')) {
-            const username = usernameOrEmail
+        if (!email.includes('@')) {
+            const username = email
             const usersRef = collection(db, 'users')
             const q = query(usersRef, where('displayName', '==', username))
             const querySnapshot = await getDocs(q)
@@ -62,7 +80,7 @@ export const signInWithEmailAndPassword = async (usernameOrEmail, password) => {
                     message: 'User does not exist',
                 }
             } else {
-                email = querySnapshot.docs[0].data().email
+                email = querySnapshot.docs[0].data().email.toLowerCase()
             }
         }
 
@@ -105,17 +123,22 @@ export const registerWithEmailAndPassword = async (
     password
 ) => {
     try {
+        // Convert inputs to lowercase
+        const lowerCaseUsername = username.toLowerCase()
+        const lowerCaseEmail = email.toLowerCase()
+        const lowerCasePassword = password.toLowerCase()
+
         const result = await createUserWithEmailAndPassword(
             auth,
-            email,
-            password
+            lowerCaseEmail,
+            lowerCasePassword
         )
         const user = result.user
 
         // Prepare the user data
         const userData = {
             uid: user.uid,
-            displayName: username,
+            displayName: lowerCaseUsername,
             email: user.email,
             photoURL: user.photoURL,
         }
@@ -150,13 +173,20 @@ export const signInWithGoogle = async () => {
         const userRef = doc(db, 'users', user.uid)
         const userDoc = await getDoc(userRef)
 
+        // Convert inputs to lowercase
+        const lowerCaseDisplayName = user.displayName.toLowerCase()
+        const lowerCaseEmail = user.email.toLowerCase()
+        const lowerCasePhoneNumber = user.phoneNumber
+            ? user.phoneNumber.toLowerCase()
+            : null
+
         // Prepare the user data
         const userData = {
             uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
+            displayName: lowerCaseDisplayName,
+            email: lowerCaseEmail,
             photoURL: user.photoURL,
-            phoneNumber: user.phoneNumber,
+            phoneNumber: lowerCasePhoneNumber,
         }
 
         if (!userDoc.exists()) {

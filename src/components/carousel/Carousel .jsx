@@ -50,7 +50,7 @@ const Carousel = ({ children }) => {
         >
             {cloneElement(childrenArray[currentIndex], { key: currentIndex })}
             {isHovered && childrenArray.length > 1 && (
-                <>
+                <div>
                     <button
                         onClick={handleBackClick}
                         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-1 rounded-full shadow-md flex items-center justify-center"
@@ -69,7 +69,7 @@ const Carousel = ({ children }) => {
                     >
                         <ForwardIcon style={{ color: orange[500] }} />
                     </button>
-                </>
+                </div>
             )}
         </div>
     )

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Page from '../../layout/Page'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Loader } from '../../components'
 import { updateUserDetails, changePassword } from '../../backend/auth'
 import Alert from '@mui/material/Alert'
@@ -9,8 +9,11 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { Avatar } from '@mui/material'
 import { uploadProfilePicture } from '../../backend/auth'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
+import { auth } from '../../config/firebase'
+import { SettingsSkeleton } from '../../components/Skeletons'
 
 const Settings = () => {
+    const dispatch = useDispatch()
     const photoURL = useSelector((state) => state.auth.user.photoURL)
     const userId = useSelector((state) => state.auth.user.uid)
     const displayName = useSelector((state) => state.auth.user.displayName)
@@ -167,6 +170,18 @@ const Settings = () => {
                     type: 'success',
                     form: 'update',
                 })
+
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        ...state,
+                        displayName: state.displayName,
+                        email: state.email,
+                        country: state.country,
+                        location: state.location,
+                        phoneNumber: state.phoneNumber,
+                    },
+                })
             } catch (err) {
                 console.log(err)
                 setLoading({ ...loading, update: false })
@@ -222,12 +237,8 @@ const Settings = () => {
         }
     }
 
-    // State for random banner color and avatar image upload
-    const [randomBannerColor, setRandomBannerColor] = useState(getRandomColor())
-    const [avatarImage, setAvatarImage] = useState(null)
-
     // Function to generate a random color for the banner
-    function getRandomColor() {
+    const getRandomColor = () => {
         const letters = '0123456789ABCDEF'
         let color = '#'
         for (let i = 0; i < 6; i++) {
@@ -236,12 +247,14 @@ const Settings = () => {
         return color
     }
 
+    // State for random banner color and avatar image upload
+    const randomBannerColor = getRandomColor()
+
     // Function to handle avatar image upload
     const handleAvatarUpload = async (event) => {
         const file = event.target.files[0]
         if (!file) return
 
-        setAvatarImage(file)
         setLoading((prevLoading) => ({ ...prevLoading, upload: true }))
 
         try {
@@ -251,6 +264,14 @@ const Settings = () => {
                 general: 'Profile picture updated successfully',
                 type: 'success',
                 form: 'upload',
+            })
+
+            dispatch({
+                type: 'SET_USER',
+                payload: {
+                    ...state,
+                    photoURL: URL.createObjectURL(file),
+                },
             })
         } catch (err) {
             setErrors({
@@ -262,11 +283,10 @@ const Settings = () => {
             setLoading((prevLoading) => ({ ...prevLoading, upload: false }))
             // clear the input file
             event.target.value = ''
-            setAvatarImage(null)
         }
     }
 
-    return (
+    return auth.currentUser ? (
         <Page title="Account Settings">
             {/* alert image upload */}
             {errors.general && errors.form === 'upload' && (
@@ -679,6 +699,8 @@ const Settings = () => {
                 </div>
             </div>
         </Page>
+    ) : (
+        <SettingsSkeleton />
     )
 }
 

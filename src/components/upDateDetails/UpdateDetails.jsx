@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Slide } from '@mui/material'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import Comintro from '../../assets/images/comintro.jpg'
-import { updateUserDetails } from '../../backend/auth'
+import { updateUserDetails, getUserDetails } from '../../backend/auth'
 
 // Define the transition styles
 const TransitionSlide = React.forwardRef(function Transition(props, ref) {
@@ -10,6 +10,7 @@ const TransitionSlide = React.forwardRef(function Transition(props, ref) {
 })
 
 const UpdateDetails = ({ open, handleClose }) => {
+    const dispatch = useDispatch()
     const uid = useSelector((state) => state.auth.user.uid)
     const [disabled, setDisabled] = useState(false)
     const [errors, setErrors] = useState({})
@@ -40,11 +41,10 @@ const UpdateDetails = ({ open, handleClose }) => {
         setErrors((prevErrors) => ({ ...prevErrors, [id]: error }))
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        // Validate fields before submitting
+    const validateForm = (values) => {
         let isValid = true
         const newErrors = {}
+
         for (let field in values) {
             const error = validateField(field, values[field])
             newErrors[field] = error
@@ -52,21 +52,43 @@ const UpdateDetails = ({ open, handleClose }) => {
                 isValid = false
             }
         }
+
+        return { isValid, newErrors }
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        // Validate fields before submitting
+        const { isValid, newErrors } = validateForm(values)
         setErrors(newErrors)
 
-        // If no errors, submit the form
-        if (isValid) {
-            setDisabled(true)
-            updateUserDetails(uid, values)
-                .then(() => {
-                    handleClose()
-                })
-                .catch((err) => {
-                    console.log(err)
-                    setDisabled(false)
-                })
-        } else {
+        if (!isValid) {
             console.log('Invalid form submission')
+            return
+        }
+
+        try {
+            setDisabled(true)
+            await updateUserDetails(uid, values)
+
+            const userDetails = await getUserDetails(uid)
+            dispatch({
+                type: 'SET_USER',
+                payload: {
+                    displayName: userDetails?.user.displayName,
+                    email: userDetails?.user.email,
+                    country: userDetails?.user.country,
+                    location: userDetails?.user.location,
+                    phoneNumber: userDetails?.user.phoneNumber,
+                    photoURL: userDetails?.user.photoURL,
+                },
+            })
+
+            handleClose()
+        } catch (err) {
+            console.log(err)
+            setDisabled(false)
         }
     }
 

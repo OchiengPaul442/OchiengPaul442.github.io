@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Page from '../../layout/Page'
 import { PostCard } from '../../components'
 import { getPosts } from '../../backend/posts'
 import { TopNav } from '../../components'
+import { Loader } from '../../components/icons/Icons'
+import Skeleton from '@mui/material/Skeleton'
+import { auth } from '../../config/firebase'
 
 const Home = () => {
     const dispatch = useDispatch()
     const categories = useSelector((state) => state.categories.categories)
     const reload = useSelector((state) => state.actionReducer.reload)
-    const [isLoading, setIsLoading] = useState(true)
     const [posts, setPosts] = useState([])
 
     const handleCategory = (category) => (event) => {
@@ -20,9 +22,11 @@ const Home = () => {
         })
     }
 
-    useEffect(() => {
-        setIsLoading(true)
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const [fetchedPosts, setFetchedPosts] = useState([])
+    const bottomBoundaryRef = useRef(null)
 
+    useEffect(() => {
         // Define the update callback
         const updateCallback = (posts) => {
             // Convert user field in the array of posts to an object
@@ -42,18 +46,42 @@ const Home = () => {
                 post.phoneNumber = post.user.phoneNumber
             })
 
-            setPosts(resArray)
-            setIsLoading(false)
+            setFetchedPosts((prevPosts) => [...prevPosts, ...resArray]) // corrected here
+
+            setIsLoadingMore(false)
         }
 
         // Call getPosts with the update callback
-        const unsubscribe = getPosts(updateCallback)
+        getPosts(updateCallback)
 
-        // Return cleanup function to stop listening to updates when component unmounts
+        // Intersection observer for infinite scrolling
+        const scrollObserver = new IntersectionObserver(
+            async (entries) => {
+                if (entries[0].isIntersecting) {
+                    setIsLoadingMore(true)
+                    await getPosts(updateCallback)
+                }
+            },
+            { threshold: 1 }
+        )
+
+        if (bottomBoundaryRef.current) {
+            scrollObserver.observe(bottomBoundaryRef.current)
+        }
+
         return () => {
-            unsubscribe()
+            if (bottomBoundaryRef.current) {
+                scrollObserver.unobserve(bottomBoundaryRef.current)
+            }
         }
     }, [reload])
+
+    useEffect(() => {
+        const uniquePosts = Array.from(
+            new Set(fetchedPosts.map((post) => post.id))
+        ).map((id) => fetchedPosts.find((post) => post.id === id))
+        setPosts(uniquePosts)
+    }, [fetchedPosts])
 
     const filteredPosts = posts.filter((post) => post.type === categories)
 
@@ -61,21 +89,35 @@ const Home = () => {
         <Page>
             <div className="flex flex-col items-center gap-4">
                 <div className="w-full max-w-3xl">
-                    {window.location.pathname === '/' && (
-                        <div className="inline-flex md:hidden mb-4 w-full justify-center">
-                            <TopNav
-                                handleCategory={handleCategory}
-                                categories={categories}
-                            />
-                        </div>
-                    )}
+                    {window.location.pathname === '/' &&
+                        (auth?.currentUser === null ? (
+                            <div className="inline-flex md:hidden mb-4 w-full justify-center">
+                                <Skeleton
+                                    width={200}
+                                    height={40}
+                                    variant="rectangular"
+                                />
+                            </div>
+                        ) : (
+                            <div className="inline-flex md:hidden mb-4 w-full justify-center">
+                                <TopNav
+                                    handleCategory={handleCategory}
+                                    categories={categories}
+                                />
+                            </div>
+                        ))}
                     <PostCard
                         post={filteredPosts}
                         comment={false}
-                        loading={isLoading}
                         quantity={true}
                     />
                 </div>
+                <div ref={bottomBoundaryRef}></div>
+                {isLoadingMore && (
+                    <div className="w-full flex justify-center items-center  mb-2">
+                        <Loader width={65} height={65} />
+                    </div>
+                )}
             </div>
         </Page>
     )

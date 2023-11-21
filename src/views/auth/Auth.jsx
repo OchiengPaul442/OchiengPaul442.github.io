@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../../assets/styles/main.scss'
 import Signup from '../../assets/images/signup.svg'
 import Login from '../../assets/images/login.svg'
 import Forgotpwd from '../../assets/images/forgotpwd.svg'
 import { Link } from 'react-router-dom'
 import useGoogleSignIn from '../../components/GoogleSignin'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { GoogleIcon, Loader } from '../../components'
 import { Button, Alert } from '@mui/material'
 import {
@@ -15,9 +15,12 @@ import {
     resetPassword,
 } from '../../backend/auth/index.js'
 import CommunityLogo from '../../assets/icons/logo.png'
+import { useNavigate } from 'react-router-dom'
 
 const Auth = () => {
+    const Navigate = useNavigate()
     const dispatch = useDispatch()
+    const loggedIn = useSelector((state) => state.auth?.loggedIn)
     const [formState, setFormState] = useState('login')
     const [loading, setLoading] = useState({
         login: false,
@@ -49,6 +52,12 @@ const Auth = () => {
         const re = /\S+@\S+\.\S+/
         return re.test(email)
     }
+
+    useEffect(() => {
+        if (loggedIn) {
+            Navigate('/')
+        }
+    }, [loggedIn])
 
     const handleAnonymousLogin = async () => {
         try {
@@ -147,10 +156,17 @@ const Auth = () => {
                     },
                 })
 
+                dispatch({
+                    type: 'SET_LOGGED_IN',
+                    payload: {
+                        loggedIn: true,
+                    },
+                })
+
                 clearForm()
 
-                // navigate to home page
-                window.location.href = '/'
+                // navigate
+                Navigate('/')
             } else {
                 setErrorState('Invalid Credentials', 'error', 'login')
             }
@@ -188,10 +204,17 @@ const Auth = () => {
                     },
                 })
 
+                dispatch({
+                    type: 'SET_LOGGED_IN',
+                    payload: {
+                        loggedIn: true,
+                    },
+                })
+
                 clearForm()
 
                 // navigate to home page
-                window.location.href = '/'
+                Navigate('/')
             } else {
                 setErrorState('Email already exists', 'error', 'signup')
             }
@@ -234,7 +257,7 @@ const Auth = () => {
     }
 
     return (
-        <>
+        <div>
             <div className="con_colors">
                 <div id="color1"></div>
                 <div id="color2"></div>
@@ -725,7 +748,7 @@ const Auth = () => {
                     )}
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 
