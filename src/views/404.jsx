@@ -1,5 +1,5 @@
 import React from 'react'
-import { CommunityIcon } from '../components'
+// import { CommunityIcon } from '../components'
 import { Link } from 'react-router-dom'
 
 const Eror404 = () => {
@@ -10,11 +10,11 @@ const Eror404 = () => {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center justify-start">
                             <Link to="/" className="flex ml-2 md:mr-24">
-                                <CommunityIcon
+                                {/* <CommunityIcon
                                     fill="none"
                                     width="40"
                                     height="40"
-                                />
+                                /> */}
                                 {window.innerWidth > 768 && (
                                     <span className="self-center text-xl font-semibold pl-2 sm:text-2xl whitespace-nowrap dark:text-white">
                                         Community Box

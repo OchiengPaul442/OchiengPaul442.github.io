@@ -76,7 +76,7 @@ const socialMedia = [
         url: 'https://www.facebook.com/sharer/sharer.php?u=',
     },
     {
-        name: 'X',
+        name: 'X(Twitter)',
         icon: (
             <img
                 src={Xlogo}
