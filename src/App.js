@@ -26,6 +26,7 @@ const App = () => {
     const [status, setStatus] = useState(navigator.onLine)
     const [open, setOpen] = useState(false)
 
+    // handle online/offline status
     useEffect(() => {
         function changeStatus() {
             setStatus(navigator.onLine)
